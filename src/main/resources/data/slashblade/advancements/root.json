@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": {
+      "translate": "itemGroup.slashblade"
+    },
+    "description": {
+      "translate": "itemGroup.slashblade.desc"
+    },
+    "icon": {
+      "item": "slashblade:slashblade",
+      "nbt": "{SlashBladeIcon:{ForgeCaps:{\"slashblade:bladestate\":{Energy:0,State:{isSealed:0b,isNoScabbard:0b,translationKey:\"item.slashblade.yamato\",isDestructable:0b,HasShield:0b,SummonedSwordColor:-13421569,lastActionTime:0L,_onClick:0b,fallDecreaseRate:0.0f,currentCombo:\"arts_rapid_slash\",killCount:0,isCharged:0b,RepairCounter:0,Damage:0.0f,rarityType:0b,ShareTag:{translationKey:\"item.slashblade.yamato\",isBroken:\"false\"},ComboRoot:\"standby\",adjustXYZ:[0.0d,0.0d,0.0d],ModelName:\"slashblade:model/named/yamato.obj\",lastPosHash:\"\",RangeAttackType:\"none\",isDefaultBewitched:0b,AttackAmplifier:0.0f,TargetEntity:0,SpecialAttackType:\"none\",TextureName:\"slashblade:model/named/yamato.png\",SummonedSwordColorInverse:0b,isBroken:0b,baseAttackModifier:6.0f,StandbyRenderType:0b}}},id:\"slashblade:slashblade\",Count:1b,tag:{Damage:0,ShareTag:{translationKey:\"item.slashblade.yamato\",isBroken:\"false\"}}}}"
+    },
+    "background": "minecraft:textures/block/chiseled_quartz_block.png",
+    "frame": "task"
+  },
+  "criteria": {
+    "attackTheEntity": {
+      "trigger": "minecraft:player_hurt_entity"
+    }
+  },
+  "rewards": {
+    "recipes": ["slashblade:simple_slashblade","slashblade:s_wood"],
+    "loot": ["slashblade:rewards/first"]
+  }
+}

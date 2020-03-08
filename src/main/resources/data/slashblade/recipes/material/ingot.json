@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "slashblade:proudsoul"
+        },
+        {
+            "item": "slashblade:proudsoul"
+        },
+        {
+            "item": "minecraft:iron_ingot"
+        }
+    ],
+    "result": {
+        "item": "slashblade:proudsoul_ingot"
+    }
+}

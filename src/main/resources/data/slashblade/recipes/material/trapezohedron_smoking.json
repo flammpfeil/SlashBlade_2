@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smoking",
+  "ingredient": {
+    "item": "slashblade:proudsoul_crystal"
+  },
+  "result": "slashblade:proudsoul_trapezohedron",
+  "experience": 0.1,
+  "cookingtime": 400
+}

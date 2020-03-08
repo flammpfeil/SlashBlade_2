@@ -1,0 +1,29 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  #",
+        " # ",
+        "IG "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:obsidian"
+        },
+        "I": {
+            "item": "minecraft:iron_sword"
+        },
+        "G": {
+            "item": "minecraft:gold_ingot"
+        }
+    },
+    "result": {
+        "item": "slashblade:slashblade",
+        "count": 1,
+        "nbt":{
+            "ShareTag": {
+                "translationKey": "",
+                "isBroken": "false"
+            }
+        }
+    }
+}

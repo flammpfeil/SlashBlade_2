@@ -1,0 +1,93 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  X",
+        " X ",
+        "IP "
+    ],
+    "key": {
+        "X": {
+            "item": "slashblade:proudsoul_ingot"
+        },
+        "P": {
+            "item": "slashblade:proudsoul_crystal"
+        },
+        "I": {
+            "item": "minecraft:chest"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 1,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 0,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.ex.ruby",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": 14684511,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 2,
+                                "ShareTag": {
+                                    "translationKey": "item.slashblade.ex.ruby",
+                                    "isBroken": "false"
+                                },
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/ruby.png",
+                                "ModelName": "slashblade:model/named/yamato.obj",
+                                "baseAttackModifier": 6.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "ShareTag": {
+                            "translationKey": "item.slashblade.ex.ruby",
+                            "isBroken": "false"
+                        }
+                    }
+                },
+                "level": 15,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.silverbamboo"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 5,
+                        "id": "slashblade:proudsoul_ingot",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 13,
+                        "id": "slashblade:proudsoul_ingot",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "slashblade:proudsoul_crystal",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.ex.ruby.material\"}"
+            }
+        }
+    }
+}

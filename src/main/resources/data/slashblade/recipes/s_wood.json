@@ -1,0 +1,52 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  #",
+        " # ",
+        "IP "
+    ],
+    "key": {
+        "#": {
+            "tag": "minecraft:logs"
+        },
+        "P": {
+            "item": "slashblade:proudsoul_tiny"
+        },
+        "I": {
+            "item": "minecraft:wooden_sword"
+        }
+    },
+    "result": {
+        "item": "slashblade:slashblade",
+        "nbt": {
+            "ForgeCaps": {
+                "slashblade:bladestate": {
+                    "Energy": 0,
+                    "State": {
+                        "translationKey":"item.slashblade.simple.wood",
+                        "TextureName": "slashblade:model/wood.png",
+                        "baseAttackModifier": -0.5,
+                        "isSealed": 1,
+                        "isNoScabbard": 0,
+                        "isDestructable": 1,
+                        "SummonedSwordColor": -13421569,
+                        "RepairCounter": 0,
+                        "rarityType": 0,
+                        "ComboRoot": "standby",
+                        "RangeAttackType": "none",
+                        "isDefaultBewitched": 0,
+                        "SpecialAttackType": "none",
+                        "SummonedSwordColorInverse": 0,
+                        "isBroken": 0,
+                        "StandbyRenderType": 0
+                    }
+                }
+            },
+            "Damage": 0,
+            "ShareTag": {
+                "translationKey": "item.slashblade.simple.wood",
+                "isBroken": "false"
+            }
+        }
+    }
+}

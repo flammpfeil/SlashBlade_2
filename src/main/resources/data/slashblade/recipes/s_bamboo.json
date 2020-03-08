@@ -1,0 +1,86 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  I",
+        " I ",
+        "CG "
+    ],
+    "key": {
+        "G": {
+            "item": "slashblade:proudsoul_tiny"
+        },
+        "I": {
+            "item": "minecraft:bamboo"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 0,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 1,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.simple.bamboo",
+                                "isDestructable": 1,
+                                "SummonedSwordColor": -13421569,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 0,
+                                "ShareTag": {},
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/bamboo.png",
+                                "baseAttackModifier": 1.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "Damage": 0
+                    }
+                },
+                "level": 1,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.wood"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 5,
+                        "id": "minecraft:bamboo",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 13,
+                        "id": "minecraft:bamboo",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "slashblade:proudsoul_tiny",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.simple.bamboo.material\"}"
+            }
+        }
+    }
+}

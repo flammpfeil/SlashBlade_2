@@ -1,0 +1,53 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  #",
+        " # ",
+        "IP "
+    ],
+    "key": {
+        "#": {
+            "tag": "minecraft:logs"
+        },
+        "P": {
+            "item": "slashblade:proudsoul_sphere"
+        },
+        "I": {
+            "item": "minecraft:iron_sword"
+        }
+    },
+    "result": {
+        "item": "slashblade:slashblade",
+        "nbt": {
+            "ForgeCaps": {
+                "slashblade:bladestate": {
+                    "Energy": 0,
+                    "State": {
+                        "translationKey":"item.slashblade.yamato",
+                        "TextureName": "slashblade:model/named/yamato.png",
+                        "ModelName": "slashblade:model/named/yamato.obj",
+                        "baseAttackModifier": 9.0,
+                        "isSealed": 0,
+                        "isNoScabbard": 0,
+                        "isDestructable": 0,
+                        "SummonedSwordColor": -13421569,
+                        "RepairCounter": 0,
+                        "rarityType": 3,
+                        "ComboRoot": "standby",
+                        "RangeAttackType": "none",
+                        "isDefaultBewitched": 0,
+                        "SpecialAttackType": "none",
+                        "SummonedSwordColorInverse": 0,
+                        "isBroken": 0,
+                        "StandbyRenderType": 0
+                    }
+                }
+            },
+            "Damage": 0,
+            "ShareTag": {
+                "translationKey": "item.slashblade.yamato",
+                "isBroken": "false"
+            }
+        }
+    }
+}

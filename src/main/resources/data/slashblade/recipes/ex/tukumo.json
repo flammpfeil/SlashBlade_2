@@ -1,0 +1,133 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#SD",
+        "RCL",
+        "ISG"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:emerald_block"
+        },
+        "S": {
+            "item": "slashblade:proudsoul_sphere"
+        },
+        "D": {
+            "item": "minecraft:diamond_block"
+        },
+        "R": {
+            "item": "minecraft:redstone_block"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        },
+        "L": {
+            "item": "minecraft:lapis_block"
+        },
+        "I": {
+            "item": "minecraft:iron_block"
+        },
+        "G": {
+            "item": "minecraft:gold_block"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 0,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 0,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.ex.tukumo",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": 16165059,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 3,
+                                "ShareTag": {
+                                    "translationKey": "item.slashblade.ex.tukumo",
+                                    "isBroken": "false"
+                                },
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/named/a_tukumo.png",
+                                "ModelName": "slashblade:model/named/agito.obj",
+                                "baseAttackModifier": 6.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "ShareTag": {
+                            "translationKey": "item.slashblade.ex.tukumo",
+                            "isBroken": "false"
+                        }
+                    }
+                },
+                "level": 20,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.iron"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 3,
+                        "id": "minecraft:emerald_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 4,
+                        "id": "slashblade:proudsoul_sphere",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 5,
+                        "id": "minecraft:diamond_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 12,
+                        "id": "minecraft:redstone_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 14,
+                        "id": "minecraft:lapis_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 21,
+                        "id": "minecraft:iron_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "slashblade:proudsoul_sphere",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 23,
+                        "id": "minecraft:gold_block",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.ex.tukumo.material\"}"
+            }
+        }
+    }
+}

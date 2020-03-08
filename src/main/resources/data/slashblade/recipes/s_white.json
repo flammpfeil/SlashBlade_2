@@ -1,0 +1,86 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  I",
+        " I ",
+        "CG "
+    ],
+    "key": {
+        "I": {
+            "item": "slashblade:proudsoul_ingot"
+        },
+        "G": {
+            "item": "minecraft:gold_ingot"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 0,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 0,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.simple.white",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": -13421569,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 0,
+                                "ShareTag": {},
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/white.png",
+                                "baseAttackModifier": 2.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "Damage": 0
+                    }
+                },
+                "level": 5,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.wood"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 5,
+                        "id": "slashblade:proudsoul_ingot",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 13,
+                        "id": "slashblade:proudsoul_ingot",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "minecraft:gold_ingot",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.simple.white.material\"}"
+            }
+        }
+    }
+}

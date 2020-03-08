@@ -1,0 +1,9 @@
+# Created by Metasequoia
+
+newmtl mat1
+Ka 0.60000 0.58560 0.59520
+Kd 0.80000 0.78080 0.79360
+Ks 0.00000 0.00000 0.00000
+Ns 5.00000
+map_Kd slashblade:model/util/ss.png
+

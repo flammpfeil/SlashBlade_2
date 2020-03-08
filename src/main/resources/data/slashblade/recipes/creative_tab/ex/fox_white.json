@@ -1,0 +1,50 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "minecraft:barrier"
+        }
+    ],
+    "result": {
+        "item": "slashblade:slashblade",
+        "nbt": {
+            "ForgeCaps": {
+                "slashblade:bladestate": {
+                    "Energy": 0,
+                    "State": {
+                        "isSealed": 0,
+                        "isNoScabbard": 0,
+                        "translationKey": "item.slashblade.ex.fox.white",
+                        "isDestructable": 0,
+                        "SummonedSwordColor": 15658734,
+                        "currentCombo": "arts_rapid_slash",
+                        "RepairCounter": 0,
+                        "Damage": 0.0,
+                        "rarityType": 3,
+                        "ShareTag": {
+                            "translationKey": "item.slashblade.ex.fox.white",
+                            "isBroken": "false"
+                        },
+                        "ComboRoot": "standby",
+                        "lastPosHash": "",
+                        "RangeAttackType": "none",
+                        "isDefaultBewitched": 0,
+                        "SpecialAttackType": "none",
+                        "TextureName": "slashblade:model/named/sange/white.png",
+                        "ModelName": "slashblade:model/named/sange/sange.obj",
+                        "baseAttackModifier": 7.0,
+                        "StandbyRenderType": 0
+                    }
+                }
+            },
+            "id": "slashblade:slashblade",
+            "Count": 1,
+            "tag": {
+                "ShareTag": {
+                    "translationKey": "item.slashblade.ex.fox.white",
+                    "isBroken": "false"
+                }
+            }
+        }
+    }
+}

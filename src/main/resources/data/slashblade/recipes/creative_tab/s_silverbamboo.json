@@ -1,0 +1,43 @@
+{
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "minecraft:barrier"
+        }
+    ],
+    "result": {
+        "item": "slashblade:slashblade",
+        "nbt": {
+            "ForgeCaps": {
+                "slashblade:bladestate": {
+                    "Energy": 0,
+                    "State": {
+                        "isSealed": 1,
+                        "isNoScabbard": 0,
+                        "translationKey": "item.slashblade.simple.silverbamboo",
+                        "isDestructable": 0,
+                        "SummonedSwordColor": -13421569,
+                        "currentCombo": "arts_rapid_slash",
+                        "RepairCounter": 0,
+                        "Damage": 0.0,
+                        "rarityType": 1,
+                        "ShareTag": {},
+                        "ComboRoot": "standby",
+                        "lastPosHash": "",
+                        "RangeAttackType": "none",
+                        "isDefaultBewitched": 0,
+                        "SpecialAttackType": "none",
+                        "TextureName": "slashblade:model/silverbamboo.png",
+                        "baseAttackModifier": 1.5,
+                        "StandbyRenderType": 0
+                    }
+                }
+            },
+            "id": "slashblade:slashblade",
+            "Count": 1,
+            "tag": {
+                "Damage": 0
+            }
+        }
+    }
+}

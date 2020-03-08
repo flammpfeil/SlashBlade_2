@@ -1,0 +1,113 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " #I",
+        "SCB",
+        "Pt "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:egg"
+        },
+        "I": {
+            "item": "minecraft:iron_nugget"
+        },
+        "S": {
+            "item": "minecraft:string"
+        },
+        "t": {
+            "item": "slashblade:proudsoul_tiny"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        },
+        "B": {
+            "item": "minecraft:black_dye"
+        },
+        "P": {
+            "item": "minecraft:paper"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 0,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 1,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.simple.silverbamboo",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": -13421569,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 1,
+                                "ShareTag": {},
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/silverbamboo.png",
+                                "baseAttackModifier": 1.5,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "Damage": 0
+                    }
+                },
+                "level": 2,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.bamboo"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 4,
+                        "id": "minecraft:egg",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 5,
+                        "id": "minecraft:iron_nugget",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 12,
+                        "id": "minecraft:string",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 14,
+                        "id": "minecraft:black_dye",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 21,
+                        "id": "minecraft:paper",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "slashblade:proudsoul_tiny",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.simple.silverbamboo.material\"}"
+            }
+        }
+    }
+}

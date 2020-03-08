@@ -1,0 +1,114 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " /S",
+        "LCH",
+        "Ag "
+    ],
+    "key": {
+        "/": {
+            "item": "minecraft:blaze_rod"
+        },
+        "S": {
+            "item": "slashblade:proudsoul_sphere"
+        },
+        "L": {
+            "item": "minecraft:lapis_block"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        },
+        "H": {
+            "item": "minecraft:coal_block"
+        },
+        "A": {
+            "item": "minecraft:string"
+        },
+        "g": {
+            "item": "minecraft:gold_ingot"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 1,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 0,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.simple.iron",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": -13421569,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 1,
+                                "ShareTag": {},
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/blade.png",
+                                "ModelName": "slashblade:model/named/yamato.obj",
+                                "baseAttackModifier": 4.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "Damage": 0
+                    }
+                },
+                "level": 10,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.white"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 4,
+                        "id": "minecraft:blaze_rod",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 5,
+                        "id": "slashblade:proudsoul_sphere",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 12,
+                        "id": "minecraft:lapis_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 14,
+                        "id": "minecraft:coal_block",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 21,
+                        "id": "minecraft:string",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "minecraft:gold_ingot",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.simple.iron.material\"}"
+            }
+        }
+    }
+}

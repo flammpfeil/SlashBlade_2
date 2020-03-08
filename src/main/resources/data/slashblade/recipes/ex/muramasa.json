@@ -1,0 +1,93 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  #",
+        " # ",
+        "CD "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:soul_sand"
+        },
+        "C": {
+            "item": "minecraft:chest"
+        },
+        "D": {
+            "item": "slashblade:proudsoul_trapezohedron"
+        }
+    },
+    "result": {
+        "item": "minecraft:chest",
+        "nbt": {
+            "RequiredBlade": {
+                "broken": 0,
+                "result": {
+                    "ForgeCaps": {
+                        "slashblade:bladestate": {
+                            "Energy": 0,
+                            "State": {
+                                "isSealed": 0,
+                                "isNoScabbard": 0,
+                                "translationKey": "item.slashblade.ex.muramasa",
+                                "isDestructable": 0,
+                                "SummonedSwordColor": 15658734,
+                                "currentCombo": "arts_rapid_slash",
+                                "RepairCounter": 0,
+                                "Damage": 0.0,
+                                "rarityType": 3,
+                                "ShareTag": {
+                                    "translationKey": "item.slashblade.ex.muramasa",
+                                    "isBroken": "false"
+                                },
+                                "ComboRoot": "standby",
+                                "lastPosHash": "",
+                                "RangeAttackType": "none",
+                                "isDefaultBewitched": 0,
+                                "SpecialAttackType": "none",
+                                "TextureName": "slashblade:model/named/muramasa/muramasa.png",
+                                "ModelName": "slashblade:model/named/muramasa/muramasa.obj",
+                                "baseAttackModifier": 8.0,
+                                "StandbyRenderType": 0
+                            }
+                        }
+                    },
+                    "id": "slashblade:slashblade",
+                    "Count": 1,
+                    "tag": {
+                        "ShareTag": {
+                            "translationKey": "item.slashblade.ex.muramasa",
+                            "isBroken": "false"
+                        }
+                    }
+                },
+                "level": 20,
+                "killCount": 0,
+                "refine": 0,
+                "noScabbard": 0,
+                "translationKey": "item.slashblade.simple.iron"
+            },
+            "BlockEntityTag": {
+                "Items": [
+                    {
+                        "Slot": 5,
+                        "id": "minecraft:soul_sand",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 13,
+                        "id": "minecraft:soul_sand",
+                        "Count": 1
+                    },
+                    {
+                        "Slot": 22,
+                        "id": "slashblade:proudsoul_trapezohedron",
+                        "Count": 1
+                    }
+                ]
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.ex.muramasa.material\"}"
+            }
+        }
+    }
+}

@@ -1,0 +1,31 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.imitation_broken"
+    },
+    "description": {
+      "translate": "adv.slashblade.imitation_broken.desc"
+    },
+    "icon": {
+      "item": "slashblade:slashblade",
+      "nbt": "{SlashBladeIcon:{ForgeCaps:{\"slashblade:bladestate\":{Energy:0,State:{isSealed:1b,isNoScabbard:0b,translationKey:\"item.slashblade.simple.silverbamboo\",isDestructable:0b,HasShield:0b,SummonedSwordColor:-3355647,lastActionTime:0L,_onClick:0b,fallDecreaseRate:0.0f,currentCombo:\"arts_rapid_slash\",killCount:0,isCharged:0b,RepairCounter:0,Damage:1.0f,rarityType:0b,ShareTag:{translationKey:\"item.slashblade.simple.silverbamboo\",isBroken:\"true\"},ComboRoot:\"standby\",adjustXYZ:[0.0d,0.0d,0.0d],lastPosHash:\"\",RangeAttackType:\"none\",isDefaultBewitched:0b,AttackAmplifier:0.0f,TargetEntity:0,SpecialAttackType:\"none\",TextureName:\"slashblade:model/silverbamboo.png\",SummonedSwordColorInverse:0b,isBroken:1b,baseAttackModifier:2.0f,StandbyRenderType:0b}}},id:\"slashblade:slashblade\",Count:1b,tag:{Damage:0}}}"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "slashblade:blade/s_silverbamboo",
+  "criteria": {
+    "broken_edge": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "item": "slashblade:slashblade",
+          "nbt": "{ShareTag:{translationKey:\"item.slashblade.simple.silverbamboo\",isBroken:\"true\"}}"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "recipes": ["slashblade:ex/ruby"]
+  }
+}
