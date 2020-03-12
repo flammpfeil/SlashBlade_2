@@ -227,7 +227,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
             //cyclehit
             if (this.ticksExisted % 2 == 0) {
                 //this::onHitEntity ro KnockBackHandler::setCancel
-                AttackManager.areaAttack(this, KnockBackHandler::setCancel,1.0f, this.doCycleHit(),false,true);
+                AttackManager.areaAttack(this, KnockBackHandler::setCancel,4.0, this.doCycleHit(),false);
             }
         }
 

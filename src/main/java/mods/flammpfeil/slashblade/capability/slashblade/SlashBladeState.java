@@ -420,12 +420,18 @@ public class SlashBladeState implements ISlashBladeState {
     }
 
     private LazyOptional<ComboState> instantiateRootComboHolder(){
-        return LazyOptional.of(()->ComboState.NONE.valueOf(getComboRootName()));
+        return LazyOptional.of(()->{
+            if(ComboState.NONE.valueOf(getComboRootName()) == null){
+                return ComboState.STANDBY;
+            }else{
+                return ComboState.NONE.valueOf(getComboRootName());
+            }
+        });
     }
 
     @Override
     public ComboState getComboRoot() {
-        return rootCombo.orElseGet(()->ComboState.STANDBY);
+        return rootCombo.orElse(ComboState.STANDBY);
     }
 
 

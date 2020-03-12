@@ -231,7 +231,7 @@ public interface ISlashBladeState {
                 ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
             }
 
-            float quickChargeTicks = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame());
+            float quickChargeTicks = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());;
             float quickChargePeriod = quickChargeTicks + quickReceptionSpan;
             float quickJustChargePeriod = quickChargeTicks + quickReceptionSpan;
 

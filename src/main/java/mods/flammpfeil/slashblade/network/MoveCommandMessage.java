@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.network;
 
 import mods.flammpfeil.slashblade.ability.LockOnManager;
+import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
 import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
@@ -17,9 +18,6 @@ import java.util.EnumSet;
 import java.util.function.Supplier;
 
 public class MoveCommandMessage {
-    @CapabilityInject(IImputState.class)
-    public static Capability<IImputState> IMPUT_STATE = null;
-
     public int command;
 
 
@@ -44,7 +42,7 @@ public class MoveCommandMessage {
             if (stack.isEmpty()) return;
             if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-            sender.getCapability(IMPUT_STATE).ifPresent((state)->{
+            sender.getCapability(CapabilityImputState.IMPUT_STATE).ifPresent((state)->{
                 EnumSet<ImputCommand> old = state.getCommands().clone();
 
                 state.getCommands().clear();

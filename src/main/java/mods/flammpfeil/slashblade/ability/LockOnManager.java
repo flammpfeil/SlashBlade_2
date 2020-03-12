@@ -60,6 +60,7 @@ public class LockOnManager {
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
+        //todo :rayTrace entity hit is Force lockon
         List<LivingEntity> entities = player.world.getTargettableEntitiesWithinAABB(
                 LivingEntity.class,
                 TargetSelector.lockon,

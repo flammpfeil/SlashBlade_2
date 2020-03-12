@@ -1,5 +1,6 @@
 package mods.flammpfeil.slashblade.util;
 
+import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -26,15 +27,6 @@ public class AttackManager {
 
     static public void areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {
 
-        AxisAlignedBB bb = playerIn.getBoundingBox();
-        bb = bb.offset(playerIn.getLookVec().mul(3.5, 3.5, 3.5));
-        bb = bb.grow(3.0D, 3D, 3.0D);
-
-        double reach = 4.0D; /* 4 block*/
-        IAttributeInstance attrib = playerIn.getAttribute(PlayerEntity.REACH_DISTANCE);
-        if(attrib != null){
-            reach = attrib.getValue() - 1;
-        }
 
         float modifiedRatio = (1.0F + EnchantmentHelper.getSweepingDamageRatio(playerIn) * 0.5f) * ratio;
         AttributeModifier am = new AttributeModifier("SweepingDamageRatio", modifiedRatio, AttributeModifier.Operation.MULTIPLY_BASE);
@@ -43,33 +35,15 @@ public class AttackManager {
             try {
                 playerIn.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(am);
 
-                List<LivingEntity> founds = playerIn.world.getTargettableEntitiesWithinAABB(
-                        LivingEntity.class,
-                        TargetSelector.getAreaAttackPredicate(reach),
-                        playerIn,
-                        bb);
+                List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,
+                        TargetSelector.getResolvedReach(playerIn),
+                        playerIn);
 
-                for (LivingEntity livingentity : founds) {
-                    if(forceHit)
-                        livingentity.hurtResistantTime = 0;
+                for (Entity entity : founds) {
+                    if(entity instanceof LivingEntity)
+                        beforeHit.accept((LivingEntity)entity);
 
-                    //todo : attack method nize
-                    beforeHit.accept(livingentity);
-
-                    if (playerIn instanceof PlayerEntity) {
-
-                        playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
-                            state.setOnClick(true);
-                            ((PlayerEntity) playerIn).attackTargetEntityWithCurrentItem(livingentity);
-                            state.setOnClick(false);
-                        });
-                    } else {
-                        float baseAmount = (float) playerIn.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
-                        livingentity.attackEntityFrom(DamageSource.causeMobDamage(playerIn), baseAmount);
-                    }
-
-                    if(resetHit)
-                        livingentity.hurtResistantTime = 0;
+                    doMeleeAttack(playerIn, entity, forceHit, resetHit);
                 }
 
             } finally {
@@ -82,33 +56,62 @@ public class AttackManager {
 
     }
 
-    static public <E extends Entity & IShootable> void areaAttack(E owner, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {
+    static public <E extends Entity & IShootable> void areaAttack(E owner, Consumer<LivingEntity> beforeHit, double reach, boolean forceHit, boolean resetHit) {
 
         AxisAlignedBB bb = owner.getBoundingBox();
         //bb = bb.grow(3.0D, 3D, 3.0D);
 
         if (!owner.world.isRemote()) {
 
-            for (LivingEntity livingentity : owner.world.getEntitiesWithinAABB(LivingEntity.class, bb)) {
-                if (livingentity != owner
-                        && !owner.isOnSameTeam(livingentity)
-                        && (!(livingentity instanceof ArmorStandEntity) || !((ArmorStandEntity) livingentity).hasMarker())
-                        && owner.getDistanceSq(livingentity) < 16.0D /*4^2=16*/) {
+            LivingEntity user = null;
+            if(owner.getShooter() instanceof LivingEntity)
+                user = (LivingEntity)owner.getShooter();
 
-                    if(forceHit)
-                        livingentity.hurtResistantTime = 0;
+            List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.world,
+                    reach,
+                    user);
 
-                    beforeHit.accept(livingentity);
+            for (Entity entity : founds) {
 
-                    float baseAmount = (float) owner.getDamage();
-                    livingentity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(owner, owner.getShooter()), baseAmount);
+                if(entity instanceof LivingEntity)
+                    beforeHit.accept((LivingEntity)entity);
 
-                    if(resetHit)
-                        livingentity.hurtResistantTime = 0;
-                }
+                float baseAmount = (float) owner.getDamage();
+                doAttackWith(DamageSource.causeIndirectMagicDamage(owner, owner.getShooter()), baseAmount,entity, forceHit, resetHit);
             }
-
-
         }
+    }
+
+    static public void doManagedAttack(Consumer<Entity> attack, Entity target, boolean forceHit, boolean resetHit){
+        if(forceHit)
+            target.hurtResistantTime = 0;
+
+        attack.accept(target);
+
+        if(resetHit)
+            target.hurtResistantTime = 0;
+    }
+
+    static public void doAttackWith(DamageSource src, float amount , Entity target, boolean forceHit, boolean resetHit){
+        doManagedAttack((t)->{
+            t.attackEntityFrom(src, amount);
+        },target, forceHit, resetHit);
+    }
+
+    static public void doMeleeAttack(LivingEntity attacker, Entity target, boolean forceHit, boolean resetHit){
+        if (attacker instanceof PlayerEntity) {
+            doManagedAttack((t)->{
+                attacker.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+                    state.setOnClick(true);
+                    ((PlayerEntity) attacker).attackTargetEntityWithCurrentItem(t);
+                    state.setOnClick(false);
+                });
+            },target, forceHit, resetHit);
+        }else{
+            float baseAmount = (float) attacker.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+            doAttackWith(DamageSource.causeMobDamage(attacker), baseAmount, target, forceHit, resetHit);
+        }
+
+        ArrowReflector.doReflect(target, attacker);
     }
 }

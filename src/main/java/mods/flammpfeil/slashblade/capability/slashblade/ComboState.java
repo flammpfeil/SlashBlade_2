@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.capability.slashblade;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import mods.flammpfeil.slashblade.event.FallHandler;
@@ -17,7 +18,6 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -75,13 +75,13 @@ public class ComboState extends RegistryBase<ComboState> {
             ()->60,()->70,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->ComboState.COMBO_A2, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .setHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun);
 
     public static final ComboState COMBO_A2 = new ComboState("combo_a2",100,
             ()->70,()->80,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)-> ComboState.COMBO_A3, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .setHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun);
 
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
             ()->80,()->90,()->1.0f,()->false,()->1000,
@@ -97,7 +97,7 @@ public class ComboState extends RegistryBase<ComboState> {
             ()->150, ()->160, ()->1.0f, ()->false,()->1000,
             baseMotionLoc, (a)-> ComboState.COMBO_B2, ()-> ComboState.COMBO_B1_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,0.5)))
-            .setHoldAction((player) -> {
+            .addHoldAction((player) -> {
                 int elapsed = player.getItemInUseMaxCount();
 
                 if (5 == elapsed) {
@@ -107,22 +107,22 @@ public class ComboState extends RegistryBase<ComboState> {
                     player.isAirBorne = true;
                 }
             })
-            .setHitEffect((e)->StunManager.setStun(e, 15))
-            .setTickAction((playerIn)-> {
+            .addHitEffect((e)->StunManager.setStun(e, 15))
+            .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
     public static final ComboState COMBO_B1_F = new ComboState("combo_b1_f",100,
             ()->165,()-> 185,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
-            .setTickAction((playerIn)-> {
+            .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
     public static final ComboState COMBO_B2 = new ComboState("combo_b2",90,
             ()->200,()-> 215,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F)
-            .setHitEffect(StunManager::setStun)
+            .addHitEffect(StunManager::setStun)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,-5)));
     public static final ComboState COMBO_B2_F = new ComboState("combo_b2_f",100,
             ()->215,()-> 240,()->1.0f,()->false,()->1000,
@@ -134,7 +134,7 @@ public class ComboState extends RegistryBase<ComboState> {
             baseMotionLoc, (a)->ComboState.COMBO_AA2, ()-> ComboState.COMBO_AA1_F)
             .setClickAction((e)->AttackManager.areaAttack(e, KnockBackHandler::setCancel))
             .setIsAerial()
-            .setTickAction((playerIn)->{
+            .addTickAction((playerIn)->{
 
                 FallHandler.fallDecrease(playerIn);
 
@@ -145,7 +145,7 @@ public class ComboState extends RegistryBase<ComboState> {
                     }
                 });
             })
-            .setHitEffect(StunManager::setStun)
+            .addHitEffect(StunManager::setStun)
             .setIsAerial();
 
     public static final ComboState COMBO_AA1_F = new ComboState("combo_aa1_f",80,
@@ -157,14 +157,14 @@ public class ComboState extends RegistryBase<ComboState> {
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.COMBO_AA2_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setBoost(ee,1.5)))
             .setIsAerial()
-            .setTickAction((playerIn)-> {
+            .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
     public static final ComboState COMBO_AA2_F = new ComboState("combo_aa2_f",100,
             ()->295,()-> 300,()->1.0f,()->false,()->400,
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
-            .setTickAction((playerIn)-> {
+            .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
@@ -175,8 +175,8 @@ public class ComboState extends RegistryBase<ComboState> {
             baseMotionLoc,
             (a)->ComboState.ARTS_RAPID_SLASH_F, () -> ComboState.ARTS_RAPID_SLASH_F)
             .setClickAction((e)->AttackManager.areaAttack(e, KnockBackHandler::setCancel))
-            .setHitEffect(StunManager::setStun)
-            .setHoldAction((playerIn)->{
+            .addHitEffect(StunManager::setStun)
+            .addHoldAction((playerIn)->{
                 int elapsed = playerIn.getItemInUseMaxCount();
 
                 if(elapsed < 6){
@@ -211,7 +211,7 @@ public class ComboState extends RegistryBase<ComboState> {
     public static final ComboState ARTS_RISING_STAR = new ComboState("arts_rising_star",100,
             ()->250,()-> 255,()->0.75f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
-            .setHitEffect(StunManager::setStun)
+            .addHitEffect(StunManager::setStun)
             .setIsAerial()
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,0.5),1.0f,true,false,false);
@@ -221,7 +221,7 @@ public class ComboState extends RegistryBase<ComboState> {
                 playerIn.onGround = false;
                 playerIn.isAirBorne = true;
             })
-            .setHoldAction((playerIn)->{
+            .addHoldAction((playerIn)->{
                 int elapsed = playerIn.getItemInUseMaxCount();
                 if(elapsed < 6){
                     playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
@@ -235,21 +235,21 @@ public class ComboState extends RegistryBase<ComboState> {
                     }
                 }
             })
-            .setTickAction((playerIn)-> {
+            .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
     public static final ComboState ARTS_HELM_BREAKER = new ComboState("arts_helm_breaker",70,
             ()->200,()-> 215,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.ARTS_HELM_BREAKER_F)
-            .setHitEffect(StunManager::setStun)
+            .addHitEffect(StunManager::setStun)
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,-5),1.0f,true,false,false);
 
                 Vec3d motion = playerIn.getMotion();
                 playerIn.setMotion(motion.x, motion.y - 0.7, motion.z);
             })
-            .setHoldAction((playerIn)->{
+            .addHoldAction((playerIn)->{
                 int elapsed = playerIn.getItemInUseMaxCount();
                 if(!playerIn.onGround){
                     playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
@@ -261,7 +261,7 @@ public class ComboState extends RegistryBase<ComboState> {
                     }
                 }
             })
-            .setTickAction((playerIn)-> {
+            .addTickAction((playerIn)-> {
                 if(!playerIn.onGround)
                     playerIn.fallDistance = 1;
                 else{
@@ -331,22 +331,22 @@ public class ComboState extends RegistryBase<ComboState> {
     public void holdAction(LivingEntity user){
         holdAction.accept(user);
     }
-    public ComboState setHoldAction(Consumer<LivingEntity> holdAction){
-        this.holdAction = holdAction;
+    public ComboState addHoldAction(Consumer<LivingEntity> holdAction){
+        this.holdAction = this.holdAction.andThen(holdAction);
         return this;
     }
     public void tickAction(LivingEntity user){
         tickAction.accept(user);
     }
-    public ComboState setTickAction(Consumer<LivingEntity> tickAction){
-        this.tickAction = tickAction;
+    public ComboState addTickAction(Consumer<LivingEntity> tickAction){
+        this.tickAction = this.tickAction.andThen(tickAction);
         return this;
     }
     public void hitEffect(LivingEntity target){
         hitEffect.accept(target);
     }
-    public ComboState setHitEffect(Consumer<LivingEntity> hitEffect){
-        this.hitEffect = hitEffect;
+    public ComboState addHitEffect(Consumer<LivingEntity> hitEffect){
+        this.hitEffect = this.hitEffect.andThen(hitEffect);
         return this;
     }
 
@@ -381,7 +381,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
         this.holdAction = (a)->{};
 
-        this.tickAction = (a)->{};
+        this.tickAction = ArrowReflector::doTicks;
 
         this.hitEffect = (a)->{};
 

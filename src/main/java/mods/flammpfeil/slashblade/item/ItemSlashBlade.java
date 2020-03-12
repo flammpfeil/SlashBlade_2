@@ -16,6 +16,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -29,6 +30,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.*;
@@ -38,13 +40,16 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.SidedProvider;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
@@ -287,6 +292,11 @@ public class ItemSlashBlade extends SwordItem {
 
         if(!isSelected) return;
 
+        if(stack == null)
+            return;
+        if(entityIn == null)
+            return;
+
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             if(entityIn instanceof LivingEntity){
                 state.resolvCurrentComboState((LivingEntity)entityIn).tickAction((LivingEntity)entityIn);
@@ -298,10 +308,18 @@ public class ItemSlashBlade extends SwordItem {
     @Nullable
     @Override
     public CompoundNBT getShareTag(ItemStack stack) {
-        return stack.getCapability(BLADESTATE).map(s->{
+
+        stack.getCapability(BLADESTATE).ifPresent(s->{
             stack.setTagInfo("ShareTag",s.getShareTag());
-            return s.getShareTag();
-        }).orElse(new CompoundNBT());
+        });
+
+        CompoundNBT result = stack.getChildTag("ShareTag");
+        if(result == null){
+            stack.setTagInfo("ShareTag",new CompoundNBT());
+            result = stack.getChildTag("ShareTag");
+        }
+
+        return result;
     }
 
     public static final String ICON_TAG_KEY = "SlashBladeIcon";
@@ -394,12 +412,30 @@ public class ItemSlashBlade extends SwordItem {
             return super.isInGroup(group);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public static RecipeManager getClientRM(){
+        ClientWorld cw = Minecraft.getInstance().world;
+        if(cw != null)
+            return cw.getRecipeManager();
+        else
+            return null;
+    }
+    public static RecipeManager getServerRM(){
+        MinecraftServer sw = ServerLifecycleHooks.getCurrentServer();
+        if(sw != null)
+            return sw.getRecipeManager();
+        else
+            return null;
+    }
+
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         super.fillItemGroup(group, items);
 
         if(group == SlashBlade.SLASHBLADE){
-            RecipeManager rm = ServerLifecycleHooks.getCurrentServer().getRecipeManager();
+            RecipeManager rm = DistExecutor.runForDist(()->ItemSlashBlade::getClientRM, ()->ItemSlashBlade::getServerRM);
+
+            if(rm == null) return;
 
             Set<ResourceLocation> keys =rm.getKeys()
                     .filter((loc)->loc.getNamespace().equals(SlashBlade.modid)

@@ -21,9 +21,6 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class ActiveStateSyncMessage {
-    @CapabilityInject(ISlashBladeState.class)
-    public static Capability<ISlashBladeState> BLADE_STATE = null;
-
     public CompoundNBT activeTag;
     public int id;
 
@@ -58,7 +55,7 @@ public class ActiveStateSyncMessage {
                 if (stack.isEmpty()) return;
                 if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-                stack.getCapability(BLADE_STATE)
+                stack.getCapability(ItemSlashBlade.BLADESTATE)
                         .filter((state)->state.getUniqueId().equals(msg.activeTag.getUniqueId("BladeUniqueId")))
                         .ifPresent((state)->state.setActiveState(msg.activeTag));
             }

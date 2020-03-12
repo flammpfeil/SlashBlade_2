@@ -125,8 +125,10 @@ public class MoveImputHandler {
                 ret.addProperty("iconStr_nbt",iconNbt.toString());
 
                 CompoundNBT shareTag = new CompoundNBT();
-                shareTag.put("ShareTag",result.getShareTag());
-                ret.addProperty("shareTagStr_nbt", shareTag.toString());
+                if(result.getShareTag() != null) {
+                    shareTag.put("ShareTag", result.getShareTag());
+                    ret.addProperty("shareTagStr_nbt", shareTag.toString());
+                }
             }
 
             JsonElement element = null;
