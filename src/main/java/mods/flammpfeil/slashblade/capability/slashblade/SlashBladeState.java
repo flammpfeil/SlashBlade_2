@@ -91,7 +91,7 @@ public class SlashBladeState implements ISlashBladeState {
     protected Optional<ResourceLocation> texture = Optional.empty(); //TextureName
     protected Optional<ResourceLocation> model = Optional.empty();//ModelName
 
-    private CompoundNBT shareTag = new CompoundNBT();
+    private CompoundNBT shareTag = null;
 
     public SlashBladeState() {
     }
@@ -201,9 +201,6 @@ public class SlashBladeState implements ISlashBladeState {
     @Override
     public void setBroken(boolean broken) {
         isBroken = broken;
-
-        this.getShareTag().putString("isBroken", Boolean.toString(this.isBroken()));
-
         setHasChangedActiveState(true);
     }
 
@@ -330,8 +327,6 @@ public class SlashBladeState implements ISlashBladeState {
     @Override
     public void setTranslationKey(String translationKey) {
         this.translationKey = Optional.ofNullable(translationKey).orElse("");
-
-        this.getShareTag().putString("translationKey", this.translationKey);
     }
 
     @Override
@@ -437,15 +432,12 @@ public class SlashBladeState implements ISlashBladeState {
 
     @Override
     public CompoundNBT getShareTag() {
-        return shareTag;
+        return this.shareTag;
     }
 
     @Override
     public void setShareTag(CompoundNBT shareTag) {
-        if(shareTag != null)
-            this.shareTag = shareTag;
-
-        setHasChangedActiveState(true);
+        this.shareTag = shareTag;
     }
 
     private float damage = 0;

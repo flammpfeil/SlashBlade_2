@@ -32,6 +32,7 @@ public class NBTHelper {
 
     public static class NBTCoupler {
         CompoundNBT instance;
+        NBTCoupler parent = null;
         protected NBTCoupler(CompoundNBT tag){
             this.instance = tag;
         }
@@ -46,6 +47,51 @@ public class NBTHelper {
         }
         public <T> NBTCoupler get(String key, Consumer<T> dest,boolean isNullable, T... values) {
             readNBT(this.instance, key, dest,isNullable, values);
+            return this;
+        }
+
+        public NBTCoupler remove(String key){
+            if(this.instance.hasUniqueId(key)){
+                this.instance.remove(key + "Most");
+                this.instance.remove(key + "Least");
+
+            }else
+                this.instance.remove(key);
+            return this;
+        }
+
+        public NBTCoupler getChild(String key){
+            CompoundNBT tag;
+
+            if(this.instance.contains(key, 10))
+                tag = this.instance.getCompound(key);
+            else{
+                tag = new CompoundNBT();
+                this.instance.put(key, tag);
+            }
+
+            return NBTHelper.getNBTCoupler(tag);
+        }
+
+        public NBTCoupler getParent() {
+            if(parent != null)
+                return parent;
+            else
+                return this;
+        }
+
+        public CompoundNBT getRawCompound(String key){
+            if(this.instance.contains(key, 10))
+                return this.instance.getCompound(key);
+            else{
+                return new CompoundNBT();
+            }
+        }
+
+        public NBTCoupler doRawCompound(String key, Consumer<CompoundNBT> action){
+            if(this.instance.contains(key, 10))
+                action.accept(this.instance.getCompound(key));
+
             return this;
         }
     }

@@ -39,7 +39,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
         CompoundNBT capsTag = itemStackIn.getChildTag(ItemSlashBlade.ICON_TAG_KEY);
         if(capsTag != null){
-            itemStackIn.readShareTag(itemStackIn.getOrCreateTag());
+            itemStackIn.readShareTag(capsTag);
             itemStackIn.removeChildTag(ItemSlashBlade.ICON_TAG_KEY);
         }
 

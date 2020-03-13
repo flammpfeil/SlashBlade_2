@@ -2,11 +2,13 @@ package mods.flammpfeil.slashblade.event;
 
 import com.google.gson.*;
 import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.network.MoveCommandMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.ImputCommand;
 import mods.flammpfeil.slashblade.util.JSONUtil;
+import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -73,6 +75,9 @@ public class MoveImputHandler {
         if(Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown())
             commands.add(ImputCommand.L_DOWN);
 
+        if(Minecraft.getInstance().gameSettings.keyBindPickBlock.isKeyDown())
+            commands.add(ImputCommand.M_DOWN);
+
 
         if(Minecraft.getInstance().gameSettings.keyBindSaveToolbar.isKeyDown())
             commands.add(ImputCommand.SAVE_TOOLBAR);
@@ -119,16 +124,30 @@ public class MoveImputHandler {
                 //add anvilcrafting recipe template
                 ItemStack result = player.getHeldItemMainhand();
 
-                CompoundNBT iconNbt = new CompoundNBT();
-                iconNbt.put("SlashBladeIcon", result.write(new CompoundNBT()));
+                CompoundNBT iconNbt = result.write(new CompoundNBT());
 
                 ret.addProperty("iconStr_nbt",iconNbt.toString());
 
-                CompoundNBT shareTag = new CompoundNBT();
-                if(result.getShareTag() != null) {
-                    shareTag.put("ShareTag", result.getShareTag());
-                    ret.addProperty("shareTagStr_nbt", shareTag.toString());
+
+                JsonObject criteriaitem = new JsonObject();
+                criteriaitem.addProperty("item", result.getItem().getRegistryName().toString());
+
+                CompoundNBT checktarget = new CompoundNBT();
+                {
+                    NBTHelper.NBTCoupler nbtc = NBTHelper.getNBTCoupler(checktarget)
+                            .getChild("ForgeCaps")
+                            .getChild("slashblade:bladestate")
+                            .getChild("State");
+
+                    result.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                        if(s.isBroken())
+                            nbtc.put("isBroken",s.isBroken());
+                        if(s.getTranslationKey() != null || !s.getTranslationKey().isEmpty())
+                            nbtc.put("translationKey",s.getTranslationKey());
+                    });
                 }
+                criteriaitem.addProperty("nbt",checktarget.toString());
+                ret.add("CriteriaItem", criteriaitem);
             }
 
             JsonElement element = null;

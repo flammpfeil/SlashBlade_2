@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.util.CustomDamageSource;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.NBTHelper;
+import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -559,22 +560,30 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     }
 
 
-    public void burst(List<EffectInstance> effects, @Nullable Entity focusEntity){
+    public void burst(List<EffectInstance> effects, @Nullable Entity focusEntity) {
         AxisAlignedBB axisalignedbb = this.getBoundingBox().grow(4.0D, 2.0D, 4.0D);
-        List<LivingEntity> list = this.world.getEntitiesWithinAABB(LivingEntity.class, axisalignedbb);
+        List<Entity> list = TargetSelector.getTargettableEntitiesWithinAABB(
+                this.world,
+                2,
+                this.getShooter() instanceof LivingEntity ? (LivingEntity) this.getShooter() : null);
+        //this.world.getEntitiesWithinAABB(LivingEntity.class, axisalignedbb);
 
-        list.stream().forEach(livingEntity -> {
-            double distanceSq = this.getDistanceSq(livingEntity);
-            if (distanceSq < 9.0D) {
-                double factor = 1.0D - Math.sqrt(distanceSq) / 4.0D;
-                if (livingEntity == focusEntity) {
-                    factor = 1.0D;
-                }
+        list.stream()
+                .filter(e -> e instanceof LivingEntity)
+                .map(e -> (LivingEntity) e)
+                .forEach(e -> {
+                    double distanceSq = this.getDistanceSq(e);
+                    if (distanceSq < 9.0D) {
+                        double factor = 1.0D - Math.sqrt(distanceSq) / 4.0D;
+                        if (e == focusEntity) {
+                            factor = 1.0D;
+                        }
 
-                affectEntity(livingEntity, effects, factor);
-            }
-        });
+                        affectEntity(e, effects, factor);
+                    }
+                });
     }
+
 
     public void affectEntity(LivingEntity focusEntity, List<EffectInstance> effects, double factor){
         for(EffectInstance effectinstance : getPotionEffects()) {

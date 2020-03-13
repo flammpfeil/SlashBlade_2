@@ -307,6 +307,9 @@ public interface ISlashBladeState {
         if(current != this.isBroken()){
             onBroken.accept(entityIn);
 
+            this.setShareTag(null);
+            stack.readShareTag(stack.getShareTag());
+
             if (entityIn instanceof ServerPlayerEntity) {
                 CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)entityIn, stack);
             }
@@ -338,6 +341,23 @@ public interface ISlashBladeState {
         }
     }
 
+    static void removeActiveState(CompoundNBT tag){
+        NBTHelper.getNBTCoupler(tag)
+                .remove("lastActionTime")
+                .remove("TargetEntity")
+                .remove("_onClick")
+                .remove("fallDecreaseRate")
+                .remove("isCharged")
+                .remove("AttackAmplifier")
+                .remove("currentCombo")
+                .remove("lastPosHash")
+                .remove("HasShield")
+
+                .remove("killCount")
+
+                .remove("Damage");
+    }
+
     default CompoundNBT getActiveState(){
         CompoundNBT tag = new CompoundNBT();
 
@@ -354,9 +374,8 @@ public interface ISlashBladeState {
                 .put("lastPosHash", this.getLastPosHash())
                 .put("HasShield", this.hasShield())
 
-                .put("KillCount", this.getKillCount())
+                .put("killCount", this.getKillCount())
 
-                .put("ShareTag",this.getShareTag())
                 .put("Damage", this.getDamage())
 
                 .put("isBroken", this.isBroken());
@@ -378,9 +397,8 @@ public interface ISlashBladeState {
                 .get("lastPosHash", this::setLastPosHash)
                 .get("HasShield", this::setHasShield)
 
-                .get("KillCount", this::setKillCount)
+                .get("killCount", this::setKillCount)
 
-                .get("ShareTag",this::setShareTag)
                 .get("Damage", this::setDamage)
 
                 .get("isBroken", this::setBroken);

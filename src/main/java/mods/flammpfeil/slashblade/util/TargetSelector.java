@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
@@ -10,16 +11,21 @@ import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.DamagingProjectileEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,12 +36,15 @@ public class TargetSelector {
             .setDistance(12.0D)
             .setCustomPredicate(new AttackablePredicate());
 
+    static public final EntityPredicate lockon_focus = (new EntityPredicate())
+            .setDistance(12.0D);
+
     static final String AttackableTag = "RevengeAttacker";
 
     static public final EntityPredicate areaAttack = (new EntityPredicate(){
                 @Override
                 public boolean canTarget(@Nullable LivingEntity attacker, LivingEntity target) {
-                    if(target.getRevengeTarget() != attacker){
+                    if(target.getRevengeTarget() == attacker){
                         target.addTag(AttackableTag);
                     }
 
@@ -136,5 +145,37 @@ public class TargetSelector {
             reach = attrib.getValue() - 1;
         }
         return reach;
+    }
+
+    public static void onImputChange(EnumSet<ImputCommand> old, EnumSet<ImputCommand> current, ServerPlayerEntity sender) {
+        //SneakHold & Middle Click
+        if (!(!old.contains(ImputCommand.M_DOWN) && current.contains(ImputCommand.M_DOWN) && current.contains(ImputCommand.SNEAK))) return;
+
+        ItemStack stack = sender.getHeldItemMainhand();
+        if (stack.isEmpty()) return;
+        if (!(stack.getItem() instanceof ItemSlashBlade)) return;
+
+        stack.getCapability(ItemSlashBlade.BLADESTATE)
+                .ifPresent(s->{
+                    Entity tmp = s.getTargetEntity(sender.world);
+                    if (tmp == null) return;
+                    if (!(tmp instanceof LivingEntity)) return;
+
+                    LivingEntity target = (LivingEntity) tmp;
+
+                    target.setRevengeTarget(sender);
+
+                    if(target.world instanceof ServerWorld){
+                        ServerWorld sw = (ServerWorld)target.world;
+
+                        sw.spawnParticle(sender, ParticleTypes.ANGRY_VILLAGER, false,
+                                target.posX, target.posY + target.getEyeHeight(), target.posZ,
+                                5,
+                                target.getWidth() * 1.5,
+                                target.getHeight(),
+                                target.getWidth() * 1.5,
+                                0.02D);
+                    }
+                });
     }
 }

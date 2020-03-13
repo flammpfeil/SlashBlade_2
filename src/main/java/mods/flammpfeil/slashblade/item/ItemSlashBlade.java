@@ -9,6 +9,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.NBTHelper;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.advancements.AdvancementManager;
@@ -309,34 +310,58 @@ public class ItemSlashBlade extends SwordItem {
     @Override
     public CompoundNBT getShareTag(ItemStack stack) {
 
-        stack.getCapability(BLADESTATE).ifPresent(s->{
-            stack.setTagInfo("ShareTag",s.getShareTag());
-        });
 
-        CompoundNBT result = stack.getChildTag("ShareTag");
-        if(result == null){
-            stack.setTagInfo("ShareTag",new CompoundNBT());
-            result = stack.getChildTag("ShareTag");
-        }
 
-        return result;
+        return stack.getCapability(ItemSlashBlade.BLADESTATE)
+                .filter(s->s.getShareTag() != null)
+                .map(s->s.getShareTag())
+                .orElseGet(()-> {
+
+                    stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                        NBTHelper.getNBTCoupler(stack.getOrCreateTag())
+                                .getChild("ShareTag").
+                                put("translationKey", s.getTranslationKey()).
+                                put("isBroken", Boolean.toString(s.isBroken())).
+                                put("isNoScabbard", Boolean.toString(s.isNoScabbard()));
+                    });
+
+                    CompoundNBT tag = stack.write(new CompoundNBT()).copy();
+
+                    NBTHelper.getNBTCoupler(tag)
+                            .getChild("ForgeCaps")
+                            .getChild("slashblade:bladestate")
+                            .doRawCompound("State", ISlashBladeState::removeActiveState);
+
+                    stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->s.setShareTag(tag));
+
+                    return tag;
+                });
+
     }
 
     public static final String ICON_TAG_KEY = "SlashBladeIcon";
+    public static final String CLIENT_CAPS_KEY = "AllCapsData";
 
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
-        if(nbt.contains(ICON_TAG_KEY)){
+        if(nbt == null)
+            return;
+        if(nbt.contains(ICON_TAG_KEY)) {
             stack.deserializeNBT(nbt.getCompound(ICON_TAG_KEY));
-            stack.getCapability(BLADESTATE).ifPresent(s->{
-                stack.setTagInfo("ShareTag",s.getShareTag());
-            });
-        }else{
-            stack.getCapability(BLADESTATE).ifPresent(s->{
-                s.setShareTag(nbt);
-                stack.setTagInfo("ShareTag",s.getShareTag());
-            });
+            return;
         }
+
+        if(nbt.contains(CLIENT_CAPS_KEY,10)){
+            stack.deserializeNBT(nbt.getCompound(CLIENT_CAPS_KEY));
+        }else{
+            stack.deserializeNBT(nbt);
+        }
+
+        DistExecutor.runWhenOn(Dist.CLIENT, ()->()->{
+            CompoundNBT tag = nbt.copy();
+            tag.remove(CLIENT_CAPS_KEY);
+            stack.setTagInfo(CLIENT_CAPS_KEY, tag);
+        });
     }
 
     //damage ----------------------------------------------------------
@@ -444,7 +469,11 @@ public class ItemSlashBlade extends SwordItem {
 
             List<ItemStack> allItems = keys.stream()
                     .map(key->rm.getRecipe(key)
-                            .map(r->((IRecipe) r).getRecipeOutput())
+                            .map(r->{
+                                ItemStack stack = ((IRecipe) r).getRecipeOutput().copy();
+                                stack.readShareTag(stack.getShareTag());
+                                return stack;
+                            })
                             .orElseGet(()->ItemStack.EMPTY))
                     .sorted(Comparator.comparing(s->((ItemStack)s).getTranslationKey()).reversed())
                     .collect(Collectors.toList());

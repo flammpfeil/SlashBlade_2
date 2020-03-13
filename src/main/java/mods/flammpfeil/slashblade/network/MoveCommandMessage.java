@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -52,6 +53,7 @@ public class MoveCommandMessage {
                 EnumSet<ImputCommand> current = state.getCommands().clone();
 
                 LockOnManager.onImputChange(old, current, sender);
+                TargetSelector.onImputChange(old, current, sender);
             });
         });
         ctx.get().setPacketHandled(true);

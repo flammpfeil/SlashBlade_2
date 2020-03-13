@@ -4,6 +4,7 @@ import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
 import mods.flammpfeil.slashblade.event.AnvilCrafting;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.NativeUtil;
@@ -20,7 +21,9 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -60,14 +63,29 @@ public class LockOnManager {
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-        //todo :rayTrace entity hit is Force lockon
-        List<LivingEntity> entities = player.world.getTargettableEntitiesWithinAABB(
-                LivingEntity.class,
-                TargetSelector.lockon,
-                player,
-                player.getBoundingBox().grow(12.0D, 6.0D, 12.0D));
+        Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(0) , player.getLookVec(), 12,12, null);
+        Optional<Entity> foundEntity = result
+                .filter(r->r.getType() == RayTraceResult.Type.ENTITY)
+                .filter(r->{
+                    EntityRayTraceResult er = (EntityRayTraceResult)r;
+                    Entity target = ((EntityRayTraceResult) r).getEntity();
 
-        Optional<LivingEntity> foundEntity = entities.stream().min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
+                    boolean isMatch = true;
+                    if(target instanceof LivingEntity)
+                        isMatch = TargetSelector.lockon_focus.canTarget(player, (LivingEntity)target);
+
+                    return isMatch;
+                }).map(r->((EntityRayTraceResult) r).getEntity());
+
+        if(!foundEntity.isPresent()){
+            List<LivingEntity> entities = player.world.getTargettableEntitiesWithinAABB(
+                    LivingEntity.class,
+                    TargetSelector.lockon,
+                    player,
+                    player.getBoundingBox().grow(12.0D, 6.0D, 12.0D));
+
+            foundEntity = entities.stream().map(s->(Entity)s).min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
+        }
 
         foundEntity.ifPresent(e -> {
             stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {

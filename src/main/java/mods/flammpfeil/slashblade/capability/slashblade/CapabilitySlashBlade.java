@@ -84,7 +84,6 @@ public class CapabilitySlashBlade
                 tag.putString("lastPosHash", instance.getLastPosHash());
                 tag.putBoolean("HasShield", instance.hasShield());
 
-                tag.put("ShareTag",instance.getShareTag());
                 tag.putFloat("Damage", instance.getDamage());
 
                 tag.putBoolean("isBroken", instance.isBroken());
@@ -129,6 +128,7 @@ public class CapabilitySlashBlade
 
                 tag.putString("ComboRoot", Optional.ofNullable(instance.getComboRoot()).map((c)->c.getName()).orElseGet(()->"standby"));
 
+
                 return tag;
             }
 
@@ -147,7 +147,6 @@ public class CapabilitySlashBlade
                 if (!(instance instanceof SlashBladeState))
                     throw new IllegalArgumentException("Can not deserialize to an instance that isn't the default implementation");
 
-
                 //action state
                 instance.setLastActionTime(tag.getLong("lastActionTime"));
                 instance.setTargetEntityId(tag.getInt("TargetEntity"));
@@ -159,7 +158,6 @@ public class CapabilitySlashBlade
                 instance.setLastPosHash(tag.getString("lastPosHash"));
                 instance.setHasShield(tag.getBoolean("HasShield"));
 
-                instance.setShareTag(tag.getCompound("ShareTag"));
                 instance.setDamage(tag.getFloat("Damage"));
 
                 instance.setBroken(tag.getBoolean("isBroken"));
