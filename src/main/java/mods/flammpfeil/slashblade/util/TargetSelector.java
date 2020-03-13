@@ -82,6 +82,9 @@ public class TargetSelector {
                 return true;
             }
 
+            if(livingentity.getTeam() != null)
+                return true;
+
             return false;
         }
     }
