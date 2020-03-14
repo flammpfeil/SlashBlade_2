@@ -87,10 +87,9 @@ public class LockOnManager {
             foundEntity = entities.stream().map(s->(Entity)s).min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
         }
 
-        foundEntity.ifPresent(e -> {
-            stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
-                s.setTargetEntityId(e);
-            });
+        Entity targetEntity = foundEntity.orElse(null);
+        stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
+            s.setTargetEntityId(targetEntity);
         });
 
     }
