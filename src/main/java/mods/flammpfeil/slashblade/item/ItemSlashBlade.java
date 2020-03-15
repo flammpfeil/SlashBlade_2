@@ -31,6 +31,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
@@ -203,19 +204,23 @@ public class ItemSlashBlade extends SwordItem {
     @Override
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         int elapsed = this.getUseDuration(stack) - timeLeft;
+
+        if (!worldIn.isRemote) {
+
+            stack.getCapability(BLADESTATE).ifPresent((state) -> {
+
+                ComboState sa = state.progressCombo(entityLiving, elapsed);
+
+                //sa.tickAction(entityLiving);
+                if (sa != ComboState.NONE)
+                    state.damageBlade(stack, 1, entityLiving, this::onBroken);
+            });
+        }
+
+/*
         if(20*1 < elapsed){
 
             if (!worldIn.isRemote) {
-
-                stack.getCapability(BLADESTATE).ifPresent((state)->{
-
-                    ComboState sa = state.progressCombo(entityLiving, elapsed);
-
-                    sa.tickAction(entityLiving);
-                    if(sa != ComboState.NONE)
-                        state.damageBlade(stack, 1, entityLiving, this::onBroken);
-                });
-
 
                 worldIn.playSound((PlayerEntity)null, entityLiving.posX, entityLiving.posY, entityLiving.posZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (random.nextFloat() * 0.4F + 0.8F));
 
@@ -251,39 +256,41 @@ public class ItemSlashBlade extends SwordItem {
                 jc.setPosition(resultPos.x ,resultPos.y ,resultPos.z);
                 jc.setShooter(entityLiving);
                 worldIn.addEntity(jc);
-
-
-
-
-                /*
-                EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn);
-                ss.setPosition(entityLiving.posX,entityLiving.posY + (double)entityLiving.getEyeHeight() - (double)0.1F,entityLiving.posZ);
-
-                float rotationYawIn = entityLiving.rotationYaw;
-                float rotationPitchIn = entityLiving.rotationPitch;
-                float pitchOffset = 0;
-
-                float f = -MathHelper.sin(rotationYawIn * ((float)Math.PI / 180F)) * MathHelper.cos(rotationPitchIn * ((float)Math.PI / 180F));
-                float f1 = -MathHelper.sin((rotationPitchIn + pitchOffset) * ((float)Math.PI / 180F));
-                float f2 = MathHelper.cos(rotationYawIn * ((float)Math.PI / 180F)) * MathHelper.cos(rotationPitchIn * ((float)Math.PI / 180F));
-                ss.shoot((double)f, (double)f1, (double)f2, 1.5F, 1.0F);
-                worldIn.addEntity(ss);
-                */
-
-                /*
-                SnowballEntity ballentity = new SnowballEntity(worldIn, entityLiving);
-                ballentity.func_213884_b(stack);
-                ballentity.shoot(entityLiving, entityLiving.rotationPitch, entityLiving.rotationYaw, 0.0F, 1.5F, 1.0F);
-                worldIn.addEntity(ballentity);
-                /**/
             }
         }
+/**/
     }
 
     @Override
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             state.getComboSeq().holdAction(player);
+
+            if(!player.world.isRemote){
+                int ticks = player.getItemInUseMaxCount();
+                if(0 < ticks){
+
+                    if( ticks == 20){//state.getFullChargeTicks(player)){
+                        Vec3d pos = player.getEyePosition(0).add(player.getLookVec());
+                        ((ServerWorld)player.world).spawnParticle(ParticleTypes.MYCELIUM,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
+
+                    }else{
+                        ComboState old = state.getComboSeq();
+                        ComboState current = state.resolvCurrentComboState(player);
+                        if(old != current){
+                            ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
+                        }
+
+                        int quickChargeTicks = (int)(TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed()));
+
+                        if((quickChargeTicks == ticks)){
+                            Vec3d pos = player.getEyePosition(0).add(player.getLookVec());
+                            ((ServerWorld)player.world).spawnParticle(ParticleTypes.ENCHANTED_HIT,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
+                        }
+                    }
+
+                }
+            }
         });
     }
 

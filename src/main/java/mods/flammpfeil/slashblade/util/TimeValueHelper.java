@@ -13,7 +13,7 @@ public class TimeValueHelper {
         return (float)(frames * FramesToMSec);
     }
 
-    static final double TicksToFrames = (20.0/30.0);
+    static final double TicksToFrames = (30.0/20.0);
     public static float getFramesFromTicks(float ticks){
         return (float)(ticks * TicksToFrames);
     }
@@ -26,7 +26,7 @@ public class TimeValueHelper {
     public static float getTicksFromMSec(float msec){
         return (float)(msec * MSecToTicks);
     }
-    static final double FramesToTicks = (30.0/20.0);
+    static final double FramesToTicks = (20.0/30.0);
     public static float getTicksFromFrames(float frames){
         return (float)(frames * FramesToTicks);
     }

@@ -109,7 +109,7 @@ public class CapabilitySlashBlade
                 //performance setting
                 tag.putString("RangeAttackType", instance.getRangeAttackType().getName());
 
-                tag.putString("SpecialAttackType", instance.getSlashArts().getName());
+                tag.putString("SpecialAttackType", instance.getSlashArtsKey());
                 tag.putBoolean("isDestructable", instance.isDestructable());
                 tag.putBoolean("isDefaultBewitched", instance.isDefaultBewitched());
                 tag.putByte("rarityType", (byte)instance.getRarity().ordinal());
@@ -181,7 +181,7 @@ public class CapabilitySlashBlade
                 //performance setting
                 instance.setRangeAttackType(RangeAttack.NONE.valueOf(tag.getString("RangeAttackType")));
 
-                instance.setSlashArts(SlashArts.NONE.valueOf(tag.getString("SpecialAttackType")));
+                instance.setSlashArtsKey(tag.getString("SpecialAttackType"));
                 instance.setDestructable(tag.getBoolean("isDestructable"));
                 instance.setDefaultBewitched(tag.getBoolean("isDefaultBewitched"));
 

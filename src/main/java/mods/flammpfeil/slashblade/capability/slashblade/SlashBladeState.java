@@ -74,7 +74,7 @@ public class SlashBladeState implements ISlashBladeState {
 
     //performance setting
     protected RangeAttack rangeAttackType; //RangeAttackType
-    protected SlashArts slashArts; //SpecialAttackType
+    protected String slashArtsKey; //SpecialAttackType
     protected boolean isDestructable; //isDestructable
     protected boolean isDefaultBewitched; //isDefaultBewitched
     protected Optional<Rarity> rarity = Optional.empty();
@@ -278,14 +278,13 @@ public class SlashBladeState implements ISlashBladeState {
     }
 
     @Override
-    @Nonnull
-    public SlashArts getSlashArts() {
-        return SlashArts.NONE.orNone(slashArts);
+    public String getSlashArtsKey() {
+        return this.slashArtsKey;
     }
 
     @Override
-    public void setSlashArts(SlashArts slashArts) {
-        this.slashArts = slashArts;
+    public void setSlashArtsKey(String key) {
+        this.slashArtsKey = key;
     }
 
     @Override

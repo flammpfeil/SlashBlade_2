@@ -114,8 +114,19 @@ public interface ISlashBladeState {
 	void setRangeAttackType(RangeAttack rangeAttackType);
 
     @Nonnull
-    SlashArts getSlashArts();
-	void setSlashArts(SlashArts slashArts);
+    default SlashArts getSlashArts(){
+        String key = getSlashArtsKey();
+        SlashArts result = null;
+        if(key != null)
+            result = SlashArts.NONE.valueOf(key);
+
+        if(result == SlashArts.NONE)
+            result = null;
+
+        return result != null ? result : SlashArts.JUDGEMENT_CUT;
+    }
+	void setSlashArtsKey(String slashArts);
+	String getSlashArtsKey();
 
     boolean isDestructable();
 	void setDestructable(boolean destructable);
@@ -248,12 +259,16 @@ public interface ISlashBladeState {
         if(isCharged){
             if(isJust){
                 //todo: just SA
+                this.getSlashArts().doArts(user);
                 resolved = this.getSlashArts().getComboState();
                 this.setComboSeq(resolved);
+                this.setLastActionTime(user.world.getGameTime());
             }else{
                 //todo: SlashArts
+                this.getSlashArts().doArtsJust(user);
                 resolved = this.getSlashArts().getComboState();
                 this.setComboSeq(resolved);
+                this.setLastActionTime(user.world.getGameTime());
             }
 
         }else{

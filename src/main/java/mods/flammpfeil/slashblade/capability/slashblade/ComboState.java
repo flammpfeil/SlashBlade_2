@@ -10,6 +10,7 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.ImputCommand;
 import mods.flammpfeil.slashblade.util.RegistryBase;
+import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -84,12 +85,12 @@ public class ComboState extends RegistryBase<ComboState> {
             .addHitEffect(StunManager::setStun);
 
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
-            ()->80,()->90,()->1.0f,()->false,()->1000,
+            ()->80,()->90,()->1.0f,()->false,()->600,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setBoost(ee,1.5)));
 
     public static final ComboState COMBO_A3_F = new ComboState("combo_a3_f", 100,
-            ()->90,()->120,()->1.0f,()->false,()->1000,
+            ()->90,()->120,()->1.5f,()->false,()->2000,
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
 
 
@@ -275,9 +276,16 @@ public class ComboState extends RegistryBase<ComboState> {
             });
 
     public static final ComboState ARTS_HELM_BREAKER_F = new ComboState("arts_helm_breaker_f",70,
-            ()->214,()-> 215,()->1.0f,()->true,()->600,
+            ()->214,()-> 215,()->20.0f,()->true,()->600,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F);
 
+
+    public static final ComboState SLASH_ARTS_JC = new ComboState("slash_arts_jc",100,
+            ()->295,()-> 300,()->1.0f,()->false,()->400,
+            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            .addTickAction((playerIn)-> {
+                FallHandler.fallDecrease(playerIn);
+            });
 
     private ResourceLocation motionLoc;
 
