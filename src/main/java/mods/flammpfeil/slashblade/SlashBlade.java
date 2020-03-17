@@ -4,6 +4,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
 import mods.flammpfeil.slashblade.ability.StunManager;
+import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
@@ -11,6 +12,7 @@ import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
 import mods.flammpfeil.slashblade.client.renderer.entity.JudgementCutRenderer;
 import mods.flammpfeil.slashblade.client.renderer.entity.SummonedSwordRenderer;
+import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
@@ -124,6 +126,7 @@ public class SlashBlade
         CapabilitySlashBlade.register();
         CapabilityMobEffect.register();
         CapabilityImputState.register();
+        CapabilityConcentrationRank.register();
 
         MinecraftForge.EVENT_BUS.addListener(KnockBackHandler::onLivingKnockBack);
 
@@ -135,6 +138,7 @@ public class SlashBlade
         AnvilCrafting.getInstance().register();
         RefineHandler.getInstance().register();
         KillCounter.getInstance().register();
+        RankPointHandler.getInstance().register();
 
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");
@@ -153,6 +157,8 @@ public class SlashBlade
         SneakingMotionCanceller.getInstance().register();
         LockonCircleRender.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
+
+        RankRenderer.getInstance().register();
 
         // do something that can only be done on the client
 

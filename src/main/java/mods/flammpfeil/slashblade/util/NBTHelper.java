@@ -80,6 +80,9 @@ public class NBTHelper {
                 return this;
         }
 
+        public CompoundNBT getRawCompound(){
+            return this.instance;
+        }
         public CompoundNBT getRawCompound(String key){
             if(this.instance.contains(key, 10))
                 return this.instance.getCompound(key);

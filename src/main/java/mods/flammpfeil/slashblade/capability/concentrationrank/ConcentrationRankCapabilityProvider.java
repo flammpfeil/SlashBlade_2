@@ -1,5 +1,6 @@
-package mods.flammpfeil.slashblade.capability.mobeffect;
+package mods.flammpfeil.slashblade.capability.concentrationrank;
 
+import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,32 +12,32 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MobEffectCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundNBT> {
+public class ConcentrationRankCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundNBT> {
 
-    @CapabilityInject(IMobEffectState.class)
-    public static Capability<IMobEffectState> MOB_EFFECT = null;
+    @CapabilityInject(IConcentrationRank.class)
+    public static Capability<IConcentrationRank> RANK_POINT = null;
 
-    protected LazyOptional<IMobEffectState> state = LazyOptional.of(MOB_EFFECT::getDefaultInstance);
+    protected LazyOptional<IConcentrationRank> state = LazyOptional.of(RANK_POINT::getDefaultInstance);
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        return MOB_EFFECT.orEmpty(cap, state);
+        return RANK_POINT.orEmpty(cap, state);
     }
 
-    static final String tagState = "MobEffect";
+    static final String tagState = "rawPoint";
 
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT baseTag = new CompoundNBT();
 
-        state.ifPresent(state -> baseTag.put(tagState ,MOB_EFFECT.writeNBT(state, null)));
+        state.ifPresent(state -> baseTag.put(tagState , RANK_POINT.writeNBT(state, null)));
 
         return baseTag;
     }
 
     @Override
     public void deserializeNBT(CompoundNBT baseTag) {
-        state.ifPresent(state -> MOB_EFFECT.readNBT(state, null, baseTag.getCompound(tagState)));
+        state.ifPresent(state -> RANK_POINT.readNBT(state, null, baseTag.getCompound(tagState)));
     }
 }

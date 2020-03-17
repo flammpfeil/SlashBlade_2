@@ -24,7 +24,7 @@ public class ImputStateCapabilityProvider implements ICapabilityProvider, INBTSe
         return IMPUT_STATE.orEmpty(cap, state);
     }
 
-    static final String tagState = "MobEffect";
+    static final String tagState = "ImputState";
 
     @Override
     public CompoundNBT serializeNBT() {
@@ -37,6 +37,6 @@ public class ImputStateCapabilityProvider implements ICapabilityProvider, INBTSe
 
     @Override
     public void deserializeNBT(CompoundNBT baseTag) {
-        state.ifPresent(state -> IMPUT_STATE.readNBT(state, null, baseTag.get(tagState)));
+        state.ifPresent(state -> IMPUT_STATE.readNBT(state, null, baseTag.getCompound(tagState)));
     }
 }

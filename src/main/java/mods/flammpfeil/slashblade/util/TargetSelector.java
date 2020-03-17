@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
+import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -120,6 +121,34 @@ public class TargetSelector {
 
         list1.addAll(world.getEntitiesWithinAABB(LivingEntity.class, aabb, (Predicate<LivingEntity>)null).stream()
                 .filter(t->predicate.canTarget(attacker,t))
+                .collect(Collectors.toList()));
+
+        return list1;
+    }
+
+    static public <E extends Entity & IShootable> List<Entity> getTargettableEntitiesWithinAABB(World world, double reach, E owner) {
+        AxisAlignedBB aabb = owner.getBoundingBox().grow(reach);
+
+        List<Entity> list1 = Lists.newArrayList();
+
+        list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
+                .flatMap(d -> Arrays.stream(d.func_213404_dT()))
+                .filter(e -> (e.getDistanceSq(owner) < (reach * reach)))
+                .collect(Collectors.toList()));
+
+
+        LivingEntity user;
+        if (owner.getShooter() instanceof LivingEntity)
+            user = (LivingEntity) owner.getShooter();
+        else
+            user = null;
+
+        list1.addAll(getReflectableEntitiesWithinAABB(world, reach, user));
+
+        EntityPredicate predicate = getAreaAttackPredicate(0); //reach check has already been completed
+
+        list1.addAll(world.getEntitiesWithinAABB(LivingEntity.class, aabb, (Predicate<LivingEntity>) null).stream()
+                .filter(t -> predicate.canTarget(user, t))
                 .collect(Collectors.toList()));
 
         return list1;

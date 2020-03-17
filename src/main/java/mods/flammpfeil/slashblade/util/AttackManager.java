@@ -63,13 +63,9 @@ public class AttackManager {
 
         if (!owner.world.isRemote()) {
 
-            LivingEntity user = null;
-            if(owner.getShooter() instanceof LivingEntity)
-                user = (LivingEntity)owner.getShooter();
-
             List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.world,
                     reach,
-                    user);
+                    owner);
 
             for (Entity entity : founds) {
 

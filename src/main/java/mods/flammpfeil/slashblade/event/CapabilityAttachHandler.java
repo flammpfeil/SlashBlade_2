@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.imputstate.ImputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.mobeffect.MobEffectCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.BladeStateCapabilityProvider;
@@ -16,12 +17,14 @@ public class CapabilityAttachHandler {
 
     static public final ResourceLocation MOBEFFECT_KEY = new ResourceLocation(SlashBlade.modid, "mobeffect");
     static public final ResourceLocation IMPUTSTATE_KEY = new ResourceLocation(SlashBlade.modid, "imputstate");
+    static public final ResourceLocation RANK_KEY = new ResourceLocation(SlashBlade.modid, "concentration");
     @SubscribeEvent
     public void AttachCapabilities_Entity(AttachCapabilitiesEvent<Entity> event) {
         if(!(event.getObject() instanceof LivingEntity)) return;
 
         event.addCapability(IMPUTSTATE_KEY,new ImputStateCapabilityProvider());
         event.addCapability(MOBEFFECT_KEY, new MobEffectCapabilityProvider());
+        event.addCapability(RANK_KEY, new ConcentrationRankCapabilityProvider());
     }
 
     static public final ResourceLocation BLADESTATE_KEY = new ResourceLocation(SlashBlade.modid, "bladestate");
