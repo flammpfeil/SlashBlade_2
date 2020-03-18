@@ -106,9 +106,9 @@ public class TargetSelector {
     }
 
     static public  List<Entity> getTargettableEntitiesWithinAABB(World world, double reach, LivingEntity attacker) {
-        AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
-
         List<Entity> list1 = Lists.newArrayList();
+
+        AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
 
         list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
                 .flatMap(d -> Arrays.stream(d.func_213404_dT()))
@@ -143,7 +143,7 @@ public class TargetSelector {
         else
             user = null;
 
-        list1.addAll(getReflectableEntitiesWithinAABB(world, reach, user));
+        list1.addAll(getReflectableEntitiesWithinAABB(world, reach, owner));
 
         EntityPredicate predicate = getAreaAttackPredicate(0); //reach check has already been completed
 
@@ -152,6 +152,21 @@ public class TargetSelector {
                 .collect(Collectors.toList()));
 
         return list1;
+    }
+
+    static public <E extends Entity & IShootable> List<Entity> getReflectableEntitiesWithinAABB(World world, double reach, E owner) {
+        AxisAlignedBB aabb = owner.getBoundingBox().grow(reach);
+
+        return Stream.of(
+                world.getEntitiesWithinAABB(ThrowableEntity.class, aabb).stream()
+                        .filter(e-> (e.getThrower() == null || e.getThrower() != owner.getShooter())),
+                world.getEntitiesWithinAABB(DamagingProjectileEntity.class, aabb).stream()
+                        .filter(e-> (e.shootingEntity == null || e.shootingEntity != owner.getShooter())),
+                world.getEntitiesWithinAABB(AbstractArrowEntity.class, aabb).stream()
+                        .filter(e->e.getShooter() == null || e.getShooter() != owner.getShooter()))
+                .flatMap(s->s)
+                .filter(e-> (e.getDistanceSq(owner) < (reach * reach)) && e != owner)
+                .collect(Collectors.toList());
     }
 
     static public AxisAlignedBB getResolvedAxisAligned(LivingEntity user, Vec3d dir, double reach){

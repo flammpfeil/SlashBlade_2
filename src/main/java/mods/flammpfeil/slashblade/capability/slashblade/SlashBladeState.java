@@ -19,9 +19,7 @@
 
 package mods.flammpfeil.slashblade.capability.slashblade;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
-import mods.flammpfeil.slashblade.specialattack.SlashArts;
 import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;

@@ -218,64 +218,50 @@ public interface ISlashBladeState {
     default ComboState progressCombo(LivingEntity user, int elapsed){
         float fullChargeTicks = getFullChargeTicks(user);
 
+        //todo RangeMap replace
         float justReceptionSpan = 3; //todo:+ justTime Extension
         float quickReceptionSpan = 5; //todo:+ quickTime Extension
 
         float justChargePeriod = fullChargeTicks + justReceptionSpan;
 
-
-        boolean isCharged = false;
-        boolean isJust = false;
+        SlashArts.ArtsType type = SlashArts.ArtsType.Fail;
 
         if(this.isCharged(user)){
-            isCharged = true;
-
             if(elapsed < justChargePeriod)
-                isJust = true;
+                type = SlashArts.ArtsType.Jackpot;
+            else
+                type = SlashArts.ArtsType.Success;
 
         }else{ //quick charge
 
             int ticks = elapsed;
             ComboState old = this.getComboSeq();
             ComboState current = resolvCurrentComboState(user);
-            if(old != current){
-                ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
-            }
 
-            float quickChargeTicks = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());;
-            float quickChargePeriod = quickChargeTicks + quickReceptionSpan;
-            float quickJustChargePeriod = quickChargeTicks + quickReceptionSpan;
+            if(current.getQuickChargeEnabled()){
+                if(old != current){
+                    ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
+                }
 
-            if(quickChargeTicks < ticks && ticks < quickChargePeriod){
-                isCharged = true;
+                float quickChargeTicks = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());;
+                float quickChargePeriod = quickChargeTicks + quickReceptionSpan;
+                float quickJustChargePeriod = quickChargeTicks + quickReceptionSpan;
 
-                if(ticks < quickJustChargePeriod){
-                    isJust = true;
+                if(quickChargeTicks < ticks && ticks < quickChargePeriod){
+                    if(ticks < quickJustChargePeriod)
+                        type = SlashArts.ArtsType.Jackpot;
+                    else
+                        type = SlashArts.ArtsType.Success;
                 }
             }
         }
 
-        ComboState resolved;
-        if(isCharged){
-            if(isJust){
-                //todo: just SA
-                this.getSlashArts().doArts(user);
-                resolved = this.getSlashArts().getComboState();
-                this.setComboSeq(resolved);
-                this.setLastActionTime(user.world.getGameTime());
-            }else{
-                //todo: SlashArts
-                this.getSlashArts().doArtsJust(user);
-                resolved = this.getSlashArts().getComboState();
-                this.setComboSeq(resolved);
-                this.setLastActionTime(user.world.getGameTime());
-            }
-
-        }else{
-            resolved = ComboState.NONE;
+        ComboState cs = this.getSlashArts().doArts(type, user);
+        if(cs != ComboState.NONE){
+            this.setComboSeq(cs);
+            this.setLastActionTime(user.world.getGameTime());
         }
-
-        return resolved;
+        return cs;
     }
 
     default ComboState resolvCurrentComboState(LivingEntity user){

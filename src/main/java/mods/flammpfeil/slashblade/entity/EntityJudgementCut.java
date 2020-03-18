@@ -326,7 +326,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
         List<EffectInstance> effects = PotionUtils.getEffectsFromTag(this.getPersistentData());
 
         if(effects.isEmpty())
-            effects.add(new EffectInstance(Effects.INSTANT_DAMAGE, 1, 1));
+            effects.add(new EffectInstance(Effects.POISON, 1, 1));
 
         return effects;
     }
@@ -350,7 +350,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
         List<Entity> list = TargetSelector.getTargettableEntitiesWithinAABB(
                 this.world,
                 2,
-                this.getShooter() instanceof LivingEntity ? (LivingEntity) this.getShooter() : null);
+                this);
         //this.world.getEntitiesWithinAABB(LivingEntity.class, axisalignedbb);
 
         list.stream()
@@ -376,7 +376,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
                 effect.affectEntity(this, this.getShooter(), focusEntity, effectinstance.getAmplifier(), factor);
             } else {
                 int duration = (int)(factor * (double)effectinstance.getDuration() + 0.5D);
-                if (duration > 20) {
+                if (duration > 0) {
                     focusEntity.addPotionEffect(new EffectInstance(effect, duration, effectinstance.getAmplifier(), effectinstance.isAmbient(), effectinstance.doesShowParticles()));
                 }
             }

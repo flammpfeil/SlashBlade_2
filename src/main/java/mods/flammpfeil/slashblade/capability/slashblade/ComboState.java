@@ -1,5 +1,8 @@
 package mods.flammpfeil.slashblade.capability.slashblade;
 
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeMap;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.ability.StunManager;
@@ -7,6 +10,7 @@ import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.specialattack.SlashArts;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.ImputCommand;
 import mods.flammpfeil.slashblade.util.RegistryBase;
@@ -35,7 +39,8 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState NONE = new ComboState(BaseInstanceName, 1000,
             ()->30, ()->31, ()->1.0f, ()->true,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
+            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            .setQuickChargeEnabled(()->false);
 
     static List<Map.Entry<EnumSet<ImputCommand>, Supplier<ComboState>>> standbyMap =
             new HashMap<EnumSet<ImputCommand>, Supplier<ComboState>>(){{
@@ -70,7 +75,8 @@ public class ComboState extends RegistryBase<ComboState> {
                 .map((entry)->entry.getValue().get())
                 .orElseGet(()->ComboState.NONE);
 
-    }, ()-> ComboState.NONE);
+    }, ()-> ComboState.NONE)
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A1 = new ComboState("combo_a1",100,
             ()->60,()->70,()->1.0f,()->false,()->1000,
@@ -87,7 +93,8 @@ public class ComboState extends RegistryBase<ComboState> {
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
             ()->80,()->90,()->1.0f,()->false,()->600,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
-            .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setBoost(ee,1.5)));
+            .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setBoost(ee,1.5)))
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A3_F = new ComboState("combo_a3_f", 100,
             ()->90,()->120,()->1.5f,()->false,()->2000,
@@ -111,7 +118,8 @@ public class ComboState extends RegistryBase<ComboState> {
             .addHitEffect((e)->StunManager.setStun(e, 15))
             .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
-            });
+            })
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_B1_F = new ComboState("combo_b1_f",100,
             ()->165,()-> 185,()->1.0f,()->false,()->1000,
@@ -124,7 +132,8 @@ public class ComboState extends RegistryBase<ComboState> {
             ()->200,()-> 215,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F)
             .addHitEffect(StunManager::setStun)
-            .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,-5)));
+            .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,-5)))
+            .setQuickChargeEnabled(()->false);
     public static final ComboState COMBO_B2_F = new ComboState("combo_b2_f",100,
             ()->215,()-> 240,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
@@ -160,7 +169,8 @@ public class ComboState extends RegistryBase<ComboState> {
             .setIsAerial()
             .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
-            });
+            })
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_AA2_F = new ComboState("combo_aa2_f",100,
             ()->295,()-> 300,()->1.0f,()->false,()->400,
@@ -270,19 +280,47 @@ public class ComboState extends RegistryBase<ComboState> {
                     playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,-5),1.3f,true,true,true);
                         state.setComboSeq(ComboState.ARTS_HELM_BREAKER_F);
+                        state.setLastActionTime(playerIn.world.getGameTime());
                         FallHandler.spawnLandingParticle(playerIn, 20);
                     });
                 }
-            });
+            })
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState ARTS_HELM_BREAKER_F = new ComboState("arts_helm_breaker_f",70,
             ()->214,()-> 215,()->20.0f,()->true,()->600,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F);
+            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F)
+            .setQuickChargeEnabled(()->false);
 
 
-    public static final ComboState SLASH_ARTS_JC = new ComboState("slash_arts_jc",100,
-            ()->295,()-> 300,()->1.0f,()->false,()->400,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+    static EnumSet<ImputCommand> jc_cycle_imput = EnumSet.of(ImputCommand.L_DOWN, ImputCommand.R_CLICK);
+    static RangeMap<Long, SlashArts.ArtsType> jc_cycle_accept = ImmutableRangeMap.<Long, SlashArts.ArtsType>builder()
+            .put(Range.lessThan(7l), SlashArts.ArtsType.Fail)
+            .put(Range.closedOpen(7l, 8l), SlashArts.ArtsType.Jackpot)
+            .put(Range.closed(8l, 9l), SlashArts.ArtsType.Success)
+            .put(Range.greaterThan(9l), SlashArts.ArtsType.Fail)
+            .build();
+    public static final ComboState SLASH_ARTS_JC = new ComboState("slash_arts_jc",50,
+            ()->295,()-> 300,()->1.0f,()->false,()->600,
+            baseMotionLoc, (a)->{
+
+        EnumSet<ImputCommand> commands =
+                a.getCapability(IMPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(ImputCommand.class));
+
+        if(commands.containsAll(jc_cycle_imput)){
+            return a.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map(s->{
+                long time = a.world.getGameTime();
+                long lastAction = s.getLastActionTime();
+
+                long count = time - lastAction;
+
+                SlashArts.ArtsType type = jc_cycle_accept.get(count);
+                return s.getSlashArts().doArts(type, a);
+            }).orElse(ComboState.NONE);
+        }
+
+        return ComboState.NONE;
+    }, ()-> ComboState.NONE)
             .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
@@ -296,6 +334,9 @@ public class ComboState extends RegistryBase<ComboState> {
 
     private Supplier<Float> speed;
     private Supplier<Boolean> roop;
+
+    //Next input acceptance period *ms
+    public Supplier<Integer> timeout;
 
     private Function<LivingEntity, ComboState> next;
     private Supplier<ComboState> nextOfTimeout;
@@ -366,8 +407,15 @@ public class ComboState extends RegistryBase<ComboState> {
         return this;
     }
 
-    //Next input acceptance period *ms
-    public Supplier<Integer> timeout;
+    private Supplier<Boolean> quickChargeEnabled;
+    public ComboState setQuickChargeEnabled(Supplier<Boolean> sup){
+        this.quickChargeEnabled = sup;
+        return this;
+    }
+    public boolean getQuickChargeEnabled(){
+        return this.quickChargeEnabled.get();
+    }
+
 
     public ComboState(String name,int priority, Supplier<Integer> start, Supplier<Integer> end, Supplier<Float> speed, Supplier<Boolean> roop, Supplier<Integer> timeout
             , ResourceLocation motionLoc
@@ -400,6 +448,8 @@ public class ComboState extends RegistryBase<ComboState> {
         this.isAerial = false;
 
         this.priority = priority;
+
+        this.quickChargeEnabled = ()->true;
     }
 
     @Override

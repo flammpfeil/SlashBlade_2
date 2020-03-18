@@ -1,4 +1,4 @@
-package mods.flammpfeil.slashblade.ability.slasharts;
+package mods.flammpfeil.slashblade.specialattack;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
@@ -19,11 +19,15 @@ import net.minecraftforge.common.util.LazyOptional;
 import java.util.Optional;
 
 public class JudgementCut {
-    static public void doJudgementCut(LivingEntity user){
+    static public EntityJudgementCut doJudgementCutJust(LivingEntity user){
+        EntityJudgementCut sa = doJudgementCut(user);
+        sa.setDamage(sa.getDamage() + 1);
+        return sa;
+    }
+
+    static public EntityJudgementCut doJudgementCut(LivingEntity user){
 
         World worldIn = user.world;
-
-        worldIn.playSound((PlayerEntity)null, user.posX, user.posY, user.posZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));
 
         Vec3d eyePos = user.getEyePosition(1.0f);
         final double airReach = 5;
@@ -66,5 +70,9 @@ public class JudgementCut {
         jc.setPosition(pos.x ,pos.y ,pos.z);
         jc.setShooter(user);
         worldIn.addEntity(jc);
+
+        worldIn.playSound((PlayerEntity)null, jc.posX, jc.posY, jc.posZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));
+
+        return jc;
     }
 }
