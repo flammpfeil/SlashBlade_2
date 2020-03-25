@@ -101,6 +101,7 @@ public class ComboState extends RegistryBase<ComboState> {
             baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
 
 
+    private static final EnumSet<ImputCommand> combo_b1_alt = EnumSet.of(ImputCommand.BACK, ImputCommand.R_DOWN);
     public static final ComboState COMBO_B1 = new ComboState("combo_b1",90,
             ()->150, ()->160, ()->1.0f, ()->false,()->1000,
             baseMotionLoc, (a)-> ComboState.COMBO_B2, ()-> ComboState.COMBO_B1_F)
@@ -108,7 +109,10 @@ public class ComboState extends RegistryBase<ComboState> {
             .addHoldAction((player) -> {
                 int elapsed = player.getItemInUseMaxCount();
 
-                if (5 == elapsed) {
+                EnumSet<ImputCommand> commands =
+                        player.getCapability(IMPUT_STATE).map((state)->state.getCommands(player)).orElseGet(()-> EnumSet.noneOf(ImputCommand.class));
+
+                if (5 == elapsed && commands.containsAll(combo_b1_alt)) {
                     Vec3d motion = player.getMotion();
                     player.setMotion(motion.x, motion.y + 0.7, motion.z);
                     player.onGround = false;
@@ -159,7 +163,7 @@ public class ComboState extends RegistryBase<ComboState> {
             .setIsAerial();
 
     public static final ComboState COMBO_AA1_F = new ComboState("combo_aa1_f",80,
-            ()->269,()-> 270,()->1.0f,()->true,()->1000,
+            ()->269,()-> 270,()->20.0f,()->true,()->1000,
             baseMotionLoc, (a)->ComboState.COMBO_AA2, ()-> ComboState.NONE);
 
     public static final ComboState COMBO_AA2 = new ComboState("combo_aa2",80,
@@ -293,15 +297,15 @@ public class ComboState extends RegistryBase<ComboState> {
             .setQuickChargeEnabled(()->false);
 
 
-    static EnumSet<ImputCommand> jc_cycle_imput = EnumSet.of(ImputCommand.L_DOWN, ImputCommand.R_CLICK);
-    static RangeMap<Long, SlashArts.ArtsType> jc_cycle_accept = ImmutableRangeMap.<Long, SlashArts.ArtsType>builder()
+    static final EnumSet<ImputCommand> jc_cycle_imput = EnumSet.of(ImputCommand.L_DOWN, ImputCommand.R_CLICK);
+    static final RangeMap<Long, SlashArts.ArtsType> jc_cycle_accept = ImmutableRangeMap.<Long, SlashArts.ArtsType>builder()
             .put(Range.lessThan(7l), SlashArts.ArtsType.Fail)
             .put(Range.closedOpen(7l, 8l), SlashArts.ArtsType.Jackpot)
             .put(Range.closed(8l, 9l), SlashArts.ArtsType.Success)
             .put(Range.greaterThan(9l), SlashArts.ArtsType.Fail)
             .build();
     public static final ComboState SLASH_ARTS_JC = new ComboState("slash_arts_jc",50,
-            ()->295,()-> 300,()->1.0f,()->false,()->600,
+            ()->115,()->120,()->0.5f,()->false,()->600,
             baseMotionLoc, (a)->{
 
         EnumSet<ImputCommand> commands =
@@ -322,7 +326,8 @@ public class ComboState extends RegistryBase<ComboState> {
         return ComboState.NONE;
     }, ()-> ComboState.NONE)
             .addTickAction((playerIn)-> {
-                FallHandler.fallDecrease(playerIn);
+                //if(playerIn.world.getGameTime() % 2 == 0)
+                    FallHandler.fallResist(playerIn);
             });
 
     private ResourceLocation motionLoc;

@@ -4,6 +4,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
@@ -82,9 +83,24 @@ public class FallHandler {
                 return decRatio;
             }).orElseGet(()->1.0f);
 
+            IAttributeInstance gravity = user.getAttribute(LivingEntity.ENTITY_GRAVITY);
+            double g = gravity.getValue() * 0.9;
+
             Vec3d motion = user.getMotion();
-            if(motion.y <= 0)
-                user.setMotion(motion.x, (motion.y + 0.07f) * currentRatio, motion.z);
+            if(motion.y < 0)
+                user.setMotion(motion.x, (motion.y + g) * currentRatio, motion.z);
+        }
+    }
+
+    public static void fallResist(LivingEntity user){
+        if(!user.hasNoGravity() && !user.onGround){
+            user.fallDistance = 1;
+
+            Vec3d motion = user.getMotion();
+            IAttributeInstance gravity = user.getAttribute(LivingEntity.ENTITY_GRAVITY);
+            double g = gravity.getValue();
+            if(motion.y < 0)
+                user.setMotion(motion.x, (motion.y + g + 0.002f), motion.z);
         }
     }
 }

@@ -10,6 +10,7 @@ import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
+import mods.flammpfeil.slashblade.client.renderer.entity.BladeItemEntityRenderer;
 import mods.flammpfeil.slashblade.client.renderer.entity.JudgementCutRenderer;
 import mods.flammpfeil.slashblade.client.renderer.entity.SummonedSwordRenderer;
 import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
@@ -17,6 +18,7 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
+import mods.flammpfeil.slashblade.entity.BladeItemEntity;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.event.*;
@@ -28,7 +30,6 @@ import mods.flammpfeil.slashblade.network.NetworkManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -53,7 +54,6 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.event.RegistryEvent;
@@ -166,6 +166,7 @@ public class SlashBlade
 
         RenderingRegistry.registerEntityRenderingHandler(EntityAbstractSummonedSword.class, SummonedSwordRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityJudgementCut.class, JudgementCutRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(BladeItemEntity.class, BladeItemEntityRenderer::new);
 
         LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
     }
@@ -231,6 +232,8 @@ public class SlashBlade
                         @Override
                         public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
 
+                            if(entity instanceof BladeItemEntity) return false;
+
                             CompoundNBT tag = entity.serializeNBT();
                             tag.putInt("Health", 50);
                             int age = tag.getShort("Age");
@@ -292,12 +295,21 @@ public class SlashBlade
                     }.setRegistryName(modid,"proudsoul_trapezohedron"));
         }
 
+        public static final ResourceLocation BladeItemEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeItemEntity.class));
+        public static final EntityType<BladeItemEntity> BladeItem = EntityType.Builder
+                .create(BladeItemEntity::new, EntityClassification.MISC)
+                .size(0.25F, 0.25F)
+                .setTrackingRange(4)
+                .setUpdateInterval(20)
+                .setCustomClientFactory(BladeItemEntity::createInstanceFromPacket)
+                .build(BladeItemEntityLoc.toString());
+
         public static final ResourceLocation SummonedSwordLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityAbstractSummonedSword.class));
         public static final EntityType<EntityAbstractSummonedSword> SummonedSword = EntityType.Builder
                 .create(EntityAbstractSummonedSword::new, EntityClassification.MISC)
                 .size(0.5F, 0.5F)
-                .setTrackingRange(64)
-                .setUpdateInterval(1)
+                .setTrackingRange(4)
+                .setUpdateInterval(20)
                 .setCustomClientFactory(EntityAbstractSummonedSword::createInstance)
                 .build(SummonedSwordLoc.toString());
 
@@ -305,8 +317,8 @@ public class SlashBlade
         public static final EntityType<EntityJudgementCut> JudgementCut = EntityType.Builder
                 .create(EntityJudgementCut::new, EntityClassification.MISC)
                 .size(2.5F, 2.5F)
-                .setTrackingRange(64)
-                .setUpdateInterval(1)
+                .setTrackingRange(4)
+                .setUpdateInterval(20)
                 .setCustomClientFactory(EntityJudgementCut::createInstance)
                 .build(JudgementCutLoc.toString());
 
@@ -321,6 +333,12 @@ public class SlashBlade
             {
                 EntityType<EntityJudgementCut> entity = JudgementCut;
                 entity.setRegistryName(JudgementCutLoc);
+                event.getRegistry().register(entity);
+            }
+
+            {
+                EntityType<BladeItemEntity> entity = BladeItem;
+                entity.setRegistryName(BladeItemEntityLoc);
                 event.getRegistry().register(entity);
             }
         }

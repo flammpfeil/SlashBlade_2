@@ -1,11 +1,14 @@
 package mods.flammpfeil.slashblade.item;
 
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.EnumSet;
 
 public enum SwordType{
     None,
+    EdgeFragment,
     Broken,
     Perfect,
     Enchanted,
@@ -20,19 +23,27 @@ public enum SwordType{
     static public EnumSet<SwordType> from(ItemStack itemStackIn){
         EnumSet<SwordType> types = EnumSet.noneOf(SwordType.class);
 
-        itemStackIn.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
-            if(s.isBroken())
-                types.add(Broken);
+        LazyOptional<ISlashBladeState> state = itemStackIn.getCapability(ItemSlashBlade.BLADESTATE);
 
-            if(s.isNoScabbard())
-                types.add(NoScabbard);
+        if(state.isPresent()){
+            itemStackIn.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                if(s.isBroken())
+                    types.add(Broken);
 
-            if(s.isSealed())
-                types.add(Cursed);
+                if(s.isNoScabbard())
+                    types.add(NoScabbard);
 
-            if(!s.isSealed() && itemStackIn.isEnchanted() && (itemStackIn.hasDisplayName() || s.isDefaultBewitched()))
-                types.add(Bewitched);
-        });
+                if(s.isSealed())
+                    types.add(Cursed);
+
+                if(!s.isSealed() && itemStackIn.isEnchanted() && (itemStackIn.hasDisplayName() || s.isDefaultBewitched()))
+                    types.add(Bewitched);
+            });
+        }else{
+            types.add(NoScabbard);
+            types.add(EdgeFragment);
+        }
+
 
         if(itemStackIn.isEnchanted())
             types.add(Enchanted);

@@ -1,19 +1,14 @@
 package mods.flammpfeil.slashblade.item;
 
 import com.google.common.collect.*;
-import com.google.gson.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
-import mods.flammpfeil.slashblade.capability.slashblade.BladeStateCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
+import mods.flammpfeil.slashblade.entity.BladeItemEntity;
 import mods.flammpfeil.slashblade.util.ImputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
-import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
-import net.minecraft.advancements.AdvancementManager;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
@@ -24,42 +19,33 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.SidedProvider;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ItemSlashBlade extends SwordItem {
     protected static final UUID ATTACK_DAMAGE_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FD");
@@ -139,6 +125,10 @@ public class ItemSlashBlade extends SwordItem {
             combo.clickAction(playerIn);
 
             playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().remove(ImputCommand.R_CLICK));
+
+            if(combo != ComboState.NONE)
+                playerIn.swingArm(handIn);
+
             return true;
         }).orElse(false);
 
@@ -167,13 +157,33 @@ public class ItemSlashBlade extends SwordItem {
         return stateHolder.isPresent();
     }
 
-    private void onBroken(LivingEntity user){
-        user.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+    private Consumer<LivingEntity> getOnBroken(ItemStack stack){
+        return (user)->{
+            user.sendBreakAnimation(user.getActiveHand());
 
-        ItemStack soul = new ItemStack(SBItems.proudsoul);
-        ItemEntity itementity = new ItemEntity(user.world, user.posX, user.posY , user.posZ, soul);
-        itementity.setNoPickupDelay();
-        user.world.addEntity(itementity);
+            ItemStack soul = new ItemStack(SBItems.proudsoul);
+
+            CompoundNBT blade = stack.write(new CompoundNBT());
+            soul.setTagInfo("BladeData", blade);
+
+            stack.getCapability(BLADESTATE).ifPresent(s->{
+                s.getTexture().ifPresent(r->soul.setTagInfo("Texture", new StringNBT(r.toString())));
+                s.getModel().ifPresent(r->soul.setTagInfo("Model", new StringNBT(r.toString())));
+            });
+
+            ItemEntity itementity = new ItemEntity(user.world, user.posX, user.posY , user.posZ, soul);
+            BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.world);
+
+            e.copyDataFromOld(itementity);
+            e.init();
+            e.addVelocity(0,0.4,0);
+
+            e.setPickupDelay(20*2);
+            e.setGlowing(true);
+
+            user.world.addEntity(e);
+
+        };
     }
 
     @Override
@@ -184,7 +194,7 @@ public class ItemSlashBlade extends SwordItem {
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             state.resolvCurrentComboState(attacker).hitEffect(target);
 
-            state.damageBlade(stack, 1, attacker, this::onBroken);
+            state.damageBlade(stack, 1, attacker, this.getOnBroken(stack));
 
         });
 
@@ -194,7 +204,7 @@ public class ItemSlashBlade extends SwordItem {
 
         if (state.getBlockHardness(worldIn, pos) != 0.0F) {
             stack.getCapability(BLADESTATE).ifPresent((s)->{
-                s.damageBlade(stack, 1, entityLiving, this::onBroken);
+                s.damageBlade(stack, 1, entityLiving, this.getOnBroken(stack));
             });
         }
 
@@ -212,53 +222,12 @@ public class ItemSlashBlade extends SwordItem {
                 ComboState sa = state.progressCombo(entityLiving, elapsed);
 
                 //sa.tickAction(entityLiving);
-                if (sa != ComboState.NONE)
-                    state.damageBlade(stack, 1, entityLiving, this::onBroken);
+                if (sa != ComboState.NONE){
+                    state.damageBlade(stack, 1, entityLiving, this.getOnBroken(stack));
+                    entityLiving.swingArm(Hand.MAIN_HAND);
+                }
             });
         }
-
-/*
-        if(20*1 < elapsed){
-
-            if (!worldIn.isRemote) {
-
-                worldIn.playSound((PlayerEntity)null, entityLiving.posX, entityLiving.posY, entityLiving.posZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (random.nextFloat() * 0.4F + 0.8F));
-
-                Vec3d eyePos = entityLiving.getEyePosition(1.0f);
-
-                final double airReach = 5;
-                final double entityReach = 7;
-                Optional<RayTraceResult> raytraceresult = RayTraceHelper.rayTrace(
-                        worldIn, entityLiving, eyePos, entityLiving.getLookVec(), airReach, entityReach,
-                        (entity) -> {
-                            return !entity.isSpectator() && entity.isAlive() && entity.canBeCollidedWith() && (entity != entityLiving);
-                        });
-
-                Vec3d resultPos = raytraceresult.map((rtr)->{
-                    Vec3d pos = null;
-                    RayTraceResult.Type type = rtr.getType();
-                    switch (type){
-                        case ENTITY:
-                            Entity target = ((EntityRayTraceResult)rtr).getEntity();
-                            pos = target.getPositionVec().add(0,target.getEyeHeight() / 2.0f,0);
-                            break;
-                        case BLOCK:
-                            Vec3d hitVec = rtr.getHitVec();
-                            pos = hitVec;
-                            break;
-                    }
-                    return pos;
-
-                }).orElseGet(()->eyePos.add(entityLiving.getLookVec().scale(airReach)));
-
-
-                EntityJudgementCut jc = new EntityJudgementCut(SlashBlade.RegistryEvents.JudgementCut, worldIn);
-                jc.setPosition(resultPos.x ,resultPos.y ,resultPos.z);
-                jc.setShooter(entityLiving);
-                worldIn.addEntity(jc);
-            }
-        }
-/**/
     }
 
     @Override
@@ -310,6 +279,9 @@ public class ItemSlashBlade extends SwordItem {
 
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             if(entityIn instanceof LivingEntity){
+                if(0.5f > state.getDamage())
+                    state.setDamage(0.99f);
+
                 state.resolvCurrentComboState((LivingEntity)entityIn).tickAction((LivingEntity)entityIn);
                 state.sendChanges(entityIn);
             }
@@ -528,5 +500,36 @@ public class ItemSlashBlade extends SwordItem {
         });
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
+    }
+
+
+    /**
+     * @return true = cancel : false = swing
+     */
+    @Override
+    public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
+        return !stack.getCapability(BLADESTATE).filter(s->s.getLastActionTime() == entity.world.getGameTime()).isPresent();
+    }
+
+
+    //todo: ItemEntity extends (noBob & noRot & noFloat & nakedBlade
+
+    @Override
+    public boolean hasCustomEntity(ItemStack stack) {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Entity createEntity(World world, Entity location, ItemStack itemstack) {
+        BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, world);
+        e.copyDataFromOld(location);
+        e.init();
+        return e;
+    }
+
+    @Override
+    public int getEntityLifespan(ItemStack itemStack, World world) {
+        return super.getEntityLifespan(itemStack, world);// Short.MAX_VALUE;
     }
 }

@@ -9,8 +9,10 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
+import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
 import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
@@ -183,7 +185,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             part = "blade";
                         }
 
-                        renderOverrided(stack, obj, part, textureLocation);
+                        RenderHandler.renderOverrided(stack, obj, part, textureLocation);
 
                         GlStateManager.popMatrix();
                     }
@@ -202,7 +204,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                         GlStateManager.scalef(modelScale, modelScale, modelScale);
 
                         GlStateManager.rotatef(180, 0, 1, 0);
-                        renderOverrided(stack, obj, "sheath", textureLocation);
+                        RenderHandler.renderOverrided(stack, obj, "sheath", textureLocation);
 
                         if(s.isCharged(entity)){
                             //todo : charge effect
@@ -216,7 +218,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                         GlStateManager.pushMatrix();
 
                         GlStateManager.scalef(1,1,-1);
-                        mmp.render();
+                        //mmp.render();
 
                         GlStateManager.popMatrix();
                     }
@@ -229,33 +231,6 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
             });
 
         });
-    }
-
-    private void renderOverrided(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture){
-
-        try {
-            GlStateManager.pushMatrix();
-            GlStateManager.pushLightingAttributes();
-
-            RenderOverrideEvent event
-                    = RenderOverrideEvent.onRenderOverride(stack, model, target, texture);
-
-            if(event.isCanceled()) return;
-
-            bindTexture(event.getTexture());
-
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-
-            event.getModel().renderOnly(event.getTarget());
-
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST );
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST );
-
-        }finally{
-            GlStateManager.popAttributes();
-            GlStateManager.popMatrix();
-        }
     }
 
     @Override

@@ -19,6 +19,9 @@
 
 package mods.flammpfeil.slashblade.capability.slashblade;
 
+import com.google.common.collect.ImmutableRangeMap;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeMap;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.network.ActiveStateSyncMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
@@ -216,43 +219,43 @@ public interface ISlashBladeState {
     }
 
     default ComboState progressCombo(LivingEntity user, int elapsed){
-        float fullChargeTicks = getFullChargeTicks(user);
+        int fullChargeTicks = getFullChargeTicks(user);
+        int justReceptionSpan = 3; //todo:+ justTime Extension
+        int justChargePeriod = fullChargeTicks + justReceptionSpan;
 
-        //todo RangeMap replace
-        float justReceptionSpan = 3; //todo:+ justTime Extension
-        float quickReceptionSpan = 5; //todo:+ quickTime Extension
+        RangeMap<Integer, SlashArts.ArtsType> charge_accept = ImmutableRangeMap.<Integer, SlashArts.ArtsType>builder()
+                .put(Range.lessThan(fullChargeTicks), SlashArts.ArtsType.Fail)
+                .put(Range.closedOpen(fullChargeTicks, justChargePeriod), SlashArts.ArtsType.Jackpot)
+                .put(Range.atLeast(justChargePeriod), SlashArts.ArtsType.Success)
+                .build();
 
-        float justChargePeriod = fullChargeTicks + justReceptionSpan;
+        SlashArts.ArtsType type = charge_accept.get(elapsed);
 
-        SlashArts.ArtsType type = SlashArts.ArtsType.Fail;
-
-        if(this.isCharged(user)){
-            if(elapsed < justChargePeriod)
-                type = SlashArts.ArtsType.Jackpot;
-            else
-                type = SlashArts.ArtsType.Success;
-
-        }else{ //quick charge
-
-            int ticks = elapsed;
-            ComboState old = this.getComboSeq();
+        if(type != SlashArts.ArtsType.Jackpot){
+            //quick charge
             ComboState current = resolvCurrentComboState(user);
-
             if(current.getQuickChargeEnabled()){
+
+                int offsetTicks = 0;
+                ComboState old = this.getComboSeq();
                 if(old != current){
-                    ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
+                    offsetTicks = (int)TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
                 }
 
-                float quickChargeTicks = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());;
-                float quickChargePeriod = quickChargeTicks + quickReceptionSpan;
-                float quickJustChargePeriod = quickChargeTicks + quickReceptionSpan;
+                int quickReceptionSpan = 5; //todo:+ quickTime Extension
+                int quickChargeTicks = (int)(TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame())
+                        * (1.0f / current.getSpeed()) + offsetTicks);
+                int quickJustChargePeriod = quickChargeTicks + justReceptionSpan;
+                int quickChargePeriod = quickChargeTicks + quickReceptionSpan;
 
-                if(quickChargeTicks < ticks && ticks < quickChargePeriod){
-                    if(ticks < quickJustChargePeriod)
-                        type = SlashArts.ArtsType.Jackpot;
-                    else
-                        type = SlashArts.ArtsType.Success;
-                }
+                RangeMap<Integer, SlashArts.ArtsType> qcharge_accept = ImmutableRangeMap.<Integer, SlashArts.ArtsType>builder()
+                        .put(Range.lessThan(quickChargeTicks), type)//SlashArts.ArtsType.Fail)
+                        .put(Range.closedOpen(quickChargeTicks, quickJustChargePeriod), SlashArts.ArtsType.Jackpot)
+                        .put(Range.closedOpen(quickJustChargePeriod, quickChargePeriod), SlashArts.ArtsType.Success)
+                        .put(Range.atLeast(quickChargePeriod), type)//SlashArts.ArtsType.Fail)
+                        .build();
+
+                type = qcharge_accept.get(elapsed);
             }
         }
 

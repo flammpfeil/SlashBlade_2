@@ -7,6 +7,7 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.Face;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
+import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
 import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
@@ -127,26 +128,6 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
         GlStateManager.pushTextureAttributes();
         BladeModel.renderPath = 1;
-/*
-        if(BladeModel.renderPath++ >= 1) {
-            Face.setColor(0xFF8040CC);
-            GL11.glMatrixMode(GL11.GL_TEXTURE);
-            GlStateManager.scalef(0.1F, 0.1F, 0.1F);
-            GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        }else{
-            Face.resetColor();
-
-            GL11.glEnable(GL11.GL_BLEND);
-            GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-            GL11.glDisable(GL11.GL_CULL_FACE);
-
-
-            GlStateManager.disableLighting(); //Forge: Make sure that render states are reset, ad renderEffect can derp them up.
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
-
-            GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
-        }
-        */
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix()){
             GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -189,7 +170,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 ResourceLocation textureLocation = state.getTexture().orElseGet(()->BladeModelManager.resourceDefaultTexture);
 
                 //if(!(BladeModel.type == ItemCameraTransforms.TransformType.GUI && BladeModel.user.getHeldItemMainhand() == current))
-                    renderOverrided(current, model, renderTarget, textureLocation);
+                RenderHandler.renderOverrided(current, model, renderTarget, textureLocation);
             });
 
 
@@ -204,7 +185,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 ResourceLocation textureLocation = state.getTexture().orElseGet(()->BladeModelManager.resourceDefaultTexture);
 
                 //if(!(BladeModel.type == ItemCameraTransforms.TransformType.GUI && BladeModel.user.getHeldItemMainhand() == current))
-                    renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
+                RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
             });
             //}
 
@@ -358,33 +339,4 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
         }
     }*/
 
-
-    private void renderOverrided(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture){
-
-        try {
-            GlStateManager.pushMatrix();
-            GlStateManager.pushLightingAttributes();
-            GlStateManager.pushTextureAttributes();
-
-            RenderOverrideEvent event
-                    = RenderOverrideEvent.onRenderOverride(stack, model, target, texture);
-
-            if(event.isCanceled()) return;
-
-            bindTexture(event.getTexture());
-
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-
-            event.getModel().renderOnly(event.getTarget());
-
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST );
-            GlStateManager.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST );
-
-        }finally{
-            GlStateManager.popAttributes();
-            GlStateManager.popAttributes();
-            GlStateManager.popMatrix();
-        }
-    }
 }
