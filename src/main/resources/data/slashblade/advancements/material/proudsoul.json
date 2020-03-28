@@ -23,6 +23,11 @@
     }
   },
   "rewards": {
-    "recipes": ["slashblade:material/tiny","slashblade:material/ingot","slashblade:material/soul"]
+    "recipes": [
+      "slashblade:material/tiny",
+      "slashblade:material/ingot",
+      "slashblade:material/soul",
+      "slashblade:bladestand/bladestand_1",
+      "slashblade:bladestand/bladestand_2"]
   }
 }

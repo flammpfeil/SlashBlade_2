@@ -41,12 +41,6 @@ public class BladeModel implements IBakedModel {
 
     public static LivingEntity user = null;
 
-    /**
-     * 0 : type set
-     * 1 : texture set
-     */
-    public static int renderPath = 0;
-
     public static ItemCameraTransforms.TransformType type = ItemCameraTransforms.TransformType.NONE;
 
 
@@ -73,16 +67,7 @@ public class BladeModel implements IBakedModel {
 
     @Override
     public boolean isBuiltInRenderer() {
-        renderPath = 0;
-
-        /*
-        //textuer bind
-        ResourceLocationRaw resourceTexture = itemBlade.getModelTexture(targetStack);
-        Minecraft.getInstance().getTextureManager().bindTexture(resourceTexture);
-        */
-
         return true;
-        //return original.isBuiltInRenderer();
     }
 
     @Override

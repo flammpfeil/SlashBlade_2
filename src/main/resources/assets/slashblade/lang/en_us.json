@@ -10,7 +10,7 @@
   "slashblade.tooltip.material":"Required Craft Conditions",
   "slashblade.tooltip.material.killcount":"%1$s <= KillCount",
   "slashblade.tooltip.material.refine":"%1$s <= Refine",
-  "slashblade.tooltip.material.level":"%1$s <= Level",
+  "slashblade.tooltip.material.level":"%1$s <= PlayerLevel",
   "slashblade.tooltip.material.broken":"Broken",
   "slashblade.tooltip.material.noscabbard":"No Scabbard",
   "slashblade.tooltip.material.enchantments":"Enchantments",
@@ -59,6 +59,13 @@
   "item.slashblade.proudsoul_crystal":"Blade Soul Crystal",
   "item.slashblade.proudsoul_trapezohedron":"Blade Soul Trapezohedron",
 
+  "item.slashblade.bladestand_1": "Blade Stand single",
+  "item.slashblade.bladestand_2": "Blade Stand dual",
+  "item.slashblade.bladestand_v": "Blade Stand vertical",
+  "item.slashblade.bladestand_s": "Blade Stand short",
+  "item.slashblade.bladestand_1w":"Blade Wall Rack single",
+  "item.slashblade.bladestand_2w":"Blade Wall Rack dual",
+
   "adv.slashblade.proudsoul": "Limit of Refine=50\nBlade is Fragile.\nThe soul never wastes.",
   "adv.slashblade.proudsoul_tiny":"Limit of Refine=10\nMysterious burning soul.",
   "adv.slashblade.proudsoul_ingot": "Limit of Refine=100\nSteel forged with a burning soul.",
@@ -74,6 +81,9 @@
 
   "adv.slashblade.white_broken":"Broken Edge",
   "adv.slashblade.white_broken.desc":"Reforge!",
+
+  "adv.slashblade.bladestand":"Blade Stand",
+  "adv.slashblade.bladestand.desc":"A place to rest your blades.",
 
   "adv.slashblade.imitation_broken":"It is fake.",
   "adv.slashblade.imitation_broken.desc":"That’s the way of fake."

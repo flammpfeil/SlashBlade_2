@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group":"bladestand",
+  "ingredients": [
+    {
+      "item": "slashblade:proudsoul_tiny"
+    },
+    {
+      "tag": "minecraft:wooden_fences"
+    }
+  ],
+  "result": {
+    "item": "slashblade:bladestand_1"
+  }
+}

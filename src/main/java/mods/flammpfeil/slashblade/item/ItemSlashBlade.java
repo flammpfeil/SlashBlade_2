@@ -279,8 +279,10 @@ public class ItemSlashBlade extends SwordItem {
 
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             if(entityIn instanceof LivingEntity){
+                /*
                 if(0.5f > state.getDamage())
                     state.setDamage(0.99f);
+                */
 
                 state.resolvCurrentComboState((LivingEntity)entityIn).tickAction((LivingEntity)entityIn);
                 state.sendChanges(entityIn);
@@ -446,7 +448,10 @@ public class ItemSlashBlade extends SwordItem {
 
             Set<ResourceLocation> keys =rm.getKeys()
                     .filter((loc)->loc.getNamespace().equals(SlashBlade.modid)
-                            && (!(loc.getPath().startsWith("material") || loc.getPath().startsWith("simple_slashblade"))))
+                            && (!(
+                                    loc.getPath().startsWith("material")
+                                    || loc.getPath().startsWith("bladestand")
+                                    || loc.getPath().startsWith("simple_slashblade"))))
                     .collect(Collectors.toSet());
 
             List<ItemStack> allItems = keys.stream()
@@ -510,9 +515,6 @@ public class ItemSlashBlade extends SwordItem {
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
         return !stack.getCapability(BLADESTATE).filter(s->s.getLastActionTime() == entity.world.getGameTime()).isPresent();
     }
-
-
-    //todo: ItemEntity extends (noBob & noRot & noFloat & nakedBlade
 
     @Override
     public boolean hasCustomEntity(ItemStack stack) {

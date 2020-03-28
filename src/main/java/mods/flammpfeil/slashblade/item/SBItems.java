@@ -14,4 +14,10 @@ public class SBItems {
     public static final Item proudsoul_crystal = null;
     public static final Item proudsoul_trapezohedron = null;
 
+    public static final Item bladestand_1 = null;
+    public static final Item bladestand_2 = null;
+    public static final Item bladestand_v = null;
+    public static final Item bladestand_s = null;
+    public static final Item bladestand_1w = null;
+    public static final Item bladestand_2w = null;
 }

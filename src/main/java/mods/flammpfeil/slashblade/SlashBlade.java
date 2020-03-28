@@ -11,6 +11,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
 import mods.flammpfeil.slashblade.client.renderer.entity.BladeItemEntityRenderer;
+import mods.flammpfeil.slashblade.client.renderer.entity.BladeStandEntityRenderer;
 import mods.flammpfeil.slashblade.client.renderer.entity.JudgementCutRenderer;
 import mods.flammpfeil.slashblade.client.renderer.entity.SummonedSwordRenderer;
 import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
@@ -19,10 +20,12 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
 import mods.flammpfeil.slashblade.entity.BladeItemEntity;
+import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.event.*;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
+import mods.flammpfeil.slashblade.item.BladeStandItem;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import mods.flammpfeil.slashblade.item.SBItems;
@@ -167,6 +170,7 @@ public class SlashBlade
         RenderingRegistry.registerEntityRenderingHandler(EntityAbstractSummonedSword.class, SummonedSwordRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityJudgementCut.class, JudgementCutRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(BladeItemEntity.class, BladeItemEntityRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(BladeStandEntity.class, BladeStandEntityRenderer::new);
 
         LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
     }
@@ -293,7 +297,40 @@ public class SlashBlade
                             return true;//super.hasEffect(stack);
                         }
                     }.setRegistryName(modid,"proudsoul_trapezohedron"));
+
+
+            registry.register(
+                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                            .setRegistryName(modid,"bladestand_1"));
+            registry.register(
+                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                            .setRegistryName(modid,"bladestand_2"));
+            registry.register(
+                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                            .setRegistryName(modid,"bladestand_v"));
+            registry.register(
+                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                            .setRegistryName(modid,"bladestand_s"));
+            registry.register(
+                    new BladeStandItem((new Item.Properties())
+                            .group(SLASHBLADE)
+                            .rarity(Rarity.COMMON),true)
+                            .setRegistryName(modid,"bladestand_1w"));
+            registry.register(
+                    new BladeStandItem((new Item.Properties())
+                            .group(SLASHBLADE)
+                            .rarity(Rarity.COMMON),true)
+                            .setRegistryName(modid,"bladestand_2w"));
         }
+
+
+
+
+
+
+
+
+
 
         public static final ResourceLocation BladeItemEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeItemEntity.class));
         public static final EntityType<BladeItemEntity> BladeItem = EntityType.Builder
@@ -303,6 +340,18 @@ public class SlashBlade
                 .setUpdateInterval(20)
                 .setCustomClientFactory(BladeItemEntity::createInstanceFromPacket)
                 .build(BladeItemEntityLoc.toString());
+
+        public static final ResourceLocation BladeStandEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeStandEntity.class));
+        public static final EntityType<BladeStandEntity> BladeStand = EntityType.Builder
+                .create(BladeStandEntity::new, EntityClassification.MISC)
+                .size(0.5F, 0.5F)
+                .setTrackingRange(10)
+                .setUpdateInterval(20)
+                .setShouldReceiveVelocityUpdates(false)
+                .setCustomClientFactory(BladeStandEntity::createInstance)
+                .build(BladeStandEntityLoc.toString());
+
+
 
         public static final ResourceLocation SummonedSwordLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityAbstractSummonedSword.class));
         public static final EntityType<EntityAbstractSummonedSword> SummonedSword = EntityType.Builder
@@ -341,6 +390,12 @@ public class SlashBlade
                 entity.setRegistryName(BladeItemEntityLoc);
                 event.getRegistry().register(entity);
             }
+
+            {
+                EntityType<BladeStandEntity> entity = BladeStand;
+                entity.setRegistryName(BladeStandEntityLoc);
+                event.getRegistry().register(entity);
+            }
         }
 
         private static String classToString(Class<? extends Entity> entityClass) {
@@ -363,24 +418,56 @@ public class SlashBlade
         overrideModel(event, SBItems.proudsoul_sphere, new ResourceLocation(modid, "block/sphere.obj"));
         overrideModel(event, SBItems.proudsoul_crystal, new ResourceLocation(modid, "block/crystal.obj"));
         overrideModel(event, SBItems.proudsoul_trapezohedron, new ResourceLocation(modid, "block/trapezohedron.obj"));
+
+
+        overrideModelBlockType(event, SBItems.bladestand_1, new ResourceLocation(modid, "block/stand_1.obj"));
+        overrideModelBlockType(event, SBItems.bladestand_2, new ResourceLocation(modid, "block/stand_2.obj"));
+        overrideModelBlockType(event, SBItems.bladestand_v, new ResourceLocation(modid, "block/stand_v.obj"));
+        overrideModelBlockType(event, SBItems.bladestand_s, new ResourceLocation(modid, "block/stand_s.obj"));
+        overrideModelBlockType(event, SBItems.bladestand_1w, new ResourceLocation(modid, "block/stand_w_1.obj"));
+        overrideModelBlockType(event, SBItems.bladestand_2w, new ResourceLocation(modid, "block/stand_w_2.obj"));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void overrideModelBlockType(final ModelBakeEvent event, Item item, ResourceLocation newLoc){
+        EnumMap<ItemCameraTransforms.TransformType, TRSRTransformation> block = new EnumMap<>(ItemCameraTransforms.TransformType.class);
+
+        TRSRTransformation thirdPersonBlock = ForgeBlockStateV1.Transforms.convert(0, 2.5f, 0, 75, 45, 0, 0.375f);
+        block.put(ItemCameraTransforms.TransformType.GUI, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 30, 315, 0, 0.625f));
+        block.put(ItemCameraTransforms.TransformType.GROUND, ForgeBlockStateV1.Transforms.convert(0, 3, 0, 0, 0, 0, 0.25f));
+        block.put(ItemCameraTransforms.TransformType.FIXED, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 0, 0, 0.5f));
+        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonBlock);
+        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.leftify(thirdPersonBlock));
+        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 45, 0, 0.4f));
+        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 225, 0, 0.4f));
+
+        SimpleModelState state = new SimpleModelState(ImmutableMap.copyOf(block));
+
+        overrideModel(event, item, newLoc, state);
     }
 
     @OnlyIn(Dist.CLIENT)
     private void overrideModel(final ModelBakeEvent event, Item item, ResourceLocation newLoc){
-        ModelResourceLocation loc = new ModelResourceLocation(
-                ForgeRegistries.ITEMS.getKey(item), "inventory");
-
 
         EnumMap<ItemCameraTransforms.TransformType, TRSRTransformation> block = new EnumMap<>(ItemCameraTransforms.TransformType.class);
+
         TRSRTransformation thirdPersonBlock = ForgeBlockStateV1.Transforms.convert(0, 2.5f, 0, 75, 45, 0, 0.375f);
-        block.put(ItemCameraTransforms.TransformType.GUI,                      ForgeBlockStateV1.Transforms.convert(0, 0, 0, 10, 0, 0, 0.9f));
-        block.put(ItemCameraTransforms.TransformType.GROUND,                  ForgeBlockStateV1.Transforms.convert(0, 3, 0, 0, 0, 0, 0.5f));
-        block.put(ItemCameraTransforms.TransformType.FIXED,                   ForgeBlockStateV1.Transforms.convert(0, 0, -10, -90, 0, 0, 1.0f));
+        block.put(ItemCameraTransforms.TransformType.GUI, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 10, 0, 0, 0.9f));
+        block.put(ItemCameraTransforms.TransformType.GROUND, ForgeBlockStateV1.Transforms.convert(0, 3, 0, 0, 0, 0, 0.5f));
+        block.put(ItemCameraTransforms.TransformType.FIXED, ForgeBlockStateV1.Transforms.convert(0, 0, -10, -90, 0, 0, 1.0f));
         block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonBlock);
-        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND,  ForgeBlockStateV1.Transforms.leftify(thirdPersonBlock));
+        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.leftify(thirdPersonBlock));
         block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 45, 0, 0.4f));
-        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND,  ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 225, 0, 0.4f));
+        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 225, 0, 0.4f));
+
         SimpleModelState state = new SimpleModelState(ImmutableMap.copyOf(block));
+
+        overrideModel(event, item, newLoc, state);
+    }
+    @OnlyIn(Dist.CLIENT)
+    private void overrideModel(final ModelBakeEvent event, Item item, ResourceLocation newLoc, SimpleModelState state){
+        ModelResourceLocation loc = new ModelResourceLocation(
+                ForgeRegistries.ITEMS.getKey(item), "inventory");
 
         IUnbakedModel unbaked = ModelLoaderRegistry.getModelOrMissing(newLoc);
         event.getModelRegistry().put(loc , unbaked.bake(event.getModelLoader(), ModelLoader.defaultTextureGetter(), (ISprite) state, DefaultVertexFormats.ITEM));

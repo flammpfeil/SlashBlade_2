@@ -142,7 +142,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                     GlStateManager.pushMatrix();
 
                     GlStateManager.shadeModel(GL11.GL_SMOOTH);
-
+                    GL11.glEnable(GL11.GL_BLEND);
 
                     //minecraft model neckPoint height = 1.5f
                     //mmd model neckPoint height = 12.0f
