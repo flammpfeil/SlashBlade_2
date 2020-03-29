@@ -56,38 +56,48 @@ public class LockOnManager {
     }
 
     public static void onImputChange(EnumSet<ImputCommand> old, EnumSet<ImputCommand> current, ServerPlayerEntity player) {
+        if(old.contains(ImputCommand.SNEAK) == current.contains(ImputCommand.SNEAK)) return;
 
-        if (!(!old.contains(ImputCommand.SNEAK) && current.contains(ImputCommand.SNEAK))) return;
-
+        //set target
         ItemStack stack = player.getHeldItemMainhand();
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-        Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(0) , player.getLookVec(), 12,12, null);
-        Optional<Entity> foundEntity = result
-                .filter(r->r.getType() == RayTraceResult.Type.ENTITY)
-                .filter(r->{
-                    EntityRayTraceResult er = (EntityRayTraceResult)r;
-                    Entity target = ((EntityRayTraceResult) r).getEntity();
+        Entity targetEntity;
 
-                    boolean isMatch = true;
-                    if(target instanceof LivingEntity)
-                        isMatch = TargetSelector.lockon_focus.canTarget(player, (LivingEntity)target);
+        if((old.contains(ImputCommand.SNEAK) && !current.contains(ImputCommand.SNEAK))){
+            //remove target
+            targetEntity = null;
+        }else{
+            //find target
 
-                    return isMatch;
-                }).map(r->((EntityRayTraceResult) r).getEntity());
+            Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(0) , player.getLookVec(), 12,12, null);
+            Optional<Entity> foundEntity = result
+                    .filter(r->r.getType() == RayTraceResult.Type.ENTITY)
+                    .filter(r->{
+                        EntityRayTraceResult er = (EntityRayTraceResult)r;
+                        Entity target = ((EntityRayTraceResult) r).getEntity();
 
-        if(!foundEntity.isPresent()){
-            List<LivingEntity> entities = player.world.getTargettableEntitiesWithinAABB(
-                    LivingEntity.class,
-                    TargetSelector.lockon,
-                    player,
-                    player.getBoundingBox().grow(12.0D, 6.0D, 12.0D));
+                        boolean isMatch = true;
+                        if(target instanceof LivingEntity)
+                            isMatch = TargetSelector.lockon_focus.canTarget(player, (LivingEntity)target);
 
-            foundEntity = entities.stream().map(s->(Entity)s).min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
+                        return isMatch;
+                    }).map(r->((EntityRayTraceResult) r).getEntity());
+
+            if(!foundEntity.isPresent()){
+                List<LivingEntity> entities = player.world.getTargettableEntitiesWithinAABB(
+                        LivingEntity.class,
+                        TargetSelector.lockon,
+                        player,
+                        player.getBoundingBox().grow(12.0D, 6.0D, 12.0D));
+
+                foundEntity = entities.stream().map(s->(Entity)s).min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
+            }
+
+            targetEntity = foundEntity.orElse(null);
         }
 
-        Entity targetEntity = foundEntity.orElse(null);
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
             s.setTargetEntityId(targetEntity);
         });
