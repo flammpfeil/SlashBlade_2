@@ -1,15 +1,18 @@
 package mods.flammpfeil.slashblade.entity;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -51,6 +54,27 @@ public class BladeItemEntity extends ItemEntity {
         if(!this.isInWater() && !onGround && ticksExisted % 6 == 0){
             this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 2.5F);
         }
+
+
+        if(this.world.isRemote){
+            if (rand.nextInt(5) == 0 && getAir() < 0) {
+                Direction direction = Direction.UP;
+                double d0 = (double)this.posX - (double)(rand.nextFloat() * 0.1F);
+                double d1 = (double)this.posY - (double)(rand.nextFloat() * 0.1F);
+                double d2 = (double)this.posZ - (double)(rand.nextFloat() * 0.1F);
+                double d3 = (double)(0.4F - (rand.nextFloat() + rand.nextFloat()) * 0.4F);
+                this.world.addParticle(ParticleTypes.PORTAL, d0 + (double)direction.getXOffset() * d3, d1 + 2 + (double)direction.getYOffset() * d3, d2 + (double)direction.getZOffset() * d3, rand.nextGaussian() * 0.005D, -2, rand.nextGaussian() * 0.005D);
+            }
+
+            if (!this.onGround && !this.isInWater() && rand.nextInt(3) == 0) {
+                Direction direction = Direction.UP;
+                double d0 = (double)this.posX - (double)(rand.nextFloat() * 0.1F);
+                double d1 = (double)this.posY - (double)(rand.nextFloat() * 0.1F);
+                double d2 = (double)this.posZ - (double)(rand.nextFloat() * 0.1F);
+                double d3 = (double)(0.4F - (rand.nextFloat() + rand.nextFloat()) * 0.4F);
+                this.world.addParticle(ParticleTypes.END_ROD, d0 + (double)direction.getXOffset() * d3, d1 + (double)direction.getYOffset() * d3, d2 + (double)direction.getZOffset() * d3, rand.nextGaussian() * 0.005D, rand.nextGaussian() * 0.005D, rand.nextGaussian() * 0.005D);
+            }
+        }
     }
 
     @Override
@@ -74,6 +98,17 @@ public class BladeItemEntity extends ItemEntity {
                 SoundType soundtype = blockstate.getSoundType(world, new BlockPos(j, k, l), this);
                 this.playSound(soundtype.getFallSound(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
             }
+
+            if(this.isGlowing() && getAir() < 0){
+                this.setGlowing(false);
+            }
         }
+    }
+
+    @Override
+    public int getBrightnessForRender() {
+        if(getAir() < 0)
+            return 15728880;
+        return super.getBrightnessForRender();
     }
 }

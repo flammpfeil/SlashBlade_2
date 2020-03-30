@@ -68,6 +68,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
             GlStateManager.pushLightingAttributes();
 
+            GlStateManager.disableLighting();
             GlStateManager.translated(x, y, z);
             GlStateManager.rotatef(entityYaw ,0,1 ,0);
 

@@ -181,6 +181,8 @@ public class ItemSlashBlade extends SwordItem {
             e.setPickupDelay(20*2);
             e.setGlowing(true);
 
+            e.setAir(-1);
+
             user.world.addEntity(e);
 
         };
@@ -241,7 +243,7 @@ public class ItemSlashBlade extends SwordItem {
 
                     if( ticks == 20){//state.getFullChargeTicks(player)){
                         Vec3d pos = player.getEyePosition(0).add(player.getLookVec());
-                        ((ServerWorld)player.world).spawnParticle(ParticleTypes.MYCELIUM,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
+                        ((ServerWorld)player.world).spawnParticle(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
 
                     }else{
                         ComboState old = state.getComboSeq();

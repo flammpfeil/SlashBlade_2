@@ -82,13 +82,15 @@ public class ComboState extends RegistryBase<ComboState> {
             ()->60,()->70,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)->ComboState.COMBO_A2, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A2 = new ComboState("combo_a2",100,
             ()->70,()->80,()->1.0f,()->false,()->1000,
             baseMotionLoc, (a)-> ComboState.COMBO_A3, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
             ()->80,()->90,()->1.0f,()->false,()->600,
