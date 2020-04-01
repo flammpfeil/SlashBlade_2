@@ -15,10 +15,15 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Hand;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.SidedProvider;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.EnumSet;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class RankSyncMessage {
@@ -38,26 +43,35 @@ public class RankSyncMessage {
     }
 
     static public void handle(RankSyncMessage msg, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().setPacketHandled(true);
+
         if(ctx.get().getDirection() != NetworkDirection.PLAY_TO_CLIENT) {
-            ctx.get().setPacketHandled(true);
             return;
         }
 
-        ctx.get().enqueueWork(() -> {
-            PlayerEntity pl = Minecraft.getInstance().player;
-            pl.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->{
+        Consumer<Long> handler = DistExecutor.callWhenOn(Dist.CLIENT, ()->()->RankSyncMessage::setPoint);
 
-                long time = pl.world.getGameTime();
-
-                IConcentrationRank.ConcentrationRanks oldRank = cr.getRank(time);
-
-                cr.setRawRankPoint(msg.rawPoint);
-                cr.setLastUpdte(time);
-
-                if(oldRank.level < cr.getRank(time).level)
-                    cr.setLastRankRise(time);
+        if(handler != null)
+            ctx.get().enqueueWork(() -> {
+                handler.accept(msg.rawPoint);
             });
+
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static public void setPoint(long point){
+        PlayerEntity pl = Minecraft.getInstance().player;
+        pl.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->{
+
+            long time = pl.world.getGameTime();
+
+            IConcentrationRank.ConcentrationRanks oldRank = cr.getRank(time);
+
+            cr.setRawRankPoint(point);
+            cr.setLastUpdte(time);
+
+            if(oldRank.level < cr.getRank(time).level)
+                cr.setLastRankRise(time);
         });
-        ctx.get().setPacketHandled(true);
     }
 }
