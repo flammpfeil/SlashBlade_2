@@ -1,9 +1,11 @@
 package mods.flammpfeil.slashblade.client.renderer.entity;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
+import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
 import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
@@ -67,8 +69,9 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
             GlStateManager.pushLightingAttributes();
+            GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
 
-            GlStateManager.disableLighting();
+            GlStateManager.enableLighting();
             GlStateManager.translated(x, y, z);
             GlStateManager.rotatef(entityYaw ,0,1 ,0);
 
@@ -149,7 +152,9 @@ public class BladeItemEntityRenderer extends ItemRenderer {
                 GL11.glEnable(GL11.GL_BLEND);
                 GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
 
-                RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
+                try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                    RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
+                }
 
                 GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 
@@ -178,7 +183,9 @@ public class BladeItemEntityRenderer extends ItemRenderer {
                     GL11.glEnable(GL11.GL_BLEND);
                     GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
 
-                    RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
+                    try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                        RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
+                    }
 
                     GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
                 }

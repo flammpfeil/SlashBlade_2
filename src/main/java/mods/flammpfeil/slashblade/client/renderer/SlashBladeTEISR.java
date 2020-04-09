@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeFirstPersonRender;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
+import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
 import mods.flammpfeil.slashblade.entity.BladeStandEntity;
@@ -102,7 +103,9 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             }
 
             if(handle){
+                GlStateManager.pushLightingAttributes();
                 BladeFirstPersonRender.getInstance().render();
+                GlStateManager.popAttributes();
             }
 
             /*
@@ -126,6 +129,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
 
         GlStateManager.pushTextureAttributes();
+        GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
 
@@ -137,7 +141,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             } else if (BladeModel.type == ItemCameraTransforms.TransformType.GUI) {
                 renderIcon(stack,0.008f, true);
             } else if (BladeModel.type == ItemCameraTransforms.TransformType.FIXED) {
-                if (stack.isOnItemFrame()) {
+                if (stack.isOnItemFrame() && stack.getItemFrame() instanceof BladeStandEntity) {
                     renderModel(stack);
                 } else {
                     GlStateManager.rotatef(180.0f, 0, 1, 0);
@@ -189,7 +193,9 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
         RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
 
         GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-        RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+            RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+        }
         GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 
         if(renderDurability){
@@ -367,9 +373,13 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
             RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
 
+            GlStateManager.disableLighting();
             GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-            RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+            try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+            }
             GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+            GlStateManager.enableLighting();
         }
 
         if(hasScabbard){
@@ -399,7 +409,9 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
 
                 GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-                RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+                try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                    RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
+                }
                 GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
             }
         }

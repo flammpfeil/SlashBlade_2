@@ -118,7 +118,7 @@ public class LockonCircleRender {
 
 
 
-                GlStateManager.alphaFunc(GL11.GL_GEQUAL, 0.1F);
+                GlStateManager.alphaFunc(GL11.GL_GEQUAL, 0.01F);
                 GlStateManager.depthMask(true);
                 GlStateManager.shadeModel(GL11.GL_FLAT);
                 GlStateManager.enableCull();

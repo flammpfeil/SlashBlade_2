@@ -7,13 +7,13 @@
     ],
     "key": {
         "#": {
-            "tag": "minecraft:logs"
+            "item": "minecraft:purpur_block"
         },
         "P": {
-            "item": "slashblade:proudsoul_sphere"
+            "item": "slashblade:proudsoul_trapezohedron"
         },
         "I": {
-            "item": "minecraft:iron_sword"
+            "item": "minecraft:dragon_head"
         }
     },
     "result": {

@@ -9,6 +9,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
+import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
 import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
 import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
@@ -143,6 +144,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                     GlStateManager.shadeModel(GL11.GL_SMOOTH);
                     GL11.glEnable(GL11.GL_BLEND);
+                    GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
 
                     //minecraft model neckPoint height = 1.5f
                     //mmd model neckPoint height = 12.0f
@@ -187,6 +189,12 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                         RenderHandler.renderOverrided(stack, obj, part, textureLocation);
 
+                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
+                        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                            RenderHandler.renderOverrided(stack, obj, part + "_luminous", textureLocation);
+                        }
+                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+
                         GlStateManager.popMatrix();
                     }
                     {
@@ -205,6 +213,11 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                         GlStateManager.rotatef(180, 0, 1, 0);
                         RenderHandler.renderOverrided(stack, obj, "sheath", textureLocation);
+                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
+                        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
+                            RenderHandler.renderOverrided(stack, obj, "sheath" + "_luminous", textureLocation);
+                        }
+                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 
                         if(s.isCharged(entity)){
                             //todo : charge effect

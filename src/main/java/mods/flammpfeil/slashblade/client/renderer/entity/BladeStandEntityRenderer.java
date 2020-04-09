@@ -52,6 +52,8 @@ public class BladeStandEntityRenderer extends ItemFrameRenderer {
             GlStateManager.rotatef(180.0F - entity.rotationYaw, 0.0F, 1.0F, 0.0F);
             this.renderManager.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
 
+            GlStateManager.enableLighting();
+
             if (this.renderOutlines) {
                 GlStateManager.enableColorMaterial();
                 GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(entity));
@@ -91,8 +93,6 @@ public class BladeStandEntityRenderer extends ItemFrameRenderer {
                 this.renderItem(entity.getDisplayedItem());
 
             }GlStateManager.popMatrix();
-            GlStateManager.enableLighting();
-
 
 
             if (this.renderOutlines) {
