@@ -21,7 +21,7 @@ public class FallHandler {
         private static final FallHandler instance = new FallHandler();
     }
     public static FallHandler getInstance() {
-        return FallHandler.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private FallHandler(){}
     public void register(){
@@ -52,9 +52,9 @@ public class FallHandler {
 
     public static void spawnLandingParticle(LivingEntity user , float fallFactor){
         if (!user.world.isRemote) {
-            int x = MathHelper.floor(user.posX);
-            int y = MathHelper.floor(user.posY - (double)0.5F);
-            int z = MathHelper.floor(user.posZ);
+            int x = MathHelper.floor(user.getPosX());
+            int y = MathHelper.floor(user.getPosY() - (double)0.5F);
+            int z = MathHelper.floor(user.getPosZ());
             BlockPos pos = new BlockPos(x, y, z);
             BlockState state = user.world.getBlockState(pos);
 
@@ -63,7 +63,7 @@ public class FallHandler {
                 double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                 int i = (int)(150.0D * d0);
                 if (!state.addLandingEffects((ServerWorld)user.world, pos, state, user, i))
-                    ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), user.posX, user.posY, user.posZ, i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+                    ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), user.getPosX(), user.getPosY(), user.getPosZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }

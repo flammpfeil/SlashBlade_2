@@ -18,7 +18,7 @@ public class RefineHandler {
         private static final RefineHandler instance = new RefineHandler();
     }
     public static RefineHandler getInstance() {
-        return RefineHandler.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private RefineHandler(){}
     public void register(){

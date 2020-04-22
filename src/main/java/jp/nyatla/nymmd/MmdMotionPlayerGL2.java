@@ -159,7 +159,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 		// 頂点座標、法線、テクスチャ座標の各配列をセット
 		for (int i = this._materials.length-1; i>=0 ; i--)
 		{
-			wr.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_NORMAL);
+			wr.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 
 			final Material mt_ptr=this._materials[i];
 
@@ -170,7 +170,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 				//wr.setNormal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]);
 				int vpos = pos*3;
 				//wr.addVertexWithUV(_fbuf[vpos++],_fbuf[vpos++],_fbuf[vpos++],this._tex_array[pos].u,this._tex_array[pos].v);
-				wr.pos(_fbuf[vpos++],_fbuf[vpos++],-_fbuf[vpos++]).tex(this._tex_array[pos].u,this._tex_array[pos].v).normal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]).endVertex();
+				wr.pos(_fbuf[vpos++],_fbuf[vpos++],-_fbuf[vpos++]).tex(this._tex_array[pos].u,this._tex_array[pos].v).normal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]).color(1,1,1,1).endVertex();
 			}
 
 			// マテリアル設定

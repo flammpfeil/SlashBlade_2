@@ -1,19 +1,20 @@
 package mods.flammpfeil.slashblade.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeFirstPersonRender;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
+import mods.flammpfeil.slashblade.client.renderer.model.obj.Face;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
-import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
+import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SBItems;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.model.TridentModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.entity.Pose;
@@ -22,10 +23,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
-import javax.vecmath.Color4f;
 import java.awt.*;
 import java.util.EnumSet;
 
@@ -36,7 +37,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
     }
 
     @Override
-    public void renderByItem(ItemStack itemStackIn) {
+    public void render(ItemStack itemStackIn, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
         if(!(itemStackIn.getItem() instanceof ItemSlashBlade)) return;
         ItemSlashBlade item = (ItemSlashBlade)itemStackIn.getItem();
 
@@ -46,18 +47,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             itemStackIn.removeChildTag(ItemSlashBlade.ICON_TAG_KEY);
         }
 
-        render(itemStackIn);
-
-        if(itemStackIn.hasEffect()){
-            renderEffect(()->this.render(itemStackIn));
-        }
-
-    }
-
-    private void renderEffect(Runnable renderModelFunction) {
-        GlStateManager.color3f(0.5019608F, 0.2509804F, 0.8F);
-        Minecraft.getInstance().getTextureManager().bindTexture(ItemRenderer.RES_ITEM_GLINT);
-        ItemRenderer.renderEffect(Minecraft.getInstance().getTextureManager(), renderModelFunction, 1);
+        renderBlade(itemStackIn, matrixStack, bufferIn, combinedLightIn, combinedOverlayIn);
     }
 
     boolean checkRenderNaked(){
@@ -72,16 +62,11 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
         if(type.contains(SwordType.NoScabbard))
             return true;
 */
-        
+
         return false;
     }
 
-    private boolean render(ItemStack stack){
-
-        boolean depthState = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        if(!depthState)
-            GlStateManager.enableDepthTest();
-
+    private boolean renderBlade(ItemStack stack, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn){
 
         if(BladeModel.type == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND
                 || BladeModel.type == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND
@@ -103,9 +88,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             }
 
             if(handle){
-                GlStateManager.pushLightingAttributes();
-                BladeFirstPersonRender.getInstance().render();
-                GlStateManager.popAttributes();
+                BladeFirstPersonRender.getInstance().render(matrixStack, bufferIn, combinedLightIn);
             }
 
             /*
@@ -128,46 +111,37 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
         }
 
 
-        GlStateManager.pushTextureAttributes();
-        GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
 
-        try(MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
+        try(MSAutoCloser msacA = MSAutoCloser.pushMatrix(matrixStack)) {
 
-            GL11.glTranslatef(0.5f, 0.5f, 0.5f);
+            matrixStack.translate(0.5f, 0.5f, 0.5f);
 
             if (BladeModel.type == ItemCameraTransforms.TransformType.GROUND) {
-                GlStateManager.translatef(0, 0.15f, 0);
-                renderIcon(stack,0.005f);
+                matrixStack.translate(0, 0.15f, 0);
+                renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.005f);
             } else if (BladeModel.type == ItemCameraTransforms.TransformType.GUI) {
-                renderIcon(stack,0.008f, true);
+                renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.008f, true);
             } else if (BladeModel.type == ItemCameraTransforms.TransformType.FIXED) {
                 if (stack.isOnItemFrame() && stack.getItemFrame() instanceof BladeStandEntity) {
-                    renderModel(stack);
+                    renderModel(stack, matrixStack, bufferIn, combinedLightIn);
                 } else {
-                    GlStateManager.rotatef(180.0f, 0, 1, 0);
-                    renderIcon(stack,0.0095f);
+                    matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0f));
+                    renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.0095f);
                 }
             }else{
-                renderIcon(stack,0.0095f);
+                renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.0095f);
             }
         }
-
-        GlStateManager.popAttributes();
-
-        if(!depthState)
-            GlStateManager.disableDepthTest();
 
         return true;
     }
 
-    private void renderIcon(ItemStack stack, float scale){
-        renderIcon(stack, scale, false);
+    private void renderIcon(ItemStack stack, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn, float scale){
+        renderIcon(stack, matrixStack, bufferIn, lightIn, scale, false);
     }
-    private void renderIcon(ItemStack stack, float scale, boolean renderDurability){
+    private void renderIcon(ItemStack stack, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn, float scale, boolean renderDurability){
 
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GL11.glEnable(GL11.GL_BLEND);
-        GlStateManager.scalef(scale, scale, scale);
+        matrixStack.scale(scale, scale, scale);
 
         EnumSet<SwordType> types = SwordType.from(stack);
 
@@ -190,61 +164,47 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             renderTarget = "item_bladens";
         }
 
-        RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
-
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-            RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
-        }
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+        BladeRenderState.renderOverrided(stack, model, renderTarget, textureLocation, matrixStack, bufferIn, lightIn);
+        BladeRenderState.renderOverridedLuminous(stack, model, renderTarget + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
 
         if(renderDurability){
 
             WavefrontObject durabilityModel = BladeModelManager.getInstance().getModel(BladeModelManager.resourceDurabilityModel);
-            bindTexture(BladeModelManager.resourceDurabilityTexture);
 
             float durability = stack.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getDurabilityForDisplay()).orElse(0.0f);
-            GlStateManager.translatef(0.0F, 0.0F, 0.1f);
+            matrixStack.translate(0.0F, 0.0F, 0.1f);
 
             if(BladeModel.user != null && BladeModel.user.getHeldItemMainhand() == stack){
-                Color4f aCol = new Color4f(new Color(0xEEEEEE));
-                GlStateManager.color4f(aCol.x,aCol.y, aCol.z, aCol.w);
-                durabilityModel.renderPart("base");
-                GlStateManager.color4f(0,0,0,1);
-                durabilityModel.renderPart("color");
+
+                BladeRenderState.setCol(new Color(0xEEEEEE));
+                BladeRenderState.renderOverrided(stack, durabilityModel, "base", BladeModelManager.resourceDurabilityTexture, matrixStack, bufferIn, lightIn);
+                matrixStack.translate(0.0F, 0.0F, 0.1f);
+                BladeRenderState.setCol(Color.black);
+                BladeRenderState.renderOverrided(stack, durabilityModel, "color_r", BladeModelManager.resourceDurabilityTexture, matrixStack, bufferIn, lightIn);
             }else{
-                Color4f aCol = new Color4f(new Color(0.25f,0.25f,0.25f,1.0f));
-                Color4f bCol = new Color4f(new Color(0xA52C63));
-                aCol.interpolate(bCol,(float)durability);
+                Color aCol = new Color(0.25f,0.25f,0.25f,1.0f);
+                Color bCol = new Color(0xA52C63);
+                int r = 0xFF & (int)MathHelper.lerp(aCol.getRed(), bCol.getRed(),durability);
+                int g = 0xFF & (int)MathHelper.lerp(aCol.getGreen(), bCol.getGreen(),durability);
+                int b = 0xFF & (int)MathHelper.lerp(aCol.getBlue(), bCol.getBlue(),durability);
 
-                GlStateManager.color4f(aCol.x,aCol.y, aCol.z, aCol.w);
-                durabilityModel.renderPart("base");
+                BladeRenderState.setCol(new Color(r,g,b));
+                BladeRenderState.renderOverrided(stack, durabilityModel, "base", BladeModelManager.resourceDurabilityTexture, matrixStack, bufferIn, lightIn);
 
-                GlStateManager.color4f(1,1,1,1);
 
                 boolean isBroken = types.contains(SwordType.Broken);
-                GlStateManager.translated(0.0F, 0.0F, -2.0f * durability);
-                durabilityModel.renderPart(isBroken ? "color_r" : "color");
+                matrixStack.translate(0.0F, 0.0F, -2.0f * durability);
+                BladeRenderState.renderOverrided(stack, durabilityModel, isBroken ? "color_r" : "color", BladeModelManager.resourceDurabilityTexture, matrixStack, bufferIn, lightIn);
             }
-
         }
-
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GlStateManager.enableLighting();
-        GL11.glEnable(GL11.GL_CULL_FACE);
-
-        GlStateManager.shadeModel(GL11.GL_FLAT);
     }
 
-    private void renderModel(ItemStack stack){
-
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
-        GL11.glEnable(GL11.GL_BLEND);
+    private void renderModel(ItemStack stack, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn){
 
         float scale = 0.003125f;
-        GlStateManager.scalef(scale, scale, scale);
+        matrixStack.scale(scale, scale, scale);
         float defaultOffset = 130;
-        GlStateManager.translatef(defaultOffset, 0, 0);
+        matrixStack.translate(defaultOffset, 0, 0);
 
         EnumSet<SwordType> types = SwordType.from(stack);
         //BladeModel.itemBlade.getModelLocation(itemStackIn)
@@ -343,84 +303,67 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             }
         }
 
-        try(MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
+        try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)) {
             String renderTarget;
             if(types.contains(SwordType.Broken))
                 renderTarget = "blade_damaged";
             else
                 renderTarget = "blade";
 
-            GlStateManager.translated(bladeOffset.x, bladeOffset.y, bladeOffset.z);
-            GlStateManager.rotatef(bladeOffsetRot, 0,0,1);
+            matrixStack.translate(bladeOffset.x, bladeOffset.y, bladeOffset.z);
+            matrixStack.rotate(Vector3f.ZP.rotationDegrees(bladeOffsetRot));
 
 
             if(vFlip) {
-                GlStateManager.rotatef(180, 1, 0, 0);
-                GlStateManager.translated(0, -15,0);
+                matrixStack.rotate(Vector3f.XP.rotationDegrees(180.0f));
+                matrixStack.translate(0, -15,0);
 
-                GlStateManager.translated(0, 5, 0);
+                matrixStack.translate(0, 5, 0);
             }
 
             if (hFlip) {
                 double offset = defaultOffset;
-                GlStateManager.translated(-offset, 0,0);
-                GlStateManager.rotatef(180, 0, 1, 0);
-                GlStateManager.translated(offset, 0,0);
+                matrixStack.translate(-offset, 0,0);
+                matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0f));
+                matrixStack.translate(offset, 0,0);
             }
 
-            GlStateManager.rotatef(bladeOffsetBaseRot, 0,0,1);
+            matrixStack.rotate(Vector3f.ZP.rotationDegrees(bladeOffsetBaseRot));
 
 
-            RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
-
-            GlStateManager.disableLighting();
-            GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-            try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
-            }
-            GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-            GlStateManager.enableLighting();
+            BladeRenderState.renderOverrided(stack, model, renderTarget, textureLocation, matrixStack, bufferIn, lightIn);
+            BladeRenderState.renderOverridedLuminous(stack, model, renderTarget + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
         }
 
         if(hasScabbard){
-            try(MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
+            try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)) {
                 String renderTarget = "sheath";
 
-                GlStateManager.translated(sheathOffset.x, sheathOffset.y, sheathOffset.z);
-                GlStateManager.rotatef(sheathOffsetRot, 0,0,1);
+                matrixStack.translate(sheathOffset.x, sheathOffset.y, sheathOffset.z);
+                matrixStack.rotate(Vector3f.ZP.rotationDegrees(sheathOffsetRot));
 
 
                 if(vFlip) {
-                    GlStateManager.rotatef(180, 1, 0, 0);
-                    GlStateManager.translated(0, -15,0);
+                    matrixStack.rotate(Vector3f.XP.rotationDegrees(180.0f));
+                    matrixStack.translate(0, -15,0);
 
-                    GlStateManager.translated(0, 5, 0);
+                    matrixStack.translate(0, 5, 0);
                 }
 
                 if (hFlip) {
                     double offset = defaultOffset;
-                    GlStateManager.translated(-offset, 0,0);
-                    GlStateManager.rotatef(180, 0, 1, 0);
-                    GlStateManager.translated(offset, 0,0);
+                    matrixStack.translate(-offset, 0,0);
+                    matrixStack.rotate(Vector3f.YP.rotationDegrees(180.0f));
+                    matrixStack.translate(offset, 0,0);
                 }
 
-                GlStateManager.rotatef(sheathOffsetBaseRot, 0,0,1);
+                matrixStack.rotate(Vector3f.ZP.rotationDegrees(sheathOffsetBaseRot));
 
-                RenderHandler.renderOverrided(stack, model, renderTarget, textureLocation);
-
-                GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-                try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                    RenderHandler.renderOverrided(stack, model, renderTarget + "_luminous", textureLocation);
-                }
-                GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+                BladeRenderState.renderOverrided(stack, model, renderTarget, textureLocation, matrixStack, bufferIn, lightIn);
+                BladeRenderState.renderOverridedLuminous(stack, model, renderTarget + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
             }
         }
 
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GlStateManager.enableLighting();
-        GL11.glEnable(GL11.GL_CULL_FACE);
-
-        GlStateManager.shadeModel(GL11.GL_FLAT);
     }
 
 /*
@@ -452,7 +395,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 }
             }
 
-            GlStateManager.pushMatrix();
+            matrixStack.pushMatrix();
 
             EnumSet<SwordType> swordType = itemBlade.getSwordType(itemstack);
 
@@ -507,16 +450,16 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
                 model.renderOnly(renderTargets);
 
-                GlStateManager.disableLighting();
+                matrixStack.disableLighting();
                 try(LightSetup ls = LightSetup.setupAdd()){
                     for(String renderTarget : renderTargets)
                         model.renderPart(renderTarget + "_luminous");
                 }
 
-                GlStateManager.enableLighting();
+                matrixStack.enableLighting();
             }
 
-            GlStateManager.popMatrix();
+            matrixStack.popMatrix();
         }
     }*/
 

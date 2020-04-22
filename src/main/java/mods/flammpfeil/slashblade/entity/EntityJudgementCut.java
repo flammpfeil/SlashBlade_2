@@ -81,7 +81,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
     }
 
     public static EntityJudgementCut createInstance(FMLPlayMessages.SpawnEntity packet, World worldIn){
-        return new EntityJudgementCut(SlashBlade.RegistryEvents.SummonedSword, worldIn);
+        return new EntityJudgementCut(SlashBlade.RegistryEvents.JudgementCut, worldIn);
     }
 
     @Override
@@ -336,7 +336,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
 
         if(!this.world.isRemote){
             if(this.world instanceof ServerWorld)
-                ((ServerWorld)this.world).spawnParticle(ParticleTypes.CRIT, this.posX, this.posY, this.posZ, 16, 0.5, 0.5,0.5,0.25f);
+                ((ServerWorld)this.world).spawnParticle(ParticleTypes.CRIT, this.getPosX(), this.getPosY(), this.getPosZ(), 16, 0.5, 0.5,0.5,0.25f);
 
             this.burst( getPotionEffects(), null);
         }
@@ -395,7 +395,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
 
     @Nullable
     public EntityRayTraceResult getRayTrace(Vec3d p_213866_1_, Vec3d p_213866_2_) {
-        return ProjectileHelper.func_221271_a(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
+        return ProjectileHelper.rayTraceEntities(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.canBeCollidedWith() && (p_213871_1_ != this.getShooter());
         });
     }

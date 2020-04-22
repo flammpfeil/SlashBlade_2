@@ -105,7 +105,7 @@ public class BladeStandEntity extends ItemFrameEntity implements IEntityAddition
     @Override
     public boolean processInitialInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
-        if(player.isSneaking() && !this.getDisplayedItem().isEmpty()){
+        if(player.isShiftKeyDown() && !this.getDisplayedItem().isEmpty()){
             Pose current = this.getPose();
             int newIndex = (current.ordinal() + 1) % Pose.values().length;
             this.setPose(Pose.values()[newIndex]);

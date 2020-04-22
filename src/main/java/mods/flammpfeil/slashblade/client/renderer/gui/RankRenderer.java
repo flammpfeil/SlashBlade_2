@@ -27,7 +27,7 @@ public class RankRenderer {
     }
 
     public static RankRenderer getInstance() {
-        return RankRenderer.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
 
     private RankRenderer() {
@@ -80,12 +80,14 @@ public class RankRenderer {
             GL11.glPushMatrix(); //1 store
             GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
-            mc.mainWindow.loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
+
+            //todo : korenani loadGUIRenderMatrix
+            //mc.getMainWindow().loadGUIRenderMatrix(Minecraft.IS_RUNNING_ON_MAC);
 
 
 
-            int k = mc.mainWindow.getScaledWidth();
-            int l = mc.mainWindow.getScaledHeight();
+            int k = mc.getMainWindow().getScaledWidth();
+            int l = mc.getMainWindow().getScaledHeight();
 
             //position
             GL11.glTranslatef(k * 2 / 3, l / 5, 0);
@@ -137,7 +139,7 @@ public class RankRenderer {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder wr = tessellator.getBuffer();
         wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        wr.pos(x + 0, y + height, zLevel).tex((u + 0.0) * var7, (v + height) * var8).endVertex();
+        wr.pos(x + 0, y + height, zLevel).tex((u + 0.0f) * var7, (v + height) * var8).endVertex();
         wr.pos(x + width, y + height, zLevel).tex((u + width) * var7, (v + height) * var8).endVertex();
         wr.pos(x + width, y + 0, zLevel).tex((u + width) * var7, (v + 0) * var8).endVertex();
         wr.pos(x + 0, y + 0, zLevel).tex(  (u + 0) * var7,  (v + 0) * var8).endVertex();

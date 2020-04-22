@@ -59,18 +59,18 @@ public class BladeItemEntity extends ItemEntity {
         if(this.world.isRemote){
             if (rand.nextInt(5) == 0 && getAir() < 0) {
                 Direction direction = Direction.UP;
-                double d0 = (double)this.posX - (double)(rand.nextFloat() * 0.1F);
-                double d1 = (double)this.posY - (double)(rand.nextFloat() * 0.1F);
-                double d2 = (double)this.posZ - (double)(rand.nextFloat() * 0.1F);
+                double d0 = (double)this.getPosX() - (double)(rand.nextFloat() * 0.1F);
+                double d1 = (double)this.getPosY() - (double)(rand.nextFloat() * 0.1F);
+                double d2 = (double)this.getPosZ() - (double)(rand.nextFloat() * 0.1F);
                 double d3 = (double)(0.4F - (rand.nextFloat() + rand.nextFloat()) * 0.4F);
                 this.world.addParticle(ParticleTypes.PORTAL, d0 + (double)direction.getXOffset() * d3, d1 + 2 + (double)direction.getYOffset() * d3, d2 + (double)direction.getZOffset() * d3, rand.nextGaussian() * 0.005D, -2, rand.nextGaussian() * 0.005D);
             }
 
             if (!this.onGround && !this.isInWater() && rand.nextInt(3) == 0) {
                 Direction direction = Direction.UP;
-                double d0 = (double)this.posX - (double)(rand.nextFloat() * 0.1F);
-                double d1 = (double)this.posY - (double)(rand.nextFloat() * 0.1F);
-                double d2 = (double)this.posZ - (double)(rand.nextFloat() * 0.1F);
+                double d0 = (double)this.getPosX() - (double)(rand.nextFloat() * 0.1F);
+                double d1 = (double)this.getPosY() - (double)(rand.nextFloat() * 0.1F);
+                double d2 = (double)this.getPosZ() - (double)(rand.nextFloat() * 0.1F);
                 double d3 = (double)(0.4F - (rand.nextFloat() + rand.nextFloat()) * 0.4F);
                 this.world.addParticle(ParticleTypes.END_ROD, d0 + (double)direction.getXOffset() * d3, d1 + (double)direction.getYOffset() * d3, d2 + (double)direction.getZOffset() * d3, rand.nextGaussian() * 0.005D, rand.nextGaussian() * 0.005D, rand.nextGaussian() * 0.005D);
             }
@@ -83,16 +83,16 @@ public class BladeItemEntity extends ItemEntity {
     }
 
     @Override
-    public void fall(float distance, float damageMultiplier) {
-        super.fall(distance, damageMultiplier);
+    public boolean onLivingFall(float distance, float damageMultiplier) {
+        super.onLivingFall(distance, damageMultiplier);
 
         int i = MathHelper.ceil(distance);
         if (i > 0) {
             this.playSound(SoundEvents.ENTITY_GENERIC_BIG_FALL, 1.0F, 1.0F);
             this.attackEntityFrom(DamageSource.FALL, (float)i);
-            int j = MathHelper.floor(this.posX);
-            int k = MathHelper.floor(this.posY - (double)0.2F);
-            int l = MathHelper.floor(this.posZ);
+            int j = MathHelper.floor(this.getPosX());
+            int k = MathHelper.floor(this.getPosY() - (double)0.2F);
+            int l = MathHelper.floor(this.getPosZ());
             BlockState blockstate = this.world.getBlockState(new BlockPos(j, k, l));
             if (!blockstate.isAir()) {
                 SoundType soundtype = blockstate.getSoundType(world, new BlockPos(j, k, l), this);
@@ -103,12 +103,14 @@ public class BladeItemEntity extends ItemEntity {
                 this.setGlowing(false);
             }
         }
+
+        return false;
     }
 
     @Override
-    public int getBrightnessForRender() {
+    public float getBrightness() {
         if(getAir() < 0)
             return 15728880;
-        return super.getBrightnessForRender();
+        return super.getBrightness();
     }
 }

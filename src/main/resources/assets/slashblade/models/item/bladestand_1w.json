@@ -1,9 +1,8 @@
 {
-    "parent": "slashblade:item/trapezohedron",
+    "parent": "slashblade:item/stand_w_1",
     "textures": {
         "layer0": "slashblade:soul"
     },
-    "gui_light": "front",
     "display": {
         "ground": {
             "rotation": [ 0, 0, 0 ],
@@ -11,14 +10,14 @@
             "scale":[ 0.5, 0.5, 0.5 ]
         },
         "gui": {
-            "rotation": [ 10, 0, 0 ],
-            "translation": [ 0, 0, 0],
+            "rotation": [ 30, 315, 0 ],
+            "translation": [ 0, 3, 0],
             "scale":[ 0.9, 0.9, 0.9 ]
         },
-        "head": {
-            "rotation": [ 0, 180, 0 ],
-            "translation": [ 0, 13, 7],
-            "scale":[ 1, 1, 1]
+        "gui": {
+            "rotation": [ 30, 315, 0 ],
+            "translation": [-4, -1, 0],
+            "scale":[ 0.9, 0.9, 0.9 ]
         },
         "thirdperson_righthand": {
             "rotation": [ 0, 0, 0 ],
@@ -31,7 +30,7 @@
             "scale": [ 0.68, 0.68, 0.68 ]
         },
         "fixed": {
-            "translation": [0, 0, -10],
+            "translation": [0, 0, -7],
             "rotation": [ -90, 0, 0 ],
             "scale": [ 1, 1, 1 ]
         }

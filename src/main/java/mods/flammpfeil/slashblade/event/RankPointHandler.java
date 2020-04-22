@@ -16,7 +16,7 @@ public class RankPointHandler {
         private static final RankPointHandler instance = new RankPointHandler();
     }
     public static RankPointHandler getInstance() {
-        return RankPointHandler.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private RankPointHandler(){}
     public void register(){

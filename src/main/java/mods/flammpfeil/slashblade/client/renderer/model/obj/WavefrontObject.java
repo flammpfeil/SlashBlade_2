@@ -1,8 +1,11 @@
 package mods.flammpfeil.slashblade.client.renderer.model.obj;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,6 +26,8 @@ import java.util.regex.Pattern;
  */
 public class WavefrontObject
 {
+    static public VertexFormat POSITION_TEX_LMAP_COL_NORMAL = new VertexFormat(ImmutableList.<VertexFormatElement>builder().add(DefaultVertexFormats.POSITION_3F).add(DefaultVertexFormats.TEX_2F).add(DefaultVertexFormats.TEX_2SB).add(DefaultVertexFormats.COLOR_4UB).add(DefaultVertexFormats.NORMAL_3B).add(DefaultVertexFormats.PADDING_1B).build());
+
     private static Pattern vertexPattern = Pattern.compile("(v( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *\\n)|(v( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *$)");
     private static Pattern vertexNormalPattern = Pattern.compile("(vn( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *\\n)|(vn( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *$)");
     private static Pattern textureCoordinatePattern = Pattern.compile("(vt( (\\-){0,1}\\d+\\.\\d+){2,3} *\\n)|(vt( (\\-){0,1}\\d+(\\.\\d+)?){2,3} *$)");
@@ -168,25 +173,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderAll()
-    {
-        Tessellator tessellator = Tessellator.getInstance();
-
-        if (currentGroupObject != null)
-        {
-            tessellator.getBuffer().begin(currentGroupObject.glDrawingMode, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-        }
-        else
-        {
-            tessellator.getBuffer().begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-        }
-        tessellateAll(tessellator);
-
-        tessellator.draw();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void tessellateAll(Tessellator tessellator)
+    public void tessellateAll(IVertexBuilder tessellator)
     {
         for (GroupObject groupObject : groupObjects)
         {
@@ -195,25 +182,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderOnly(String... groupNames)
-    {
-        for (GroupObject groupObject : groupObjects)
-        {
-            if(groupObject == null)
-                continue;
-
-            for (String groupName : groupNames)
-            {
-                if (groupName.equalsIgnoreCase(groupObject.name))
-                {
-                    groupObject.render();
-                }
-            }
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void tessellateOnly(Tessellator tessellator, String... groupNames) {
+    public void tessellateOnly(IVertexBuilder tessellator, String... groupNames) {
         for (GroupObject groupObject : groupObjects)
         {
             for (String groupName : groupNames)
@@ -227,19 +196,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderPart(String partName)
-    {
-        for (GroupObject groupObject : groupObjects)
-        {
-            if (partName.equalsIgnoreCase(groupObject.name))
-            {
-                groupObject.render();
-            }
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void tessellatePart(Tessellator tessellator, String partName) {
+    public void tessellatePart(IVertexBuilder tessellator, String partName) {
         for (GroupObject groupObject : groupObjects)
         {
             if (partName.equalsIgnoreCase(groupObject.name))
@@ -250,27 +207,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void renderAllExcept(String... excludedGroupNames)
-    {
-        for (GroupObject groupObject : groupObjects)
-        {
-            boolean skipPart=false;
-            for (String excludedGroupName : excludedGroupNames)
-            {
-                if (excludedGroupName.equalsIgnoreCase(groupObject.name))
-                {
-                    skipPart=true;
-                }
-            }
-            if(!skipPart)
-            {
-                groupObject.render();
-            }
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void tessellateAllExcept(Tessellator tessellator, String... excludedGroupNames)
+    public void tessellateAllExcept(IVertexBuilder tessellator, String... excludedGroupNames)
     {
         boolean exclude;
         for (GroupObject groupObject : groupObjects)

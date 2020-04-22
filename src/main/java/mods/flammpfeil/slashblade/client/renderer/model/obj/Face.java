@@ -1,14 +1,47 @@
 package mods.flammpfeil.slashblade.client.renderer.model.obj;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.Matrix3f;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.client.renderer.Vector4f;
+import net.minecraft.util.LazyValue;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.awt.*;
+import java.util.function.Supplier;
+
 public class Face
 {
     public static boolean isSmoothShade = true;
+    public static int lightmap = 15;
+    public static void setLightMap(int value){
+        lightmap = value;
+    }
+    public static void resetLightMap(){
+        lightmap = 15;
+    }
+
+    public static Color col;
+    public static void setCol(Color col) {
+        Face.col = col;
+    }
+    public static void resetCol() {
+        Face.col = Color.white;
+    }
+
+    private static final LazyValue<Matrix4f> defaultTransform = new LazyValue(()->{Matrix4f m = new Matrix4f(); m.setIdentity(); return m;});
+
+    public static MatrixStack matrix = null;
+    public static void setMatrix(MatrixStack ms){
+        matrix = ms;
+    }
+    public static void resetMatrix(){
+        matrix = null;
+    }
 
     public Vertex[] vertices;
     public Vertex[] vertexNormals;
@@ -16,13 +49,13 @@ public class Face
     public TextureCoordinate[] textureCoordinates;
 
     @OnlyIn(Dist.CLIENT)
-    public void addFaceForRender(Tessellator tessellator)
+    public void addFaceForRender(IVertexBuilder tessellator)
     {
         addFaceForRender(tessellator, 0.0005F);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void addFaceForRender(Tessellator tessellator, float textureOffset)
+    public void addFaceForRender(IVertexBuilder tessellator, float textureOffset)
     {
         if (faceNormal == null)
         {
@@ -46,11 +79,22 @@ public class Face
 
         float offsetU, offsetV;
 
-        BufferBuilder wr = tessellator.getBuffer();
+        IVertexBuilder wr = tessellator;
+
+
+        Matrix4f transform;
+        if(matrix != null){
+            MatrixStack.Entry me = matrix.getLast();
+            transform = me.getMatrix();
+        }else{
+            transform = defaultTransform.getValue();
+        }
 
         for (int i = 0; i < vertices.length; ++i)
         {
-            wr.pos(vertices[i].x, vertices[i].y, vertices[i].z);
+            Vector4f vector4f = new Vector4f(vertices[i].x, vertices[i].y, vertices[i].z, 1.0F);
+            vector4f.transform(transform);
+            wr.pos(vector4f.getX(),vector4f.getY(),vector4f.getZ());
 
             if ((textureCoordinates != null) && (textureCoordinates.length > 0))
             {
@@ -72,15 +116,24 @@ public class Face
                 wr.tex(0, 0);
             }
 
-            if(isSmoothShade && vertexNormals != null) {
-                Vertex normal = vertexNormals[i];
-                Vec3d nol = new Vec3d(normal.x, normal.y, normal.z);
-                nol.rotatePitch(180);
-                wr.normal((float)nol.x, (float)nol.y, (float)nol.z);
-            }else{
+            wr.lightmap(lightmap);
 
-                wr.normal(faceNormal.x, faceNormal.y, faceNormal.z);
+            wr.color(col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha());
+
+            Vector3f vector3f;
+            if(isSmoothShade && vertexNormals != null) {
+
+                Vertex normal = vertexNormals[i];
+
+                Vec3d nol = new Vec3d(normal.x, normal.y, normal.z);
+                //nol.rotatePitch(180);
+                vector3f = new Vector3f((float)nol.x, (float)nol.y, (float)nol.z);
+            }else{
+                vector3f = new Vector3f(faceNormal.x, faceNormal.y, faceNormal.z);
             }
+            vector3f.transform(new Matrix3f(transform));;
+            vector3f.normalize();
+            wr.normal(vector3f.getX(), vector3f.getY(), vector3f.getZ());
 
             wr.endVertex();
         }

@@ -11,7 +11,7 @@ public class SneakingMotionCanceller {
         private static final SneakingMotionCanceller instance = new SneakingMotionCanceller();
     }
     public static SneakingMotionCanceller getInstance() {
-        return SneakingMotionCanceller.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private SneakingMotionCanceller(){}
     public void register(){
@@ -25,7 +25,7 @@ public class SneakingMotionCanceller {
         if(stack.isEmpty()) return;
         if(!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-        if(!event.getPlayer().isSneaking()) return;
+        if(!event.getPlayer().isCrouching()) return;
 
         if(event.getPlayer().abilities.isFlying) return;
 

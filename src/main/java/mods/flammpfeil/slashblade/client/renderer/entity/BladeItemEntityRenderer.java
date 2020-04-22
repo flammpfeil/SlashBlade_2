@@ -1,35 +1,21 @@
 package mods.flammpfeil.slashblade.client.renderer.entity;
 
-import com.mojang.blaze3d.platform.GLX;
-import com.mojang.blaze3d.platform.GlStateManager;
-import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
-import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
-import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
+import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL14;
 
-import javax.vecmath.Color4f;
-import java.awt.*;
 import java.util.EnumSet;
 
 public class BladeItemEntityRenderer extends ItemRenderer {
@@ -48,32 +34,21 @@ public class BladeItemEntityRenderer extends ItemRenderer {
     }
 
     @Override
-    public void doRender(ItemEntity itemIn, double x, double y, double z, float entityYaw, float partialTicks) {
-
+    public void render(ItemEntity itemIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         this.shadowSize = 0;
 
         if(!itemIn.getItem().isEmpty()){
-            renderBlade(itemIn, x, y, z, entityYaw, partialTicks);
+            renderBlade(itemIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
         }else{
             partialTicks = (float)(itemIn.hoverStart * 20.0 - (double)itemIn.getAge());
-            super.doRender(itemIn, x, y, z, entityYaw, partialTicks);
+            super.render(itemIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
         }
     }
 
-    private void renderBlade(ItemEntity itemIn, double x, double y, double z, float entityYaw, float partialTicks) {
+    private void renderBlade(ItemEntity itemIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
 
-        if (this.renderOutlines) {
-            GlStateManager.enableColorMaterial();
-            GlStateManager.setupSolidRenderingTextureCombine(this.getTeamColor(itemIn));
-        }
-
-        try (MSAutoCloser msac = MSAutoCloser.pushMatrix()) {
-            GlStateManager.pushLightingAttributes();
-            GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
-
-            GlStateManager.enableLighting();
-            GlStateManager.translated(x, y, z);
-            GlStateManager.rotatef(entityYaw ,0,1 ,0);
+        try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
+            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityYaw));
 
             ItemStack current = itemIn.getItem();
 
@@ -100,9 +75,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
             float scale = 0.00625f;
 
-            GlStateManager.shadeModel(GL11.GL_SMOOTH);
-
-            try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix()) {
+            try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
                 float heightOffset;
                 float xOffset = 0;
@@ -124,124 +97,95 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
                 if(itemIn.isInWater()){
 
-                    GlStateManager.translatef(0, 0.025f, 0);
-                    GlStateManager.rotatef(itemIn.hoverStart ,0 ,1, 0);
+                    matrixStackIn.translate(0, 0.025f, 0);
+                    matrixStackIn.rotate(Vector3f.YP.rotationDegrees(itemIn.hoverStart));
 
-                    GlStateManager.scalef(scale, scale, scale);
+                    matrixStackIn.scale(scale, scale, scale);
 
-                    GlStateManager.rotatef(90, 1, 0, 0);
+                    matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90));
 
                 }else if(!itemIn.onGround)
                 {
-                    GlStateManager.scalef(scale, scale, scale);
+                    matrixStackIn.scale(scale, scale, scale);
 
                     float speed = -81f;
-                    GlStateManager.rotatef(speed * (itemIn.ticksExisted + partialTicks) ,0,0,1);
-                    GlStateManager.translatef(xOffset, 0 , 0);
+                    matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(speed * (itemIn.ticksExisted + partialTicks)));
+                    matrixStackIn.translate(xOffset, 0 , 0);
                 }else{
-                    GlStateManager.scalef(scale, scale, scale);
+                    matrixStackIn.scale(scale, scale, scale);
 
-                    GlStateManager.rotatef(60 + (float)Math.toDegrees(itemIn.hoverStart / 6.0),0,0,1);
-                    GlStateManager.translatef(heightOffset, 0 , 0);
+                    matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(60 + (float)Math.toDegrees(itemIn.hoverStart / 6.0)));
+                    matrixStackIn.translate(heightOffset, 0 , 0);
                 }
 
 
 
-                RenderHandler.renderOverrided(current, model, renderTarget, textureLocation);
-
-                GL11.glEnable(GL11.GL_BLEND);
-                GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-
-                try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                    RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
-                }
-
-                GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-
+                BladeRenderState.renderOverrided(current, model, renderTarget, textureLocation, matrixStackIn, bufferIn, packedLightIn);
+                BladeRenderState.renderOverridedLuminous(current, model, renderTarget + "_luminous", textureLocation, matrixStackIn, bufferIn, packedLightIn);
             }
 
             if((itemIn.isInWater() || itemIn.onGround) && !types.contains(SwordType.NoScabbard)) {
 
-                try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix()) {
+                try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
-                    GlStateManager.translatef(0, 0.025f, 0);
+                    matrixStackIn.translate(0, 0.025f, 0);
 
-                    GlStateManager.rotatef(itemIn.hoverStart ,0 ,1, 0);
+                    matrixStackIn.rotate(Vector3f.YP.rotationDegrees(itemIn.hoverStart));
 
                     if(!itemIn.isInWater()){
-                        GlStateManager.translated(0.75, 0, -0.4);
+                        matrixStackIn.translate(0.75, 0, -0.4);
                     }
 
-                    GlStateManager.scalef(scale, scale, scale);
+                    matrixStackIn.scale(scale, scale, scale);
 
-                    GlStateManager.rotatef(90, 1, 0, 0);
+                    matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90));
 
                     String renderTarget = "sheath";
 
-                    RenderHandler.renderOverrided(current, model, renderTarget, textureLocation);
-
-                    GL11.glEnable(GL11.GL_BLEND);
-                    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-
-                    try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                        RenderHandler.renderOverrided(current, model, renderTarget + "_luminous", textureLocation);
-                    }
-
-                    GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+                    BladeRenderState.renderOverrided(current, model, renderTarget, textureLocation, matrixStackIn, bufferIn, packedLightIn);
+                    BladeRenderState.renderOverridedLuminous(current, model, renderTarget + "_luminous", textureLocation, matrixStackIn, bufferIn, packedLightIn);
                 }
             }
 
-
-            GL11.glDisable(GL11.GL_ALPHA_TEST);
-            GlStateManager.enableLighting();
-            GL11.glEnable(GL11.GL_CULL_FACE);
-
-            GlStateManager.shadeModel(GL11.GL_FLAT);
-            GlStateManager.popAttributes();
         }
 
-
-
-        if (this.renderOutlines) {
-            GlStateManager.tearDownSolidRenderingTextureCombine();
-            GlStateManager.disableColorMaterial();
-        }
-
+        //todo: fire render override?
     }
 
-
+    /*
     @Override
     public void doRenderShadowAndFire(Entity entityIn, double x, double y, double z, float yaw, float partialTicks) {
 
-        GlStateManager.enableBlend();
-        GlStateManager.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE
-                , GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        matrixStackIn.enableBlend();
+        matrixStackIn.blendFuncSeparate(
+                matrixStackIn.SourceFactor.SRC_COLOR, matrixStackIn.DestFactor.ONE
+                , matrixStackIn.SourceFactor.ONE, matrixStackIn.DestFactor.ZERO);
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef((float)x, (float)y, (float)z);
-        GlStateManager.scaled(1.4,1.8, 1.4);
-        GlStateManager.translatef((float)-x, (float)-y, (float)-z);
+        matrixStackIn.pushMatrix();
+        matrixStackIn.translatef((float)x, (float)y, (float)z);
+        matrixStackIn.scaled(1.4,1.8, 1.4);
+        matrixStackIn.translatef((float)-x, (float)-y, (float)-z);
 
         //core
         super.doRenderShadowAndFire(entityIn, x, y, z, yaw, partialTicks);
 
 
         //dark fire
-        GlStateManager.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE
-                , GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.translatef((float)x, (float)y, (float)z);
-        GlStateManager.scaled(1.5,1.6,1.5);
-        GlStateManager.translatef((float)-x, (float)-y, (float)-z);
+        matrixStackIn.blendFuncSeparate(
+                matrixStackIn.SourceFactor.SRC_ALPHA, matrixStackIn.DestFactor.ONE
+                , matrixStackIn.SourceFactor.ONE, matrixStackIn.DestFactor.ZERO);
+        matrixStackIn.translatef((float)x, (float)y, (float)z);
+        matrixStackIn.scaled(1.5,1.6,1.5);
+        matrixStackIn.translatef((float)-x, (float)-y, (float)-z);
         super.doRenderShadowAndFire(entityIn, x, y, z, yaw, partialTicks);
-        GlStateManager.blendEquation(GL14.GL_FUNC_REVERSE_SUBTRACT);
+        matrixStackIn.blendEquation(GL14.GL_FUNC_REVERSE_SUBTRACT);
         super.doRenderShadowAndFire(entityIn, x, y, z, yaw, partialTicks);
 
 
-        GlStateManager.popMatrix();
-        GlStateManager.blendEquation(GL14.GL_FUNC_ADD);
-        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-        GlStateManager.disableBlend();
+        matrixStackIn.popMatrix();
+        matrixStackIn.blendEquation(GL14.GL_FUNC_ADD);
+        matrixStackIn.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+        matrixStackIn.disableBlend();
     }
+    */
 }

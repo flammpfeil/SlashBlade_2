@@ -142,7 +142,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
         Vec3d vec3d = (new Vec3d(x, y, z)).normalize().add(this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale((double)velocity);
         this.setMotion(vec3d);
-        float f = MathHelper.sqrt(func_213296_b(vec3d));
+        float f = MathHelper.sqrt(horizontalMag(vec3d));
         this.rotationYaw = (float)(MathHelper.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI));
         this.rotationPitch = (float)(MathHelper.atan2(vec3d.y, (double)f) * (double)(180F / (float)Math.PI));
         this.prevRotationYaw = this.rotationYaw;
@@ -179,7 +179,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             this.rotationYaw = (float)(MathHelper.atan2(x, z) * (double)(180F / (float)Math.PI));
             this.prevRotationPitch = this.rotationPitch;
             this.prevRotationYaw = this.rotationYaw;
-            this.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+            this.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), this.rotationYaw, this.rotationPitch);
             this.ticksInGround = 0;
         }
 
@@ -254,20 +254,20 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
         boolean disallowedHitBlock = this.isNoClip();
         Vec3d motionVec = this.getMotion();
         if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
-            float f = MathHelper.sqrt(func_213296_b(motionVec));
+            float f = MathHelper.sqrt(horizontalMag(motionVec));
             this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
             this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, (double)f) * (double)(180F / (float)Math.PI));
             this.prevRotationYaw = this.rotationYaw;
             this.prevRotationPitch = this.rotationPitch;
         }
 
-        BlockPos blockpos = new BlockPos(this.posX, this.posY, this.posZ);
+        BlockPos blockpos = new BlockPos(this.getPosX(), this.getPosY(), this.getPosZ());
         BlockState blockstate = this.world.getBlockState(blockpos);
         if (!blockstate.isAir(this.world, blockpos) && !disallowedHitBlock) {
             VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
             if (!voxelshape.isEmpty()) {
                 for(AxisAlignedBB axisalignedbb : voxelshape.toBoundingBoxList()) {
-                    if (axisalignedbb.offset(blockpos).contains(new Vec3d(this.posX, this.posY, this.posZ))) {
+                    if (axisalignedbb.offset(blockpos).contains(new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ()))) {
                         this.inGround = true;
                         break;
                     }
@@ -280,7 +280,8 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
         }
 
         if (this.inGround && !disallowedHitBlock) {
-            if (this.inBlockState != blockstate && this.world.areCollisionShapesEmpty(this.getBoundingBox().grow(0.06D))) {
+            //areCollisionShapesEmpty:func_226664_a_
+            if (this.inBlockState != blockstate && this.world.func_226664_a_(this.getBoundingBox().grow(0.06D))) {
                 this.inGround = false;
                 this.setMotion(motionVec.mul((double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F)));
                 this.ticksInGround = 0;
@@ -330,14 +331,12 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             double mz = motionVec.z;
             if (this.getIsCritical()) {
                 for(int i = 0; i < 4; ++i) {
-                    this.world.addParticle(ParticleTypes.CRIT, this.posX + mx * (double)i / 4.0D, this.posY + my * (double)i / 4.0D, this.posZ + mz * (double)i / 4.0D, -mx, -my + 0.2D, -mz);
+                    this.world.addParticle(ParticleTypes.CRIT, this.getPosX() + mx * (double)i / 4.0D, this.getPosY() + my * (double)i / 4.0D, this.getPosZ() + mz * (double)i / 4.0D, -mx, -my + 0.2D, -mz);
                 }
             }
 
-            this.posX += mx;
-            this.posY += my;
-            this.posZ += mz;
-            float f4 = MathHelper.sqrt(func_213296_b(motionVec));
+            this.setPosition(this.getPosX()+ mx, this.getPosY()+my, this.getPosZ()+mz);
+            float f4 = MathHelper.sqrt(horizontalMag(motionVec));
             if (disallowedHitBlock) {
                 this.rotationYaw = (float)(MathHelper.atan2(-mx, -mz) * (double)(180F / (float)Math.PI));
             } else {
@@ -367,7 +366,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             if (this.isInWater()) {
                 for(int j = 0; j < 4; ++j) {
                     float f3 = 0.25F;
-                    this.world.addParticle(ParticleTypes.BUBBLE, this.posX - mx * 0.25D, this.posY - my * 0.25D, this.posZ - mz * 0.25D, mx, my, mz);
+                    this.world.addParticle(ParticleTypes.BUBBLE, this.getPosX() - mx * 0.25D, this.getPosY() - my * 0.25D, this.getPosZ() - mz * 0.25D, mx, my, mz);
                 }
             }
 
@@ -377,7 +376,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
                 this.setMotion(vec3d3.x, vec3d3.y - (double)0.05F, vec3d3.z);
             }
 
-            this.setPosition(this.posX, this.posY, this.posZ);
+            //this.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
             this.doBlockCollisions();
         }
 
@@ -409,12 +408,10 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     protected void onHitBlock(BlockRayTraceResult blockraytraceresult) {
         BlockState blockstate = this.world.getBlockState(blockraytraceresult.getPos());
         this.inBlockState = blockstate;
-        Vec3d vec3d = blockraytraceresult.getHitVec().subtract(this.posX, this.posY, this.posZ);
+        Vec3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
         this.setMotion(vec3d);
-        Vec3d vec3d1 = vec3d.normalize().scale((double) 0.05F);
-        this.posX -= vec3d1.x;
-        this.posY -= vec3d1.y;
-        this.posZ -= vec3d1.z;
+        Vec3d vec3d1 = this.getPositionVec().subtract(vec3d.normalize().scale((double) 0.05F));
+        this.setPosition(vec3d1.x, vec3d1.y, vec3d1.z);
         this.playSound(this.getHitGroundSound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
         this.inGround = true;
         this.setIsCritical(false);
@@ -455,7 +452,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             }
         }
 
-        int fireTime = targetEntity.func_223314_ad();
+        int fireTime = targetEntity.getFireTimer();
         if (this.isBurning() && !(targetEntity instanceof EndermanEntity)) {
             targetEntity.setFire(5);
         }
@@ -477,7 +474,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
                 affectEntity(targetLivingEntity, getPotionEffects(), 1.0f);
 
                 if (shooter != null && targetLivingEntity != shooter && targetLivingEntity instanceof PlayerEntity && shooter instanceof ServerPlayerEntity) {
-                    ((ServerPlayerEntity) shooter).func_213823_a(this.getHitEntityPlayerSound(), SoundCategory.PLAYERS, 0.18F, 0.45F);
+                    ((ServerPlayerEntity) shooter).playSound(this.getHitEntityPlayerSound(), SoundCategory.PLAYERS, 0.18F, 0.45F);
                 }
             }
 
@@ -486,7 +483,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
                 this.burst();
             }
         } else {
-            targetEntity.func_223308_g(fireTime);
+            targetEntity.setFireTimer(fireTime);
             this.setMotion(this.getMotion().scale(-0.1D));
             this.rotationYaw += 180.0F;
             this.prevRotationYaw += 180.0F;
@@ -521,7 +518,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
 
     @Nullable
     protected EntityRayTraceResult getRayTrace(Vec3d p_213866_1_, Vec3d p_213866_2_) {
-        return ProjectileHelper.func_221271_a(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
+        return ProjectileHelper.rayTraceEntities(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.canBeCollidedWith() && (p_213871_1_ != this.getShooter() || this.ticksInAir >= 5) && (this.alreadyHits == null || !this.alreadyHits.contains(p_213871_1_.getEntityId()));
         });
     }
@@ -551,7 +548,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
 
         if(!this.world.isRemote){
             if(this.world instanceof ServerWorld)
-                ((ServerWorld)this.world).spawnParticle(ParticleTypes.CRIT, this.posX, this.posY, this.posZ, 16, 0.5, 0.5,0.5,0.25f);
+                ((ServerWorld)this.world).spawnParticle(ParticleTypes.CRIT, this.getPosX(), this.getPosY(), this.getPosZ(), 16, 0.5, 0.5,0.5,0.25f);
 
             this.burst( getPotionEffects(), null);
         }

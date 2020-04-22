@@ -45,7 +45,7 @@ public class LockOnManager {
     }
 
     public static LockOnManager getInstance() {
-        return LockOnManager.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
 
     private LockOnManager() {
@@ -140,12 +140,12 @@ public class LockOnManager {
 
             step *= Math.min(1.0f ,Math.abs(Math.tan(Math.toRadians(oldYaw - entity.rotationYawHead)) ));
 
-            entity.rotationYawHead = MathHelper.func_219805_h(step, oldYawHead, entity.rotationYawHead);
+            entity.rotationYawHead = MathHelper.interpolateAngle(step, oldYawHead, entity.rotationYawHead);
             entity.renderYawOffset = entity.rotationYawHead;
             entity.prevRenderYawOffset = entity.renderYawOffset;
 
-            entity.rotationPitch = MathHelper.func_219805_h(step,oldPitch ,entity.rotationPitch);
-            entity.rotationYaw = MathHelper.func_219805_h(step, oldYaw , entity.rotationYaw);
+            entity.rotationPitch = MathHelper.interpolateAngle(step,oldPitch ,entity.rotationPitch);
+            entity.rotationYaw = MathHelper.interpolateAngle(step, oldYaw , entity.rotationYaw);
         });
     }
 

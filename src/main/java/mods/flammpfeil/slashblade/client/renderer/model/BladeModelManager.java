@@ -42,17 +42,6 @@ public class BladeModelManager {
         defaultModel = new WavefrontObject(resourceDefaultModel);
 
         cache = CacheBuilder.newBuilder()
-                .removalListener(notification -> {
-                    if(!(notification.getValue() instanceof WavefrontObject))
-                        return;
-
-                    WavefrontObject obj = (WavefrontObject)notification.getValue();
-
-                    obj.groupObjects.stream().forEach(g -> {
-                        if(g.compiled)
-                            GLAllocation.deleteDisplayLists(g.displayList);
-                    });
-                })
                 .build(
                 CacheLoader.asyncReloading(new CacheLoader<ResourceLocation, WavefrontObject>() {
                     @Override

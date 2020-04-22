@@ -2,17 +2,17 @@ package mods.flammpfeil.slashblade.item;
 
 import net.minecraft.item.IItemTier;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.LazyLoadBase;
+import net.minecraft.util.LazyValue;
 
 import java.util.function.Supplier;
 
 public class ItemTierSlashBlade implements IItemTier {
 
 
-    private final LazyLoadBase<Ingredient> repairMaterial;
+    private final LazyValue<Ingredient> repairMaterial;
 
     public ItemTierSlashBlade(Supplier<Ingredient> repairMaterialIn){
-        repairMaterial = new LazyLoadBase<>(repairMaterialIn);
+        repairMaterial = new LazyValue<>(repairMaterialIn);
     }
 
     @Override

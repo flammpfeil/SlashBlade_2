@@ -71,7 +71,7 @@ public class JudgementCut {
         jc.setShooter(user);
         worldIn.addEntity(jc);
 
-        worldIn.playSound((PlayerEntity)null, jc.posX, jc.posY, jc.posZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));
+        worldIn.playSound((PlayerEntity)null, jc.getPosX(), jc.getPosY(), jc.getPosZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));
 
         return jc;
     }

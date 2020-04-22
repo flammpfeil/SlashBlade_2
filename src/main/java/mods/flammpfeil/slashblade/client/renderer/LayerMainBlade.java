@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import jp.nyatla.nymmd.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
@@ -9,12 +9,13 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import mods.flammpfeil.slashblade.client.renderer.util.LightLevelMaximizer;
-import mods.flammpfeil.slashblade.client.renderer.util.RenderHandler;
-import mods.flammpfeil.slashblade.event.client.RenderOverrideEvent;
+import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
+import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Matrix3f;
 import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
@@ -30,6 +31,7 @@ import org.lwjgl.opengl.GL11;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> extends LayerRenderer<T, M> {
 
@@ -81,7 +83,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
     }
 
     @Override
-    public void render(T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ticksExisted, float yawDiff, float rotationPitch, float scalef) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         float motionYOffset = 1.5f;
         float motionScale = 1.5f / 12.0f;
@@ -139,22 +141,16 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                 }
 
 
-                try {
-                    GlStateManager.pushMatrix();
-
-                    GlStateManager.shadeModel(GL11.GL_SMOOTH);
-                    GL11.glEnable(GL11.GL_BLEND);
-                    GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.05f);
-
+                try(MSAutoCloser msacA = MSAutoCloser.pushMatrix(matrixStack)){
                     //minecraft model neckPoint height = 1.5f
                     //mmd model neckPoint height = 12.0f
-                    GlStateManager.translatef(0, motionYOffset, 0);
+                    matrixStack.translate(0, motionYOffset, 0);
 
-                    GlStateManager.scalef(-motionScale, motionScale, motionScale);
+                    matrixStack.scale(motionScale, motionScale, motionScale);
 
 
                     //transpoze mmd to mc
-                    GlStateManager.rotatef(180.0f, 0, 0, 1);
+                    matrixStack.rotate(Vector3f.ZP.rotationDegrees(180));
 
 
                     ResourceLocation textureLocation = s.getTexture().orElseGet(() -> BladeModelManager.resourceDefaultTexture);
@@ -162,22 +158,26 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                     WavefrontObject obj = BladeModelManager.getInstance().getModel(s.getModel().orElse(null));
 
-                    {
-                        GlStateManager.pushMatrix();
-
+                    try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
                         int idx = mmp.getBoneIndexByName("hardpointA");
+
                         if (0 <= idx) {
                             float[] buf = new float[16];
                             mmp._skinning_mat[idx].getValue(buf);
-                            Matrix4f mat = new Matrix4f();
-                            mat.read(FloatBuffer.wrap(buf));
-                            GlStateManager.multMatrix(mat);
+
+                            Matrix4f mat = new Matrix4f(buf);
+                            mat.transpose();
+
+                            matrixStack.scale(-1, 1, 1);
+                            MatrixStack.Entry entry = matrixStack.getLast();
+                            entry.getMatrix().mul(mat);
+                            matrixStack.scale(-1, 1, 1);
                         }
 
                         float modelScale = modelScaleBase * (1.0f / motionScale);
-                        GlStateManager.scalef(modelScale, modelScale, modelScale);
+                        matrixStack.scale(modelScale, modelScale, modelScale);
 
-                        GlStateManager.rotatef(180, 0, 1, 0);
+                        //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));
 
 
                         String part;
@@ -187,67 +187,49 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             part = "blade";
                         }
 
-                        RenderHandler.renderOverrided(stack, obj, part, textureLocation);
-
-                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-                        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                            RenderHandler.renderOverrided(stack, obj, part + "_luminous", textureLocation);
-                        }
-                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-
-                        GlStateManager.popMatrix();
+                        BladeRenderState.renderOverrided(stack, obj, part, textureLocation, matrixStack, bufferIn, lightIn);
+                        BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
                     }
-                    {
-                        GlStateManager.pushMatrix();
+                    try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
                         int idx = mmp.getBoneIndexByName("hardpointB");
+
                         if (0 <= idx) {
                             float[] buf = new float[16];
                             mmp._skinning_mat[idx].getValue(buf);
-                            Matrix4f mat = new Matrix4f();
-                            mat.read(FloatBuffer.wrap(buf));
-                            GlStateManager.multMatrix(mat);
+
+                            Matrix4f mat = new Matrix4f(buf);
+                            mat.transpose();
+
+                            matrixStack.scale(-1, 1, 1);
+                            MatrixStack.Entry entry = matrixStack.getLast();
+                            entry.getMatrix().mul(mat);
+                            matrixStack.scale(-1, 1, 1);
                         }
+
 
                         float modelScale = modelScaleBase * (1.0f / motionScale);
-                        GlStateManager.scalef(modelScale, modelScale, modelScale);
+                        matrixStack.scale(modelScale, modelScale, modelScale);
 
-                        GlStateManager.rotatef(180, 0, 1, 0);
-                        RenderHandler.renderOverrided(stack, obj, "sheath", textureLocation);
-                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE, GL11.GL_ZERO);
-                        try(LightLevelMaximizer llm = LightLevelMaximizer.maximize()){
-                            RenderHandler.renderOverrided(stack, obj, "sheath" + "_luminous", textureLocation);
-                        }
-                        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+                        //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));
+
+                        BladeRenderState.renderOverrided(stack, obj, "sheath", textureLocation, matrixStack, bufferIn, lightIn);
+                        BladeRenderState.renderOverridedLuminous(stack, obj, "sheath_luminous", textureLocation, matrixStack, bufferIn, lightIn);
 
                         if(s.isCharged(entity)){
                             //todo : charge effect
-                            //todo: Sneak Motion Canceling
                         }
-
-
-                        GlStateManager.popMatrix();
                     }
-                    {
-                        GlStateManager.pushMatrix();
-
-                        GlStateManager.scalef(1,1,-1);
+                    /*
+                    try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
+                        matrixStack.scale(1,1,-1);
                         //mmp.render();
-
-                        GlStateManager.popMatrix();
                     }
+                    */
 
-                } finally {
-                    GlStateManager.shadeModel(GL11.GL_FLAT);
-                    GlStateManager.popMatrix();
                 }
 
             });
 
         });
-    }
-
-    @Override
-    public boolean shouldCombineTextures() {
-        return false;
     }
 }

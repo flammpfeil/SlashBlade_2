@@ -24,7 +24,7 @@ public class NBTHelper {
         ListNBT listnbt = new ListNBT();
 
         for (double dValue : numbers) {
-            listnbt.add(new DoubleNBT(dValue));
+            listnbt.add(DoubleNBT.valueOf(dValue));
         }
 
         return listnbt;

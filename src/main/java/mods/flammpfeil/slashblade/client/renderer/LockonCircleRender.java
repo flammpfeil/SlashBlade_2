@@ -1,15 +1,19 @@
 package mods.flammpfeil.slashblade.client.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
 import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
+import mods.flammpfeil.slashblade.client.renderer.model.obj.Face;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.ImputCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +34,7 @@ public class LockonCircleRender {
     }
 
     public static LockonCircleRender getInstance() {
-        return LockonCircleRender.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
 
     private LockonCircleRender() {
@@ -46,6 +50,7 @@ public class LockonCircleRender {
 
     @SubscribeEvent
     public void onRenderLiving(RenderWorldLastEvent event){
+        //todo : render faled
         PlayerEntity player = Minecraft.getInstance().player;
         if(player == null) return;
         if(!player.getCapability(CapabilityImputState.IMPUT_STATE).filter(imput->imput.getCommands().contains(ImputCommand.SNEAK)).isPresent()) return;
@@ -76,27 +81,31 @@ public class LockonCircleRender {
             float[] col = s.getEffectColor().getColorComponents(null);
             final float alpha = 0xAA / 256.0f;
 
-            try(MSAutoCloser m = MSAutoCloser.pushMatrix()){
-                GlStateManager.translated(pos.x,pos.y,pos.z);
+            try{
+                RenderSystem.pushMatrix();
+
+                RenderSystem.multMatrix( event.getMatrixStack().getLast().getMatrix() );
+
+                RenderSystem.translated(pos.x,pos.y,pos.z);
 
                 double scale = 0.00625;
-                GlStateManager.scaled(scale, scale, scale);
+                RenderSystem.scaled(scale, scale, scale);
 
                 double rotYaw = ari.getYaw();
                 double rotPitch = ari.getPitch();
-                GlStateManager.rotated(rotYaw + 180.0,0,-1,0);
-                GlStateManager.rotated(rotPitch,-1,0,0);
+                RenderSystem.rotatef((float)(rotYaw + 180.0),0,-1,0);
+                RenderSystem.rotatef((float)rotPitch,-1,0,0);
 
 
-                GlStateManager.disableCull();
+                RenderSystem.disableCull();
 
-                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                GlStateManager.alphaFunc(GL11.GL_ALWAYS, 0.05F);
-                GlStateManager.enableBlend();
-                GlStateManager.depthMask(true);
-                GlStateManager.enableDepthTest();
-                GlStateManager.depthFunc(GL11.GL_ALWAYS);
-                GlStateManager.shadeModel(GL11.GL_SMOOTH);
+                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                RenderSystem.alphaFunc(GL11.GL_ALWAYS, 0.05F);
+                RenderSystem.enableBlend();
+                RenderSystem.depthMask(true);
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_ALWAYS);
+                RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
 
                 WavefrontObject model = BladeModelManager.getInstance().getModel(modelLoc);
@@ -105,25 +114,43 @@ public class LockonCircleRender {
 
                 Minecraft.getInstance().getTextureManager().bindTexture(resourceTexture);
 
-                GlStateManager.color4f(col[0],col[1],col[2], alpha);
-                model.renderPart("lockonBase");
-                try(MSAutoCloser mm = MSAutoCloser.pushMatrix()){
-                    GlStateManager.translatef(0,0, health * 10.0f);
-                    GlStateManager.color4f(0,0,0,0);
-                    model.renderPart("lockonHealthMask");
+                BufferBuilder bb = Tessellator.getInstance().getBuffer();
+                bb.begin(GL11.GL_TRIANGLES, WavefrontObject.POSITION_TEX_LMAP_COL_NORMAL);
+
+                Face.setCol(new Color(s.getEffectColor().getRGB() & 0xFFFFFF | 0xAA000000, true));
+                model.tessellatePart(bb,"lockonBase");
+                Tessellator.getInstance().draw();
+                try{
+                    RenderSystem.pushMatrix();
+
+                    RenderSystem.translatef(0,0, health * 10.0f);
+
+
+                    bb.begin(GL11.GL_TRIANGLES, WavefrontObject.POSITION_TEX_LMAP_COL_NORMAL);
+                    Face.setCol(new Color(0, true));
+                    model.tessellatePart(bb,"lockonHealthMask");
+                    Tessellator.getInstance().draw();
+                }finally {
+                    RenderSystem.popMatrix();
                 }
-                GlStateManager.depthFunc(GL11.GL_LEQUAL);
-                GlStateManager.color4f(col[0],col[1],col[2], alpha);
-                model.renderPart("lockonHealth");
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+                bb.begin(GL11.GL_TRIANGLES, WavefrontObject.POSITION_TEX_LMAP_COL_NORMAL);
+                Face.setCol(new Color(s.getEffectColor().getRGB() & 0xFFFFFF | 0xAA000000, true));
+                model.tessellatePart(bb,"lockonHealth");
+                Tessellator.getInstance().draw();
+                Face.resetCol();
 
 
 
-                GlStateManager.alphaFunc(GL11.GL_GEQUAL, 0.01F);
-                GlStateManager.depthMask(true);
-                GlStateManager.shadeModel(GL11.GL_FLAT);
-                GlStateManager.enableCull();
-                GlStateManager.disableBlend();
-                GlStateManager.disableFog();
+                RenderSystem.alphaFunc(GL11.GL_GEQUAL, 0.01F);
+                RenderSystem.depthMask(true);
+                RenderSystem.shadeModel(GL11.GL_FLAT);
+                RenderSystem.enableCull();
+                RenderSystem.disableBlend();
+                RenderSystem.disableFog();
+                RenderSystem.defaultBlendFunc();
+            }finally {
+                RenderSystem.popMatrix();
             }
         });
 

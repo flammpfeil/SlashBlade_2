@@ -20,7 +20,7 @@ public class BladeMaterialTooltips {
         private static final BladeMaterialTooltips instance = new BladeMaterialTooltips();
     }
     public static BladeMaterialTooltips getInstance() {
-        return BladeMaterialTooltips.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private BladeMaterialTooltips(){}
     public void register(){
@@ -40,9 +40,9 @@ public class BladeMaterialTooltips {
         ItemStack blade = ItemStack.EMPTY;
 
 
-        if(event.getEntityPlayer() != null){
-            if(event.getEntityPlayer().openContainer instanceof RepairContainer){
-                blade = event.getEntityPlayer().openContainer.getSlot(0).getStack();
+        if(event.getPlayer() != null){
+            if(event.getPlayer().openContainer instanceof RepairContainer){
+                blade = event.getPlayer().openContainer.getSlot(0).getStack();
             }
         }
 
@@ -84,7 +84,7 @@ public class BladeMaterialTooltips {
         if(0 < recipe.getLevel())
             tooltip.add(getRequirements(
                     "slashblade.tooltip.material.level"
-                    ,event.getEntityPlayer() != null && recipe.getLevel() <= event.getEntityPlayer().experienceLevel
+                    ,event.getPlayer() != null && recipe.getLevel() <= event.getPlayer().experienceLevel
                     ,recipe.getLevel()));
     }
 

@@ -111,7 +111,7 @@ public class TargetSelector {
         AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
 
         list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
-                .flatMap(d -> Arrays.stream(d.func_213404_dT()))
+                .flatMap(d -> Arrays.stream(d.getDragonParts()))
                 .filter(e-> (e.getDistanceSq(attacker) < (reach * reach)))
                 .collect(Collectors.toList()));
 
@@ -132,7 +132,7 @@ public class TargetSelector {
         List<Entity> list1 = Lists.newArrayList();
 
         list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
-                .flatMap(d -> Arrays.stream(d.func_213404_dT()))
+                .flatMap(d -> Arrays.stream(d.getDragonParts()))
                 .filter(e -> (e.getDistanceSq(owner) < (reach * reach)))
                 .collect(Collectors.toList()));
 
@@ -216,7 +216,7 @@ public class TargetSelector {
                         ServerWorld sw = (ServerWorld)target.world;
 
                         sw.spawnParticle(sender, ParticleTypes.ANGRY_VILLAGER, false,
-                                target.posX, target.posY + target.getEyeHeight(), target.posZ,
+                                target.getPosX(), target.getPosY() + target.getEyeHeight(), target.getPosZ(),
                                 5,
                                 target.getWidth() * 1.5,
                                 target.getHeight(),

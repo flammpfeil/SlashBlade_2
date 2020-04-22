@@ -167,11 +167,11 @@ public class ItemSlashBlade extends SwordItem {
             soul.setTagInfo("BladeData", blade);
 
             stack.getCapability(BLADESTATE).ifPresent(s->{
-                s.getTexture().ifPresent(r->soul.setTagInfo("Texture", new StringNBT(r.toString())));
-                s.getModel().ifPresent(r->soul.setTagInfo("Model", new StringNBT(r.toString())));
+                s.getTexture().ifPresent(r->soul.setTagInfo("Texture", StringNBT.valueOf(r.toString())));
+                s.getModel().ifPresent(r->soul.setTagInfo("Model", StringNBT.valueOf(r.toString())));
             });
 
-            ItemEntity itementity = new ItemEntity(user.world, user.posX, user.posY , user.posZ, soul);
+            ItemEntity itementity = new ItemEntity(user.world, user.getPosX(), user.getPosY() , user.getPosZ(), soul);
             BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.world);
 
             e.copyDataFromOld(itementity);

@@ -15,7 +15,7 @@ public class KillCounter {
         private static final KillCounter instance = new KillCounter();
     }
     public static KillCounter getInstance() {
-        return KillCounter.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private KillCounter(){}
     public void register(){

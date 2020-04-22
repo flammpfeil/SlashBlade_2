@@ -36,7 +36,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.ISprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
@@ -51,14 +50,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ForgeBlockStateV1;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.SimpleModelState;
+import net.minecraftforge.client.model.geometry.IModelGeometry;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolType;
-import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -113,7 +110,7 @@ public class SlashBlade
         DistExecutor.runWhenOn(Dist.CLIENT,()->()->{
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::Baked);
-            OBJLoader.INSTANCE.addDomain("slashblade");
+            //OBJLoader.INSTANCE.addDomain("slashblade");
 
             MinecraftForge.EVENT_BUS.addListener(MoveImputHandler::onPlayerPostTick);
         });
@@ -167,10 +164,10 @@ public class SlashBlade
 
         //OBJLoader.INSTANCE.addDomain("slashblade");
 
-        RenderingRegistry.registerEntityRenderingHandler(EntityAbstractSummonedSword.class, SummonedSwordRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityJudgementCut.class, JudgementCutRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(BladeItemEntity.class, BladeItemEntityRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(BladeStandEntity.class, BladeStandEntityRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.SummonedSword, SummonedSwordRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.BladeStand, BladeStandEntityRenderer::new);
 
         LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
     }
@@ -226,7 +223,7 @@ public class SlashBlade
                             1,
                             -2.4F,
                             (new Item.Properties()).group(ItemGroup.COMBAT)
-                                   .setTEISR(teisr)) /*()->SlashBladeTEISR::new*/
+                                   .setISTER(teisr)) /*()->SlashBladeTEISR::new*/
                             .setRegistryName(modid,"slashblade"));
 
             ToolType proudsoulLevel = ToolType.get("proudsoul");
@@ -412,6 +409,7 @@ public class SlashBlade
             event.getModelRegistry().put(loc, model);
         }
 
+        /*
         overrideModel(event, SBItems.proudsoul, new ResourceLocation(modid, "block/soul.obj"));
         overrideModel(event, SBItems.proudsoul_ingot, new ResourceLocation(modid, "block/ingot.obj"));
         overrideModel(event, SBItems.proudsoul_tiny, new ResourceLocation(modid, "block/tiny.obj"));
@@ -426,8 +424,10 @@ public class SlashBlade
         overrideModelBlockType(event, SBItems.bladestand_s, new ResourceLocation(modid, "block/stand_s.obj"));
         overrideModelBlockType(event, SBItems.bladestand_1w, new ResourceLocation(modid, "block/stand_w_1.obj"));
         overrideModelBlockType(event, SBItems.bladestand_2w, new ResourceLocation(modid, "block/stand_w_2.obj"));
+        */
     }
 
+    /*
     @OnlyIn(Dist.CLIENT)
     private void overrideModelBlockType(final ModelBakeEvent event, Item item, ResourceLocation newLoc){
         EnumMap<ItemCameraTransforms.TransformType, TRSRTransformation> block = new EnumMap<>(ItemCameraTransforms.TransformType.class);
@@ -469,8 +469,8 @@ public class SlashBlade
         ModelResourceLocation loc = new ModelResourceLocation(
                 ForgeRegistries.ITEMS.getKey(item), "inventory");
 
-        IUnbakedModel unbaked = ModelLoaderRegistry.getModelOrMissing(newLoc);
+        IModelGeometry unbaked = ModelLoaderRegistry.getmo.getModelOrMissing(newLoc);
         event.getModelRegistry().put(loc , unbaked.bake(event.getModelLoader(), ModelLoader.defaultTextureGetter(), (ISprite) state, DefaultVertexFormats.ITEM));
-    }
+    }*/
 
 }

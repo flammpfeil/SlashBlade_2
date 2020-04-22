@@ -57,7 +57,7 @@ public class CapabilitySlashBlade
         ListNBT listnbt = new ListNBT();
 
         for(double d0 : numbers) {
-            listnbt.add(new DoubleNBT(d0));
+            listnbt.add(DoubleNBT.valueOf(d0));
         }
 
         return listnbt;

@@ -27,7 +27,7 @@ public class AnvilCrafting {
         private static final AnvilCrafting instance = new AnvilCrafting();
     }
     public static AnvilCrafting getInstance() {
-        return AnvilCrafting.SingletonHolder.instance;
+        return SingletonHolder.instance;
     }
     private AnvilCrafting(){}
     public void register(){
