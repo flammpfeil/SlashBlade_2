@@ -300,7 +300,15 @@ public class ItemSlashBlade extends SwordItem {
 
         return stack.getCapability(ItemSlashBlade.BLADESTATE)
                 .filter(s->s.getShareTag() != null)
-                .map(s->s.getShareTag())
+                .map(s->{
+                    CompoundNBT tag = s.getShareTag();
+                    if(tag.getBoolean("isBroken") != s.isBroken())
+                        tag.putString("isBroken",Boolean.toString(s.isBroken()));
+
+                    stack.setTagInfo("ShareTag", tag);
+
+                    return tag;
+                })
                 .orElseGet(()-> {
 
                     stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{

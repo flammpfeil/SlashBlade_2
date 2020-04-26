@@ -312,6 +312,7 @@ public interface ISlashBladeState {
             onBroken.accept(entityIn);
 
             if (entityIn instanceof ServerPlayerEntity) {
+                stack.getShareTag();
                 CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)entityIn, stack);
             }
 
