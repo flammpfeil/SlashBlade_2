@@ -119,6 +119,8 @@ public interface IConcentrationRank {
             this.setLastRankRise(time);
 
         if(user instanceof ServerPlayerEntity && !user.world.isRemote){
+            if(((ServerPlayerEntity)user).connection == null) return;
+
             RankSyncMessage msg = new RankSyncMessage();
             msg.rawPoint = this.getRawRankPoint();
             NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(()->(ServerPlayerEntity)user), msg);
