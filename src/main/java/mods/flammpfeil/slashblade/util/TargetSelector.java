@@ -45,9 +45,19 @@ public class TargetSelector {
     static public final EntityPredicate areaAttack = (new EntityPredicate(){
                 @Override
                 public boolean canTarget(@Nullable LivingEntity attacker, LivingEntity target) {
-                    if(target.getRevengeTarget() == attacker){
-                        target.addTag(AttackableTag);
+                    boolean isAttackable = false;
+
+                    if(target.getRevengeTarget() != null){
+                        isAttackable |= target.getRevengeTarget() == attacker;
+                        isAttackable |= target.getRevengeTarget().getTeam().isSameTeam(attacker.getTeam());
                     }
+                    if(target instanceof MobEntity){
+                        isAttackable |= ((MobEntity) target).getAttackTarget() == attacker;
+                        isAttackable |= ((MobEntity) target).getAttackTarget().getTeam().isSameTeam(attacker.getTeam());
+                    }
+
+                    if(isAttackable)
+                        target.addTag(AttackableTag);
 
                     return super.canTarget(attacker, target);
                 }
