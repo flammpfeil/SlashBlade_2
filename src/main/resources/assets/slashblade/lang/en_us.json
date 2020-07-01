@@ -8,6 +8,7 @@
   "slashblade.tooltip.refine"     :"Refine   :%1$s",
 
   "slashblade.tooltip.material":"Required Craft Conditions",
+  "slashblade.tooltip.material.requiredobjects.anvil":"Required objects: Iron Anvil",
   "slashblade.tooltip.material.killcount":"%1$s <= KillCount",
   "slashblade.tooltip.material.refine":"%1$s <= Refine",
   "slashblade.tooltip.material.level":"%1$s <= PlayerLevel",

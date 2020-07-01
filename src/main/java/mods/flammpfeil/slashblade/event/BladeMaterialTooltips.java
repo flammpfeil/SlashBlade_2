@@ -39,15 +39,21 @@ public class BladeMaterialTooltips {
 
         ItemStack blade = ItemStack.EMPTY;
 
+        boolean hasAnvil = false;
 
         if(event.getPlayer() != null){
             if(event.getPlayer().openContainer instanceof RepairContainer){
+                hasAnvil = true;
                 blade = event.getPlayer().openContainer.getSlot(0).getStack();
             }
         }
 
         tooltip.add(new TranslationTextComponent(
                 "slashblade.tooltip.material").applyTextStyle(TextFormatting.DARK_AQUA));
+
+        tooltip.add(getRequirements(
+                "slashblade.tooltip.material.requiredobjects.anvil"
+                ,hasAnvil));
 
         tooltip.add(getRequirements(recipe.getTranslationKey()
                 ,recipe.getTranslationKey().equals(blade.getTranslationKey())));
