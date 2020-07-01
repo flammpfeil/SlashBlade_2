@@ -49,11 +49,11 @@ public class TargetSelector {
 
                     if(target.getRevengeTarget() != null){
                         isAttackable |= target.getRevengeTarget() == attacker;
-                        isAttackable |= target.getRevengeTarget().getTeam().isSameTeam(attacker.getTeam());
+                        isAttackable |= target.getRevengeTarget().isOnSameTeam(attacker);
                     }
                     if(target instanceof MobEntity){
                         isAttackable |= ((MobEntity) target).getAttackTarget() == attacker;
-                        isAttackable |= ((MobEntity) target).getAttackTarget().getTeam().isSameTeam(attacker.getTeam());
+                        isAttackable |= ((MobEntity) target).getAttackTarget().isOnSameTeam(attacker);
                     }
 
                     if(isAttackable)
