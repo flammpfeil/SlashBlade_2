@@ -79,21 +79,21 @@ public class ComboState extends RegistryBase<ComboState> {
             .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A1 = new ComboState("combo_a1",100,
-            ()->60,()->70,()->1.0f,()->false,()->1000,
+            ()->60,()->70,()->1.5f,()->false,()->1000,
             baseMotionLoc, (a)->ComboState.COMBO_A2, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A2 = new ComboState("combo_a2",100,
-            ()->70,()->80,()->1.0f,()->false,()->1000,
+            ()->70,()->80,()->1.5f,()->false,()->1000,
             baseMotionLoc, (a)-> ComboState.COMBO_A3, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
-            ()->80,()->90,()->1.0f,()->false,()->600,
+            ()->80,()->90,()->1.75f,()->false,()->600,
             baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setBoost(ee,1.5)))
             .setQuickChargeEnabled(()->false);
