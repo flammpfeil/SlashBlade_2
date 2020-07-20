@@ -51,7 +51,7 @@ public class TargetSelector {
                         isAttackable |= target.getRevengeTarget() == attacker;
                         isAttackable |= target.getRevengeTarget().isOnSameTeam(attacker);
                     }
-                    if(target instanceof MobEntity){
+                    if(target instanceof MobEntity && ((MobEntity) target).getAttackTarget() != null){
                         isAttackable |= ((MobEntity) target).getAttackTarget() == attacker;
                         isAttackable |= ((MobEntity) target).getAttackTarget().isOnSameTeam(attacker);
                     }
