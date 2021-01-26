@@ -1,23 +1,23 @@
 package mods.flammpfeil.slashblade.util;
 
 import net.minecraft.nbt.*;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class NBTHelper {
 
-    public static Vec3d getVec3d(CompoundNBT tag, String key) {
+    public static Vector3d getVector3d(CompoundNBT tag, String key) {
         ListNBT listnbt = tag.getList(key, 6);
-        return new Vec3d(listnbt.getDouble(0), listnbt.getDouble(1), listnbt.getDouble(2));
+        return new Vector3d(listnbt.getDouble(0), listnbt.getDouble(1), listnbt.getDouble(2));
     }
 
-    public static void putVec3d(CompoundNBT tag, String key, Vec3d value) {
+    public static void putVector3d(CompoundNBT tag, String key, Vector3d value) {
         tag.put(key, newDoubleNBTList(value.x, value.y, value.z));
     }
 
-    public static ListNBT newDoubleNBTList(Vec3d value) {
+    public static ListNBT newDoubleNBTList(Vector3d value) {
         return newDoubleNBTList(value.x, value.y, value.z);
     }
     public static ListNBT newDoubleNBTList(double... numbers) {
@@ -137,8 +137,8 @@ public class NBTHelper {
                 dest.put(key, (CompoundNBT)value[0]);
             }else if (type.equals(String.class)) {
                 dest.putString(key, (String)value[0]);
-            }else if(type.equals(Vec3d.class)){
-                putVec3d(dest,key,(Vec3d)value[0]);
+            }else if(type.equals(Vector3d.class)){
+                putVector3d(dest,key,(Vector3d)value[0]);
             }
         }
     }
@@ -205,9 +205,9 @@ public class NBTHelper {
                 typeId = 8;
                 result = src.getString(key);
             }
-        }else if(type.equals(Vec3d.class)){
+        }else if(type.equals(Vector3d.class)){
             typeId = 6;
-            result = getVec3d(src, key);
+            result = getVector3d(src, key);
         }
 
         if(0 < defaultValue.length){

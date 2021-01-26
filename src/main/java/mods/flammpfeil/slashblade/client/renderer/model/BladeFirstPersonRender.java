@@ -7,12 +7,13 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
+import net.minecraft.client.settings.PointOfView;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.vector.Vector3f;
 
 /**
  * Created by Furia on 2016/02/07.
@@ -39,7 +40,7 @@ public class BladeFirstPersonRender {
         
         Minecraft mc = Minecraft.getInstance();
         boolean flag = mc.getRenderViewEntity() instanceof LivingEntity && ((LivingEntity) mc.getRenderViewEntity()).isSleeping();
-        if (!(mc.gameSettings.thirdPersonView == 0 && !flag && !mc.gameSettings.hideGUI && !mc.playerController.isSpectatorMode())) {
+        if (!(mc.gameSettings.getPointOfView() == PointOfView.FIRST_PERSON && !flag && !mc.gameSettings.hideGUI && !mc.playerController.isSpectatorMode())) {
             return;
         }
         ClientPlayerEntity player = mc.player;

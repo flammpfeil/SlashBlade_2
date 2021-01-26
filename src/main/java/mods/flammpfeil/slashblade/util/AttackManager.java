@@ -7,9 +7,8 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
@@ -33,7 +32,7 @@ public class AttackManager {
 
         if (!playerIn.world.isRemote()) {
             try {
-                playerIn.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(am);
+                playerIn.getAttribute(Attributes.ATTACK_DAMAGE).applyNonPersistentModifier(am);
 
                 List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,
                         TargetSelector.getResolvedReach(playerIn),
@@ -47,7 +46,7 @@ public class AttackManager {
                 }
 
             } finally {
-                playerIn.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(am);
+                playerIn.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(am);
             }
         }
 
@@ -104,7 +103,7 @@ public class AttackManager {
                 });
             },target, forceHit, resetHit);
         }else{
-            float baseAmount = (float) attacker.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
+            float baseAmount = (float) attacker.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
             doAttackWith(DamageSource.causeMobDamage(attacker), baseAmount, target, forceHit, resetHit);
         }
 

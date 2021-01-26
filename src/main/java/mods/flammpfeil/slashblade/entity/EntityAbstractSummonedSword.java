@@ -10,12 +10,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.IPacket;
@@ -30,6 +32,7 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,7 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EntityAbstractSummonedSword extends Entity implements IProjectile, IShootable {
+public class EntityAbstractSummonedSword extends ProjectileEntity implements IShootable {
     private static final DataParameter<Integer> COLOR = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> FLAGS = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HIT_ENTITY_ID = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
@@ -78,7 +81,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
         return this.hitGroundSound;
     }
 
-    public EntityAbstractSummonedSword(EntityType<?> entityTypeIn, World worldIn) {
+    public EntityAbstractSummonedSword(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.setNoGravity(true);
         //this.setGlowing(true);
@@ -101,7 +104,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    public void writeAdditional(CompoundNBT compound) {
 
         NBTHelper.getNBTCoupler(compound)
                 .put("Color", this.getColor())
@@ -118,7 +121,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
+    public void readAdditional(CompoundNBT compound) {
         NBTHelper.getNBTCoupler(compound)
                 .get("Color", this::setColor)
                 .get("life",((Integer v)->this.ticksInGround = v))
@@ -140,7 +143,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
 
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        Vec3d vec3d = (new Vec3d(x, y, z)).normalize().add(this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale((double)velocity);
+        Vector3d vec3d = (new Vector3d(x, y, z)).normalize().add(this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale((double)velocity);
         this.setMotion(vec3d);
         float f = MathHelper.sqrt(horizontalMag(vec3d));
         this.rotationYaw = (float)(MathHelper.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI));
@@ -252,7 +255,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
         super.tick();
 
         boolean disallowedHitBlock = this.isNoClip();
-        Vec3d motionVec = this.getMotion();
+        Vector3d motionVec = this.getMotion();
         if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
             float f = MathHelper.sqrt(horizontalMag(motionVec));
             this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
@@ -267,7 +270,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
             if (!voxelshape.isEmpty()) {
                 for(AxisAlignedBB axisalignedbb : voxelshape.toBoundingBoxList()) {
-                    if (axisalignedbb.offset(blockpos).contains(new Vec3d(this.getPosX(), this.getPosY(), this.getPosZ()))) {
+                    if (axisalignedbb.offset(blockpos).contains(new Vector3d(this.getPosX(), this.getPosY(), this.getPosZ()))) {
                         this.inGround = true;
                         break;
                     }
@@ -281,7 +284,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
 
         if (this.inGround && !disallowedHitBlock) {
             //areCollisionShapesEmpty:func_226664_a_
-            if (this.inBlockState != blockstate && this.world.func_226664_a_(this.getBoundingBox().grow(0.06D))) {
+            if (this.inBlockState != blockstate && this.world.hasNoCollisions(this.getBoundingBox().grow(0.06D))) {
                 this.inGround = false;
                 this.setMotion(motionVec.mul((double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F)));
                 this.ticksInGround = 0;
@@ -291,8 +294,8 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
             }
         } else {
             ++this.ticksInAir;
-            Vec3d positionVec = this.getPositionVec();
-            Vec3d movedVec = positionVec.add(motionVec);
+            Vector3d positionVec = this.getPositionVec();
+            Vector3d movedVec = positionVec.add(motionVec);
             RayTraceResult raytraceresult = this.world.rayTraceBlocks(new RayTraceContext(positionVec, movedVec, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
             if (raytraceresult.getType() != RayTraceResult.Type.MISS) {
                 movedVec = raytraceresult.getHitVec();
@@ -372,7 +375,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
 
             this.setMotion(motionVec.scale((double)f1));
             if (!this.hasNoGravity() && !disallowedHitBlock) {
-                Vec3d vec3d3 = this.getMotion();
+                Vector3d vec3d3 = this.getMotion();
                 this.setMotion(vec3d3.x, vec3d3.y - (double)0.05F, vec3d3.z);
             }
 
@@ -408,9 +411,9 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     protected void onHitBlock(BlockRayTraceResult blockraytraceresult) {
         BlockState blockstate = this.world.getBlockState(blockraytraceresult.getPos());
         this.inBlockState = blockstate;
-        Vec3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
+        Vector3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
         this.setMotion(vec3d);
-        Vec3d vec3d1 = this.getPositionVec().subtract(vec3d.normalize().scale((double) 0.05F));
+        Vector3d vec3d1 = this.getPositionVec().subtract(vec3d.normalize().scale((double) 0.05F));
         this.setPosition(vec3d1.x, vec3d1.y, vec3d1.z);
         this.playSound(this.getHitGroundSound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
         this.inGround = true;
@@ -483,7 +486,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
                 this.burst();
             }
         } else {
-            targetEntity.setFireTimer(fireTime);
+            targetEntity.forceFireTicks(fireTime);
             this.setMotion(this.getMotion().scale(-0.1D));
             this.rotationYaw += 180.0F;
             this.prevRotationYaw += 180.0F;
@@ -517,7 +520,7 @@ public class EntityAbstractSummonedSword extends Entity implements IProjectile, 
     }
 
     @Nullable
-    protected EntityRayTraceResult getRayTrace(Vec3d p_213866_1_, Vec3d p_213866_2_) {
+    protected EntityRayTraceResult getRayTrace(Vector3d p_213866_1_, Vector3d p_213866_2_) {
         return ProjectileHelper.rayTraceEntities(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.canBeCollidedWith() && (p_213871_1_ != this.getShooter() || this.ticksInAir >= 5) && (this.alreadyHits == null || !this.alreadyHits.contains(p_213871_1_.getEntityId()));
         });

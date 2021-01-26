@@ -12,7 +12,7 @@ public interface IImputState {
     default EnumSet<ImputCommand> getCommands(LivingEntity owner){
         EnumSet<ImputCommand> commands = getCommands().clone();
 
-        if(owner.onGround) {
+        if(owner.isOnGround()) {
             commands.add(ImputCommand.ON_GROUND);
             //commands.remove(ImputCommand.ON_AIR);
         }else {

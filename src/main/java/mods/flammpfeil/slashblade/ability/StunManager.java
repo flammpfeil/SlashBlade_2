@@ -4,7 +4,7 @@ import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.entity.ai.StunGoal;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraft.entity.Entity;
@@ -36,7 +36,7 @@ public class StunManager {
                 .isPresent();
 
         if(onStun){
-            Vec3d motion = target.getMotion();
+            Vector3d motion = target.getMotion();
             if(5 < target.fallDistance)
                 target.setMotion(motion.x, motion.y - 2.0f, motion.z);
             else if(motion.y < 0)

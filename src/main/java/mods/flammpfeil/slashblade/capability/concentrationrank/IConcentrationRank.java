@@ -134,7 +134,7 @@ public interface IConcentrationRank {
 
         ItemStack stack = user.getHeldItemMainhand();
 
-        LazyOptional<ComboState> combo = stack
+        Optional<ComboState> combo = stack
                 .getCapability(ItemSlashBlade.BLADESTATE)
                 .map(s->s.resolvCurrentComboState(user));
 

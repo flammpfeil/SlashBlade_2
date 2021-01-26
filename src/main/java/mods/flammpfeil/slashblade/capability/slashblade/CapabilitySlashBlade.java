@@ -28,7 +28,7 @@ import net.minecraft.item.Rarity;
 import net.minecraft.nbt.*;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
@@ -45,12 +45,12 @@ public class CapabilitySlashBlade
     @CapabilityInject(ISlashBladeState.class)
     public static Capability<ISlashBladeState> BLADESTATE = null;
 
-    protected static Vec3d readVec3dFrom(CompoundNBT tag, String key){
+    protected static Vector3d readVector3dFrom(CompoundNBT tag, String key){
         ListNBT list = tag.getList(key, 6);
-        return new Vec3d(list.getDouble(0), list.getDouble(1),list.getDouble(2));
+        return new Vector3d(list.getDouble(0), list.getDouble(1),list.getDouble(2));
     }
 
-    protected static ListNBT newDoubleNBTList(Vec3d vec){
+    protected static ListNBT newDoubleNBTList(Vector3d vec){
         return newDoubleNBTList(vec.x,vec.y,vec.z);
     }
     protected static ListNBT newDoubleNBTList(double... numbers) {
@@ -193,7 +193,7 @@ public class CapabilitySlashBlade
                 instance.setCarryType(fromOrdinal(CarryType.values(), tag.getByte("StandbyRenderType"), CarryType.DEFAULT));
                 instance.setColorCode(tag.getInt("SummonedSwordColor"));
                 instance.setEffectColorInverse(tag.getBoolean("SummonedSwordColorInverse"));
-                instance.setAdjust(readVec3dFrom(tag, "adjustXYZ"));
+                instance.setAdjust(readVector3dFrom(tag, "adjustXYZ"));
 
                 if(tag.contains("TextureName"))
                     instance.setTexture(new ResourceLocation(tag.getString("TextureName")));

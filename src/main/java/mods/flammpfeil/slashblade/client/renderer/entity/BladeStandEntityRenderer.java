@@ -6,7 +6,6 @@ import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import mods.flammpfeil.slashblade.item.SBItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -18,7 +17,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class BladeStandEntityRenderer extends ItemFrameRenderer {
     private final net.minecraft.client.renderer.ItemRenderer itemRenderer;
@@ -44,13 +44,13 @@ public class BladeStandEntityRenderer extends ItemFrameRenderer {
             }else{
                 entity.currentTypeStack = new ItemStack(entity.currentType);
             }
-            entity.currentTypeStack.setItemFrame(entity);
+            entity.currentTypeStack.setAttachedEntity(entity);
         }
 
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)){
             BlockPos blockpos = entity.getHangingPosition();
-            Vec3d vec = new Vec3d(blockpos).subtract(entity.getPositionVec()).add(0.5,0.75,0.5);
+            Vector3d vec = Vector3d.copyCenteredWithVerticalOffset(blockpos,0.75).subtract(entity.getPositionVec());
             matrixStackIn.translate(vec.x, vec.y, vec.z);
             matrixStackIn.rotate(Vector3f.XP.rotationDegrees(entity.rotationPitch));
             matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F - entity.rotationYaw));
@@ -97,7 +97,8 @@ public class BladeStandEntityRenderer extends ItemFrameRenderer {
             }
         }
 
-        net.minecraftforge.client.event.RenderNameplateEvent renderNameplateEvent = new net.minecraftforge.client.event.RenderNameplateEvent(entity, entity.getDisplayName().getFormattedText(), this, matrixStackIn, bufferIn, packedLightIn);
+        net.minecraftforge.client.event.RenderNameplateEvent renderNameplateEvent = new net.minecraftforge.client.event.RenderNameplateEvent(entity, entity.getDisplayName(), this, matrixStackIn, bufferIn, packedLightIn, partialTicks);
+        //net.minecraftforge.client.event.RenderNameplateEvent renderNameplateEvent = new net.minecraftforge.client.event.RenderNameplateEvent(entity, entity.getDisplayName().getFormatedText(), this, matrixStackIn, bufferIn, packedLightIn);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(renderNameplateEvent);
         if (renderNameplateEvent.getResult() != net.minecraftforge.eventbus.api.Event.Result.DENY && (renderNameplateEvent.getResult() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || this.canRenderName(entity))) {
             this.renderName(entity, renderNameplateEvent.getContent(), matrixStackIn, bufferIn, packedLightIn);

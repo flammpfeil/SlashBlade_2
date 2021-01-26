@@ -9,12 +9,12 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.EnumSet;
 
@@ -104,7 +104,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
                     matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90));
 
-                }else if(!itemIn.onGround)
+                }else if(!itemIn.isOnGround())
                 {
                     matrixStackIn.scale(scale, scale, scale);
 
@@ -124,7 +124,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
                 BladeRenderState.renderOverridedLuminous(current, model, renderTarget + "_luminous", textureLocation, matrixStackIn, bufferIn, packedLightIn);
             }
 
-            if((itemIn.isInWater() || itemIn.onGround) && !types.contains(SwordType.NoScabbard)) {
+            if((itemIn.isInWater() || itemIn.isOnGround()) && !types.contains(SwordType.NoScabbard)) {
 
                 try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix(matrixStackIn)) {
 

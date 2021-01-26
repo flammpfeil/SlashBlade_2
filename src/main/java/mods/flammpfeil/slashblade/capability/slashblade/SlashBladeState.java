@@ -23,7 +23,7 @@ import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -84,7 +84,7 @@ public class SlashBladeState implements ISlashBladeState {
     protected Optional<CarryType> carryType = Optional.empty(); //StandbyRenderType
     protected Optional<Color> effectColor = Optional.empty(); //SummonedSwordColor
     protected boolean effectColorInverse;//SummonedSwordColorInverse
-    protected Optional<Vec3d> adjust = Optional.empty();//adjustXYZ
+    protected Optional<Vector3d> adjust = Optional.empty();//adjustXYZ
 
     protected Optional<ResourceLocation> texture = Optional.empty(); //TextureName
     protected Optional<ResourceLocation> model = Optional.empty();//ModelName
@@ -358,12 +358,12 @@ public class SlashBladeState implements ISlashBladeState {
     }
 
     @Override
-    public Vec3d getAdjust() {
-        return adjust.orElseGet(() -> Vec3d.ZERO);
+    public Vector3d getAdjust() {
+        return adjust.orElseGet(() -> Vector3d.ZERO);
     }
 
     @Override
-    public void setAdjust(Vec3d adjust) {
+    public void setAdjust(Vector3d adjust) {
         this.adjust = Optional.ofNullable(adjust);
     }
 

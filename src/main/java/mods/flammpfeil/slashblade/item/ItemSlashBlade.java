@@ -15,7 +15,8 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,6 +30,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -36,6 +38,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.util.LazyOptional;
@@ -61,12 +64,15 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack)
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack)
     {
-        Multimap<String, AttributeModifier> result = super.getAttributeModifiers(slot,stack);
+        Multimap<Attribute, AttributeModifier> def = super.getAttributeModifiers(slot,stack);
+        Multimap<Attribute, AttributeModifier> result = ArrayListMultimap.create();
+
+        result.putAll(Attributes.ATTACK_DAMAGE, def.get(Attributes.ATTACK_DAMAGE));
+        result.putAll(Attributes.ATTACK_SPEED, def.get(Attributes.ATTACK_SPEED));
 
         if (slot == EquipmentSlotType.MAINHAND) {
-
             LazyOptional<ISlashBladeState> state = stack.getCapability(BLADESTATE);
             state.ifPresent(s -> {
                 float baseAttackModifier = s.getBaseAttackModifier();
@@ -74,11 +80,11 @@ public class ItemSlashBlade extends SwordItem {
                         "Weapon modifier",
                         (double) baseAttackModifier,
                         AttributeModifier.Operation.ADDITION);
-                result.remove(SharedMonsterAttributes.ATTACK_DAMAGE.getName(),base);
-                result.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(),base);
+                result.remove(Attributes.ATTACK_DAMAGE,base);
+                result.put(Attributes.ATTACK_DAMAGE,base);
 
                 float rankAttackAmplifier = s.getAttackAmplifier();
-                result.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
+                result.put(Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(ATTACK_DAMAGE_AMPLIFIER,
                                 "Weapon amplifier",
 
@@ -87,7 +93,7 @@ public class ItemSlashBlade extends SwordItem {
 
 
 
-                result.put(PlayerEntity.REACH_DISTANCE.getName(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
+                result.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
                         "Reach amplifer",
                         s.isBroken() ? 0 : 1.0, AttributeModifier.Operation.ADDITION));
 
@@ -141,7 +147,7 @@ public class ItemSlashBlade extends SwordItem {
 
         World worldIn = playerIn.world;
 
-        LazyOptional<ISlashBladeState> stateHolder = itemstack.getCapability(BLADESTATE)
+        Optional<ISlashBladeState> stateHolder = itemstack.getCapability(BLADESTATE)
                 .filter((state) -> !state.onClick());
 
         stateHolder.ifPresent((state) -> {
@@ -242,7 +248,7 @@ public class ItemSlashBlade extends SwordItem {
                 if(0 < ticks){
 
                     if( ticks == 20){//state.getFullChargeTicks(player)){
-                        Vec3d pos = player.getEyePosition(0).add(player.getLookVec());
+                        Vector3d pos = player.getEyePosition(0).add(player.getLookVec());
                         ((ServerWorld)player.world).spawnParticle(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
 
                     }else{
@@ -257,7 +263,7 @@ public class ItemSlashBlade extends SwordItem {
                             int quickChargeTicks = (int)(TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed()));
 
                             if((quickChargeTicks == ticks)){
-                                Vec3d pos = player.getEyePosition(0).add(player.getLookVec());
+                                Vector3d pos = player.getEyePosition(0).add(player.getLookVec());
                                 ((ServerWorld)player.world).spawnParticle(ParticleTypes.ENCHANTED_HIT,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
                             }
                         }
@@ -510,7 +516,7 @@ public class ItemSlashBlade extends SwordItem {
                 tooltip.add(new TranslationTextComponent("slashblade.tooltip.killcount", s.getKillCount()));
 
             if(0 < s.getRefine()){
-                tooltip.add(new TranslationTextComponent("slashblade.tooltip.refine", s.getRefine()).applyTextStyle((TextFormatting)refineColor.get(s.getRefine())));
+                tooltip.add(new TranslationTextComponent("slashblade.tooltip.refine", s.getRefine()).mergeStyle((TextFormatting)refineColor.get(s.getRefine())));
             }
         });
 

@@ -24,7 +24,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -37,7 +38,8 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
     }
 
     @Override
-    public void render(ItemStack itemStackIn, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
+    public void func_239207_a_(ItemStack itemStackIn, ItemCameraTransforms.TransformType type, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
+    //public void render(ItemStack itemStackIn, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
         if(!(itemStackIn.getItem() instanceof ItemSlashBlade)) return;
         ItemSlashBlade item = (ItemSlashBlade)itemStackIn.getItem();
 
@@ -47,7 +49,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             itemStackIn.removeChildTag(ItemSlashBlade.ICON_TAG_KEY);
         }
 
-        renderBlade(itemStackIn, matrixStack, bufferIn, combinedLightIn, combinedOverlayIn);
+        renderBlade(itemStackIn, type, matrixStack, bufferIn, combinedLightIn, combinedOverlayIn);
     }
 
     boolean checkRenderNaked(){
@@ -66,13 +68,13 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
         return false;
     }
 
-    private boolean renderBlade(ItemStack stack, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn){
+    private boolean renderBlade(ItemStack stack, ItemCameraTransforms.TransformType transformType , MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn){
 
-        if(BladeModel.type == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND
-                || BladeModel.type == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND
-                || BladeModel.type == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND
-                || BladeModel.type == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
-                || BladeModel.type == ItemCameraTransforms.TransformType.NONE) {
+        if(transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND
+                || transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND
+                || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+                || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
+                || transformType == ItemCameraTransforms.TransformType.NONE) {
 
             if(BladeModel.user == null)
                 return false;
@@ -83,8 +85,8 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
             if(!types.contains(SwordType.NoScabbard)) {
                 handle = BladeModel.user.getPrimaryHand() == HandSide.RIGHT ?
-                        BladeModel.type == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND :
-                        BladeModel.type == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND;
+                        transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND :
+                        transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND;
             }
 
             if(handle){
@@ -92,7 +94,7 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
             }
 
             /*
-            if(BladeModel.type == ItemCameraTransforms.TransformType.NONE) {
+            if(transformType == ItemCameraTransforms.TransformType.NONE) {
                 if(checkRenderNaked()){
                     renderNaked(true);
                 }
@@ -116,12 +118,12 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
 
             matrixStack.translate(0.5f, 0.5f, 0.5f);
 
-            if (BladeModel.type == ItemCameraTransforms.TransformType.GROUND) {
+            if (transformType == ItemCameraTransforms.TransformType.GROUND) {
                 matrixStack.translate(0, 0.15f, 0);
                 renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.005f);
-            } else if (BladeModel.type == ItemCameraTransforms.TransformType.GUI) {
+            } else if (transformType == ItemCameraTransforms.TransformType.GUI) {
                 renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.008f, true);
-            } else if (BladeModel.type == ItemCameraTransforms.TransformType.FIXED) {
+            } else if (transformType == ItemCameraTransforms.TransformType.FIXED) {
                 if (stack.isOnItemFrame() && stack.getItemFrame() instanceof BladeStandEntity) {
                     renderModel(stack, matrixStack, bufferIn, combinedLightIn);
                 } else {
@@ -219,10 +221,10 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 .map(s->s.getTexture().get())
                 .orElseGet(()->BladeModelManager.resourceDefaultTexture);
 
-        Vec3d bladeOffset = Vec3d.ZERO;
+        Vector3d bladeOffset = Vector3d.ZERO;
         float bladeOffsetRot =0;
         float bladeOffsetBaseRot = -3;
-        Vec3d sheathOffset = Vec3d.ZERO;
+        Vector3d sheathOffset = Vector3d.ZERO;
         float sheathOffsetRot =0;
         float sheathOffsetBaseRot = -3;
         boolean vFlip = false;
@@ -265,38 +267,38 @@ public class SlashBladeTEISR extends ItemStackTileEntityRenderer {
                 }
 
                 if(type == SBItems.bladestand_1) {
-                     bladeOffset = Vec3d.ZERO;
-                    sheathOffset = Vec3d.ZERO;
+                     bladeOffset = Vector3d.ZERO;
+                    sheathOffset = Vector3d.ZERO;
                 }else if(type == SBItems.bladestand_2){
-                    bladeOffset = new Vec3d(0,21.5f,0);
+                    bladeOffset = new Vector3d(0,21.5f,0);
                     if(hFlip){
-                        sheathOffset = new Vec3d(-40,-27,0);
+                        sheathOffset = new Vector3d(-40,-27,0);
                     }else{
-                        sheathOffset = new Vec3d(40,-27,0);
+                        sheathOffset = new Vector3d(40,-27,0);
                     }
                     sheathOffsetBaseRot = -4;
                 }else if(type == SBItems.bladestand_v){
-                    bladeOffset = new Vec3d(-100,230,0);
-                    sheathOffset = new Vec3d(-100,230,0);
+                    bladeOffset = new Vector3d(-100,230,0);
+                    sheathOffset = new Vector3d(-100,230,0);
                     bladeOffsetRot = 80;
                     sheathOffsetRot = 80;
                 }else if(type == SBItems.bladestand_s){
                     if(hFlip){
-                        bladeOffset = new Vec3d(60,-25,0);
-                        sheathOffset = new Vec3d(60,-25,0);
+                        bladeOffset = new Vector3d(60,-25,0);
+                        sheathOffset = new Vector3d(60,-25,0);
                     }else{
-                        bladeOffset = new Vec3d(-60,-25,0);
-                        sheathOffset = new Vec3d(-60,-25,0);
+                        bladeOffset = new Vector3d(-60,-25,0);
+                        sheathOffset = new Vector3d(-60,-25,0);
                     }
                 }else if(type == SBItems.bladestand_1w){
-                    bladeOffset = Vec3d.ZERO;
-                    sheathOffset = Vec3d.ZERO;
+                    bladeOffset = Vector3d.ZERO;
+                    sheathOffset = Vector3d.ZERO;
                 }else if(type == SBItems.bladestand_2w){
-                    bladeOffset = new Vec3d(0,21.5f,0);
+                    bladeOffset = new Vector3d(0,21.5f,0);
                     if(hFlip){
-                        sheathOffset = new Vec3d(-40,-27,0);
+                        sheathOffset = new Vector3d(-40,-27,0);
                     }else{
-                        sheathOffset = new Vec3d(40,-27,0);
+                        sheathOffset = new Vector3d(40,-27,0);
                     }
                     sheathOffsetBaseRot = -4;
                 }

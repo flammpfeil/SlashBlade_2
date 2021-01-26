@@ -6,11 +6,11 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class ArrowReflector {
 
     static public boolean isMatch(Entity arrow, Entity attacker){
         if(arrow == null) return false;
-        if(!(arrow instanceof IProjectile)) return false;
+        if(!(arrow instanceof ProjectileEntity)) return false;
 
         return true;
     }
@@ -28,7 +28,7 @@ public class ArrowReflector {
 
         arrow.velocityChanged = true;
         if (attacker != null) {
-            Vec3d dir = attacker.getLookVec();
+            Vector3d dir = attacker.getLookVec();
 
             do{
                 if(attacker instanceof LivingEntity) break;
@@ -50,7 +50,7 @@ public class ArrowReflector {
 
             arrow.setMotion(dir);
 
-            ((IProjectile) arrow).shoot(dir.x, dir.y, dir.z, 1.1f, 0.5f);
+            ((ProjectileEntity) arrow).shoot(dir.x, dir.y, dir.z, 1.1f, 0.5f);
 
             arrow.setNoGravity(true);
 

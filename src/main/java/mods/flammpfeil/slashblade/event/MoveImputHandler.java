@@ -54,7 +54,7 @@ public class MoveImputHandler {
         if(player.movementInput.rightKeyDown)
             commands.add(ImputCommand.RIGHT);
 
-        if(player.movementInput.field_228350_h_)
+        if(player.movementInput.sneaking)
             commands.add(ImputCommand.SNEAK);
 
 /*

@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="[25,)" #mandatory (24 is current forge version)
 issueTrackerURL="https://github.com/flammpfeil/SlashBlade/issues" #optional
+license="NyMmd-MIT:nyatla, ObjModelImporter:forge, All other Rights reserved."
 
 [[mods]]
 modId="slashblade"
@@ -31,6 +32,7 @@ SlashBlade 抜刀剣
 [[dependencies.slashblade]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+# This version range declares a minimum of the current minecraft version up to but not including the next major version
+    versionRange="[1.16.5,1.17)"
     ordering="NONE"
     side="BOTH"

@@ -4,13 +4,14 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
@@ -69,7 +70,7 @@ public class FallHandler {
     }
 
     public static void fallDecrease(LivingEntity user){
-        if(!user.hasNoGravity() && !user.onGround){
+        if(!user.hasNoGravity() && !user.isOnGround()){
             user.fallDistance = 1;
 
             float currentRatio = user.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map((state)->
@@ -83,21 +84,21 @@ public class FallHandler {
                 return decRatio;
             }).orElseGet(()->1.0f);
 
-            IAttributeInstance gravity = user.getAttribute(LivingEntity.ENTITY_GRAVITY);
+            ModifiableAttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             double g = gravity.getValue() * 0.9;
 
-            Vec3d motion = user.getMotion();
+            Vector3d motion = user.getMotion();
             if(motion.y < 0)
                 user.setMotion(motion.x, (motion.y + g) * currentRatio, motion.z);
         }
     }
 
     public static void fallResist(LivingEntity user){
-        if(!user.hasNoGravity() && !user.onGround){
+        if(!user.hasNoGravity() && !user.isOnGround()){
             user.fallDistance = 1;
 
-            Vec3d motion = user.getMotion();
-            IAttributeInstance gravity = user.getAttribute(LivingEntity.ENTITY_GRAVITY);
+            Vector3d motion = user.getMotion();
+            ModifiableAttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             double g = gravity.getValue();
             if(motion.y < 0)
                 user.setMotion(motion.x, (motion.y + g + 0.002f), motion.z);

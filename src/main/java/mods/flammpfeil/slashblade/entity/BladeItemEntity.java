@@ -46,12 +46,12 @@ public class BladeItemEntity extends ItemEntity {
 
     @Override
     public void tick() {
-        if(onGround && ticksExisted % 40 == 0){
+        if(isOnGround() && ticksExisted % 40 == 0){
             ticksExisted ++;
         }
         super.tick();
 
-        if(!this.isInWater() && !onGround && ticksExisted % 6 == 0){
+        if(!this.isInWater() && !isOnGround() && ticksExisted % 6 == 0){
             this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 2.5F);
         }
 
@@ -66,7 +66,7 @@ public class BladeItemEntity extends ItemEntity {
                 this.world.addParticle(ParticleTypes.PORTAL, d0 + (double)direction.getXOffset() * d3, d1 + 2 + (double)direction.getYOffset() * d3, d2 + (double)direction.getZOffset() * d3, rand.nextGaussian() * 0.005D, -2, rand.nextGaussian() * 0.005D);
             }
 
-            if (!this.onGround && !this.isInWater() && rand.nextInt(3) == 0) {
+            if (!this.isOnGround() && !this.isInWater() && rand.nextInt(3) == 0) {
                 Direction direction = Direction.UP;
                 double d0 = (double)this.getPosX() - (double)(rand.nextFloat() * 0.1F);
                 double d1 = (double)this.getPosY() - (double)(rand.nextFloat() * 0.1F);

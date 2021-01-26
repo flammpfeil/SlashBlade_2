@@ -2,9 +2,9 @@ package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -22,9 +22,9 @@ public class KnockBackHandler {
         setFactor(target, 0, verticalFactor, -verticalFactor);
     }
     static public void setFactor(LivingEntity target, double horizontalFactor, double verticalFactor, double addFallDistance){
-        NBTHelper.putVec3d(target.getPersistentData(),
+        NBTHelper.putVector3d(target.getPersistentData(),
                 NBT_KEY,
-                new Vec3d(horizontalFactor,verticalFactor,addFallDistance));
+                new Vector3d(horizontalFactor,verticalFactor,addFallDistance));
     }
 
     @SubscribeEvent
@@ -37,14 +37,14 @@ public class KnockBackHandler {
         if(!nbt.contains(NBT_KEY))
             return;
 
-        Vec3d factor = NBTHelper.getVec3d(nbt, NBT_KEY);
+        Vector3d factor = NBTHelper.getVector3d(nbt, NBT_KEY);
         nbt.remove(NBT_KEY);
 
         //z = falldistance factor
         target.fallDistance += factor.z;
 
         //movement factor is resistable
-        if ((target.getRNG().nextDouble() < target.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).getValue()))
+        if ((target.getRNG().nextDouble() < target.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue()))
             return;
 
         target.isAirBorne = true;
@@ -58,11 +58,11 @@ public class KnockBackHandler {
         //y = vertical factor
 
         if(0 < factor.y){
-            target.onGround = false;
-            Vec3d motion = target.getMotion();
+            target.setOnGround(false);
+            Vector3d motion = target.getMotion();
             event.getEntityLiving().setMotion(motion.x, Math.max(motion.y, factor.y), motion.z);
         }else if(factor.y < 0){
-            Vec3d motion = target.getMotion();
+            Vector3d motion = target.getMotion();
             event.getEntityLiving().setMotion(motion.x, Math.min(motion.y, factor.y), motion.z);
         }
     }

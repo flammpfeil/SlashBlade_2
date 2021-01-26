@@ -103,31 +103,33 @@ public class BladeStandEntity extends ItemFrameEntity implements IEntityAddition
     }
 
     @Override
-    public boolean processInitialInteract(PlayerEntity player, Hand hand) {
-        ItemStack itemstack = player.getHeldItem(hand);
-        if(player.isShiftKeyDown() && !this.getDisplayedItem().isEmpty()){
-            Pose current = this.getPose();
-            int newIndex = (current.ordinal() + 1) % Pose.values().length;
-            this.setPose(Pose.values()[newIndex]);
+    public ActionResultType processInitialInteract(PlayerEntity player, Hand hand) {
+        if(this.world.isRemote){
+            ItemStack itemstack = player.getHeldItem(hand);
+            if(player.isSneaking() && !this.getDisplayedItem().isEmpty()){
+                Pose current = this.getPose();
+                int newIndex = (current.ordinal() + 1) % Pose.values().length;
+                this.setPose(Pose.values()[newIndex]);
 
-        }else if((!itemstack.isEmpty() && itemstack.getItem() instanceof ItemSlashBlade)
-                || (itemstack.isEmpty() && !this.getDisplayedItem().isEmpty())){
+            }else if((!itemstack.isEmpty() && itemstack.getItem() instanceof ItemSlashBlade)
+                    || (itemstack.isEmpty() && !this.getDisplayedItem().isEmpty())){
 
-            if(this.getDisplayedItem().isEmpty()){
-                super.processInitialInteract(player, hand);
-            }else{
-                ItemStack displayed = this.getDisplayedItem().copy();
+                if(this.getDisplayedItem().isEmpty()){
+                    super.processInitialInteract(player, hand);
+                }else{
+                    ItemStack displayed = this.getDisplayedItem().copy();
 
-                this.setDisplayedItem(ItemStack.EMPTY);
-                super.processInitialInteract(player, hand);
+                    this.setDisplayedItem(ItemStack.EMPTY);
+                    super.processInitialInteract(player, hand);
 
-                player.setHeldItem(hand, displayed);
+                    player.setHeldItem(hand, displayed);
+                }
+
+            }else {
+                this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
+                this.setItemRotation(this.getRotation() + 1);
             }
-
-        }else {
-            this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
-            this.setItemRotation(this.getRotation() + 1);
         }
-        return true;
+        return ActionResultType.SUCCESS;
     }
 }

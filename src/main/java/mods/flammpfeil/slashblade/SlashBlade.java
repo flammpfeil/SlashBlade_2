@@ -44,6 +44,7 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
@@ -216,7 +217,7 @@ public class SlashBlade
             registry.register(
                     new ItemSlashBlade(
                             new ItemTierSlashBlade(() -> {
-                                Tag<Item> tags = ItemTags.getCollection().get(new ResourceLocation("slashblade","proudsouls"));
+                                ITag<Item> tags = ItemTags.getCollection().get(new ResourceLocation("slashblade","proudsouls"));
                                 return Ingredient.fromTag(tags);
                                 //Ingredient.fromItems(SBItems.proudsoul)
                             }),

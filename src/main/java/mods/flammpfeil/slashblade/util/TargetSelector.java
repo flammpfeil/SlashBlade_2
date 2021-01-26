@@ -5,7 +5,7 @@ import mods.flammpfeil.slashblade.ability.LockOnManager;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
@@ -15,14 +15,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.DamagingProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -85,7 +87,7 @@ public class TargetSelector {
                 return true;
 
             if (livingentity instanceof WolfEntity)
-                if (((WolfEntity) livingentity).isAngry())
+                if (((WolfEntity) livingentity).func_233678_J__()/*isAngry()*/)
                     return true;
 
             if (livingentity.getTags().contains(AttackableTag)){
@@ -104,12 +106,14 @@ public class TargetSelector {
         AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
 
         return Stream.of(
-                world.getEntitiesWithinAABB(ThrowableEntity.class, aabb).stream()
-                        .filter(e-> (e.getThrower() == null || e.getThrower() != attacker)),
+                world.getEntitiesWithinAABB(ProjectileEntity.class, aabb).stream()
+                        .filter(e-> (e.func_234616_v_()/*getThrower()*/ == null || e.func_234616_v_()/*getThrower()*/ != attacker)))
+                /*
                 world.getEntitiesWithinAABB(DamagingProjectileEntity.class, aabb).stream()
                         .filter(e-> (e.shootingEntity == null || e.shootingEntity != attacker)),
                 world.getEntitiesWithinAABB(AbstractArrowEntity.class, aabb).stream()
                         .filter(e->e.getShooter() == null || e.getShooter() != attacker))
+                */
                 .flatMap(s->s)
                 .filter(e-> (e.getDistanceSq(attacker) < (reach * reach)))
                 .collect(Collectors.toList());
@@ -168,23 +172,25 @@ public class TargetSelector {
         AxisAlignedBB aabb = owner.getBoundingBox().grow(reach);
 
         return Stream.of(
-                world.getEntitiesWithinAABB(ThrowableEntity.class, aabb).stream()
-                        .filter(e-> (e.getThrower() == null || e.getThrower() != owner.getShooter())),
+                world.getEntitiesWithinAABB(ProjectileEntity.class, aabb).stream()
+                        .filter(e-> (e.func_234616_v_()/*getThrower()*/ == null || e.func_234616_v_()/*getThrower()*/ != owner.getShooter())))
+                /*
                 world.getEntitiesWithinAABB(DamagingProjectileEntity.class, aabb).stream()
                         .filter(e-> (e.shootingEntity == null || e.shootingEntity != owner.getShooter())),
                 world.getEntitiesWithinAABB(AbstractArrowEntity.class, aabb).stream()
                         .filter(e->e.getShooter() == null || e.getShooter() != owner.getShooter()))
+                 */
                 .flatMap(s->s)
                 .filter(e-> (e.getDistanceSq(owner) < (reach * reach)) && e != owner)
                 .collect(Collectors.toList());
     }
 
-    static public AxisAlignedBB getResolvedAxisAligned(LivingEntity user, Vec3d dir, double reach){
+    static public AxisAlignedBB getResolvedAxisAligned(LivingEntity user, Vector3d dir, double reach){
         final double padding = 1.0;
 
         AxisAlignedBB bb = user.getBoundingBox();
 
-        if(dir == Vec3d.ZERO){
+        if(dir == Vector3d.ZERO){
             bb = bb.grow(reach * 2);
         }else{
             bb = bb.offset(dir.scale(reach * 0.5)).grow(reach);
@@ -197,7 +203,7 @@ public class TargetSelector {
 
     static public double getResolvedReach(LivingEntity user){
         double reach = 4.0D; /* 4 block*/
-        IAttributeInstance attrib = user.getAttribute(PlayerEntity.REACH_DISTANCE);
+        ModifiableAttributeInstance attrib = user.getAttribute(ForgeMod.REACH_DISTANCE.get());
         if(attrib != null){
             reach = attrib.getValue() - 1;
         }

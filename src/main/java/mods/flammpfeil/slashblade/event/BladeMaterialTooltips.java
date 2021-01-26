@@ -49,7 +49,7 @@ public class BladeMaterialTooltips {
         }
 
         tooltip.add(new TranslationTextComponent(
-                "slashblade.tooltip.material").applyTextStyle(TextFormatting.DARK_AQUA));
+                "slashblade.tooltip.material").mergeStyle(TextFormatting.DARK_AQUA));
 
         tooltip.add(getRequirements(
                 "slashblade.tooltip.material.requiredobjects.anvil"
@@ -108,10 +108,10 @@ public class BladeMaterialTooltips {
     }
 
     ITextComponent getRequirements(String key, boolean check, Object... args){
-        ITextComponent tc = new TranslationTextComponent(key, args);
+        TranslationTextComponent tc = new TranslationTextComponent(key, args);
 
         if(check){
-            tc.applyTextStyle(TextFormatting.GREEN);
+            tc.mergeStyle(TextFormatting.GREEN);
         }
 
         return tc;

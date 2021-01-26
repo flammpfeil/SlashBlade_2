@@ -38,7 +38,7 @@ import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -165,8 +165,8 @@ public interface ISlashBladeState {
     }
 
     @Nonnull
-    Vec3d getAdjust();
-	void setAdjust(Vec3d adjust);
+    Vector3d getAdjust();
+	void setAdjust(Vector3d adjust);
 
     @Nonnull
     Optional<ResourceLocation> getTexture();

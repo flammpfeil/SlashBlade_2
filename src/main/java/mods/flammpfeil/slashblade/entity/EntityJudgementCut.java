@@ -8,11 +8,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
@@ -28,6 +28,7 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EntityJudgementCut extends Entity implements IProjectile, IShootable {
+public class EntityJudgementCut extends ProjectileEntity implements IShootable {
     private static final DataParameter<Integer> COLOR = EntityDataManager.<Integer>createKey(EntityJudgementCut.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> FLAGS = EntityDataManager.<Integer>createKey(EntityJudgementCut.class, DataSerializers.VARINT);
 
@@ -72,7 +73,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
     protected SoundEvent getHitEntitySound() {
         return this.livingEntitySound;
     }
-    public EntityJudgementCut(EntityType<?> entityTypeIn, World worldIn) {
+    public EntityJudgementCut(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.setNoGravity(true);
         //this.setGlowing(true);
@@ -394,7 +395,7 @@ public class EntityJudgementCut extends Entity implements IProjectile, IShootabl
 
 
     @Nullable
-    public EntityRayTraceResult getRayTrace(Vec3d p_213866_1_, Vec3d p_213866_2_) {
+    public EntityRayTraceResult getRayTrace(Vector3d p_213866_1_, Vector3d p_213866_2_) {
         return ProjectileHelper.rayTraceEntities(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.canBeCollidedWith() && (p_213871_1_ != this.getShooter());
         });

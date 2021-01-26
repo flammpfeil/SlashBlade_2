@@ -20,7 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -73,7 +73,7 @@ public class LockonCircleRender {
 
             ActiveRenderInfo ari = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
 
-            Vec3d pos = target.getEyePosition(partialTicks)
+            Vector3d pos = target.getEyePosition(partialTicks)
                     .subtract(0, target.getEyeHeight() / 2.0, 0)
                     .subtract(ari.getProjectedView());
 

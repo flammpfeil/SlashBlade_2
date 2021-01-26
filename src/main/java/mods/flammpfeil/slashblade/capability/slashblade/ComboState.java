@@ -20,7 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
@@ -115,9 +115,9 @@ public class ComboState extends RegistryBase<ComboState> {
                         player.getCapability(IMPUT_STATE).map((state)->state.getCommands(player)).orElseGet(()-> EnumSet.noneOf(ImputCommand.class));
 
                 if (5 == elapsed && commands.containsAll(combo_b1_alt)) {
-                    Vec3d motion = player.getMotion();
+                    Vector3d motion = player.getMotion();
                     player.setMotion(motion.x, motion.y + 0.7, motion.z);
-                    player.onGround = false;
+                    player.setOnGround(false);
                     player.isAirBorne = true;
                 }
             })
@@ -208,10 +208,10 @@ public class ComboState extends RegistryBase<ComboState> {
                     }
                 }
 
-                if(elapsed <= 3 && playerIn.onGround)
-                    playerIn.moveRelative( playerIn.isInWater() ? 0.35f : 0.8f , new Vec3d(0, 0, 1));
+                if(elapsed <= 3 && playerIn.isOnGround())
+                    playerIn.moveRelative( playerIn.isInWater() ? 0.35f : 0.8f , new Vector3d(0, 0, 1));
 
-                if(elapsed == 10 && (playerIn.world.isRemote ? playerIn.onGround : true)){
+                if(elapsed == 10 && (playerIn.world.isRemote ? playerIn.isOnGround() : true)){
                     playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
                         ComboState combo = ComboState.ARTS_RISING_STAR;
                         state.setComboSeq(combo);
@@ -233,9 +233,9 @@ public class ComboState extends RegistryBase<ComboState> {
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,0.5),1.0f,true,false,false);
 
-                Vec3d motion = playerIn.getMotion();
+                Vector3d motion = playerIn.getMotion();
                 playerIn.setMotion(0, motion.y + 0.7, 0);
-                playerIn.onGround = false;
+                playerIn.setOnGround(false);
                 playerIn.isAirBorne = true;
             })
             .addHoldAction((playerIn)->{
@@ -263,12 +263,12 @@ public class ComboState extends RegistryBase<ComboState> {
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,-5),1.0f,true,false,false);
 
-                Vec3d motion = playerIn.getMotion();
+                Vector3d motion = playerIn.getMotion();
                 playerIn.setMotion(motion.x, motion.y - 0.7, motion.z);
             })
             .addHoldAction((playerIn)->{
                 int elapsed = playerIn.getItemInUseMaxCount();
-                if(!playerIn.onGround){
+                if(!playerIn.isOnGround()){
                     playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setSmash(ee,-5),1.0f,false,false,true);
                     });
@@ -279,7 +279,7 @@ public class ComboState extends RegistryBase<ComboState> {
                 }
             })
             .addTickAction((playerIn)-> {
-                if(!playerIn.onGround)
+                if(!playerIn.isOnGround())
                     playerIn.fallDistance = 1;
                 else{
                     //finish

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
@@ -26,9 +27,9 @@ public class BladeModel implements IBakedModel {
         this.original = original;
         this.overrides = new ItemOverrideList(loader, null, null, ImmutableList.<ItemOverride>of()){
             @Override
-            public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, World world, LivingEntity entity) {
+            public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
                 user = entity;
-                return super.getModelWithOverrides(originalModel, stack, world, entity);
+                return super.getOverrideModel(originalModel, stack, world, entity);
             }
 
         };
@@ -36,7 +37,7 @@ public class BladeModel implements IBakedModel {
 
     public static LivingEntity user = null;
 
-    public static ItemCameraTransforms.TransformType type = ItemCameraTransforms.TransformType.NONE;
+    //public static ItemCameraTransforms.TransformType type = ItemCameraTransforms.TransformType.NONE;
 
 
     @Override
@@ -61,6 +62,11 @@ public class BladeModel implements IBakedModel {
     }
 
     @Override
+    public boolean isSideLit() {
+        return false;
+    }
+
+    @Override
     public boolean isBuiltInRenderer() {
         return true;
     }
@@ -71,6 +77,7 @@ public class BladeModel implements IBakedModel {
         //return Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(SlashBlade.proudSoul);
     }
 
+    /*
     ItemCameraTransforms tf = new ItemCameraTransforms(ItemCameraTransforms.DEFAULT){
         @Override
         public ItemTransformVec3f getTransform(TransformType srctype) {
@@ -82,15 +89,13 @@ public class BladeModel implements IBakedModel {
     public ItemCameraTransforms getItemCameraTransforms() {
         return tf;
     }
+    */
 
+    /*
     @Override
     public IBakedModel handlePerspective(ItemCameraTransforms.TransformType cameraTransformType, MatrixStack mat) {
         this.type = cameraTransformType;
         return net.minecraftforge.client.ForgeHooksClient.handlePerspective(getBakedModel(), cameraTransformType, mat);
     }
-
-    @Override
-    public boolean func_230044_c_() {
-        return false;
-    }
+    */
 }
