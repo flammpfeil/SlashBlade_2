@@ -61,7 +61,10 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
             int lifetime = entity.getLifetime();
 
             double deathTime = lifetime;
-            double baseAlpha = Math.sin(Math.PI * 0.5 * (Math.min(deathTime, (lifetime - (entity.ticksExisted) - partialTicks)) / deathTime));
+            //double baseAlpha = Math.sin(Math.PI * 0.5 * (Math.min(deathTime, Math.max(0, (lifetime - (entity.ticksExisted) - partialTicks))) / deathTime));
+            double baseAlpha = (Math.min(deathTime, Math.max(0, (lifetime - (entity.ticksExisted) - partialTicks))) / deathTime);
+            baseAlpha = -Math.pow(baseAlpha - 1, 4.0)+1.0;
+
             int seed = entity.getSeed();
 
             matrixStackIn.rotate(Vector3f.YP.rotationDegrees(seed));
@@ -93,7 +96,7 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
                     float waveScale = 1.0f + 0.03f * wave;
                     matrixStackIn.scale(waveScale, waveScale, waveScale);
 
-                    BladeRenderState.setCol(baseColor | ((int) (0x88 * ((cycleTicks - wave) / cycleTicks)) << 24));
+                    BladeRenderState.setCol(baseColor | ((int) (0x88 * ((cycleTicks - wave) / cycleTicks) * baseAlpha) << 24));
                     BladeRenderState.renderOverridedReverseLuminous(ItemStack.EMPTY, model, "base", this.getEntityTexture(entity), matrixStackIn, bufferIn, packedLightIn);
                 }
             }
@@ -125,7 +128,7 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
 
                     matrixStackIn.rotate(Vector3f.ZP.rotationDegrees((float)(rotWind * offsetTicks)));
 
-                    Color cc = new Color(col.getRed(), col.getGreen(), col.getBlue(), 0xff & (int) (Math.min(0, 0xFF * Math.sin(rad))));
+                    Color cc = new Color(col.getRed(), col.getGreen(), col.getBlue(), 0xff & (int) (Math.min(0, 0xFF * Math.sin(rad) * baseAlpha)));
                     BladeRenderState.setCol(cc);
                     BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "wind", this.getEntityTexture(entity), matrixStackIn, bufferIn, BladeRenderState.MAX_LIGHT);
                 }
