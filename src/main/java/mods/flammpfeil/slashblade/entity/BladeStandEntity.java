@@ -104,23 +104,24 @@ public class BladeStandEntity extends ItemFrameEntity implements IEntityAddition
 
     @Override
     public ActionResultType processInitialInteract(PlayerEntity player, Hand hand) {
-        if(this.world.isRemote){
+        ActionResultType result = ActionResultType.PASS;
+        if(!this.world.isRemote){
             ItemStack itemstack = player.getHeldItem(hand);
             if(player.isSneaking() && !this.getDisplayedItem().isEmpty()){
                 Pose current = this.getPose();
                 int newIndex = (current.ordinal() + 1) % Pose.values().length;
                 this.setPose(Pose.values()[newIndex]);
-
+                result = ActionResultType.SUCCESS;
             }else if((!itemstack.isEmpty() && itemstack.getItem() instanceof ItemSlashBlade)
                     || (itemstack.isEmpty() && !this.getDisplayedItem().isEmpty())){
 
                 if(this.getDisplayedItem().isEmpty()){
-                    super.processInitialInteract(player, hand);
+                    result = super.processInitialInteract(player, hand);
                 }else{
                     ItemStack displayed = this.getDisplayedItem().copy();
 
                     this.setDisplayedItem(ItemStack.EMPTY);
-                    super.processInitialInteract(player, hand);
+                    result = super.processInitialInteract(player, hand);
 
                     player.setHeldItem(hand, displayed);
                 }
@@ -128,8 +129,9 @@ public class BladeStandEntity extends ItemFrameEntity implements IEntityAddition
             }else {
                 this.playSound(SoundEvents.ENTITY_ITEM_FRAME_ROTATE_ITEM, 1.0F, 1.0F);
                 this.setItemRotation(this.getRotation() + 1);
+                result = ActionResultType.SUCCESS;
             }
         }
-        return ActionResultType.SUCCESS;
+        return result;
     }
 }

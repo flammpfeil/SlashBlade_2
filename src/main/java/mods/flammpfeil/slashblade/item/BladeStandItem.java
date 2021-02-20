@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.item.PaintingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
@@ -26,35 +27,33 @@ public class BladeStandItem extends HangingEntityItem {
 
     @Override
     public ActionResultType onItemUse(ItemUseContext context) {
-        if(super.onItemUse(context) == ActionResultType.SUCCESS) {
-
-            BlockPos clickPos = context.getPos();
-            Direction direction = context.getFace();
-            BlockPos placePos = clickPos.offset(direction);
-            PlayerEntity player = context.getPlayer();
-            ItemStack stack = context.getItem();
-
+        BlockPos blockpos = context.getPos();
+        Direction direction = context.getFace();
+        BlockPos blockpos1 = blockpos.offset(direction);
+        PlayerEntity playerentity = context.getPlayer();
+        ItemStack itemstack = context.getItem();
+        if (playerentity != null && !this.canPlace(playerentity, direction, itemstack, blockpos1)) {
+            return ActionResultType.FAIL;
+        } else {
             World world = context.getWorld();
+            HangingEntity hangingentity = BladeStandEntity.createInstanceFromPos(world, blockpos1, direction, this);
 
-            HangingEntity entity;
-            entity = BladeStandEntity.createInstanceFromPos(world, placePos, direction, this);
-
-            CompoundNBT compoundnbt = stack.getTag();
+            CompoundNBT compoundnbt = itemstack.getTag();
             if (compoundnbt != null) {
-                EntityType.applyItemNBT(world, player, entity, compoundnbt);
+                EntityType.applyItemNBT(world, playerentity, hangingentity, compoundnbt);
             }
 
-            if (entity.onValidSurface()) {
+            if (hangingentity.onValidSurface()) {
                 if (!world.isRemote) {
-                    entity.playPlaceSound();
-                    world.addEntity(entity);
+                    hangingentity.playPlaceSound();
+                    world.addEntity(hangingentity);
                 }
 
-                stack.shrink(1);
+                itemstack.shrink(1);
+                return ActionResultType.func_233537_a_(world.isRemote);
+            } else {
+                return ActionResultType.CONSUME;
             }
-            return ActionResultType.SUCCESS;
-        }else{
-            return ActionResultType.FAIL;
         }
     }
 
