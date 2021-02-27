@@ -270,7 +270,7 @@ public interface ISlashBladeState {
     default ComboState resolvCurrentComboState(LivingEntity user){
         ComboState current = getComboSeq();
 
-        float time = TimeValueHelper.getMSecFromTicks(getElapsedTime(user));
+        int time = (int)TimeValueHelper.getMSecFromTicks(getElapsedTime(user));
 
         while(current != ComboState.NONE && current.getTimeoutMS() < time){
             time -= current.getTimeoutMS();

@@ -98,7 +98,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                 ComboState combo = s.getComboSeq();
                 MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(combo.getMotionLoc());
 
-                float maxSeconds = 0;
+                double maxSeconds = 0;
                 try {
                     mmp.setVmd(motion);
                     maxSeconds = TimeValueHelper.getMSecFromFrames(motion.getMaxFrame());
@@ -107,23 +107,33 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                 }
 
                 //tick to msec
-                float time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.world.getGameTime() - s.getLastActionTime()) + partialTicks);
+                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.world.getGameTime() - s.getLastActionTime()) + partialTicks);
 
-                ComboState next = combo.checkTimeOut(time);
+
+                while(combo != ComboState.NONE && combo.getTimeoutMS() < time){
+                    time -= combo.getTimeoutMS();
+
+                    combo = combo.getNextOfTimeout();
+                }
+                if(combo == ComboState.NONE){
+                    combo = s.getComboRoot();
+                }
+                /*
+                ComboState next = combo.checkTimeOut((float)time);
                 if(combo != next){
                     time -= combo.getTimeoutMS();
                     combo = next;
-                }
+                }*/
 
 
-                float start = TimeValueHelper.getMSecFromFrames(combo.getStartFrame());
-                float end = TimeValueHelper.getMSecFromFrames(combo.getEndFrame());
-                float span = end - start;
+                double start = TimeValueHelper.getMSecFromFrames(combo.getStartFrame());
+                double end = TimeValueHelper.getMSecFromFrames(combo.getEndFrame());
+                double span = Math.abs(end - start);
 
                 span = Math.min(maxSeconds, span);
 
 
-                time *= modifiedSpeed(combo.getSpeed(), entity);
+                //time *= modifiedSpeed(combo.getSpeed(), entity);
 
                 boolean isRoop = combo.getRoop();
                 if (isRoop) {
@@ -134,7 +144,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                 time = start + time;
 
                 try {
-                    mmp.updateMotion(time);
+                    mmp.updateMotion((float)time);
                 } catch (MmdException e) {
                     e.printStackTrace();
                 }

@@ -1,0 +1,9 @@
+# Created by Metasequoia
+
+newmtl mat1
+Ka 0.00000 0.00000 0.00000
+Kd 0.00000 0.40400 1.00000
+Ks 0.00000 0.00000 0.00000
+Ns 0.00000
+map_Kd slash.png
+

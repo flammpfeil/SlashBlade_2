@@ -85,6 +85,9 @@ public class BladeRenderState extends RenderState{
         Face.resetLightMap();
         Face.resetCol();
 
+        Face.resetAlphaOverride();
+        Face.resetUvOperator();
+
         resetCol();
     }
 

@@ -8,6 +8,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.awt.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Face
@@ -19,6 +21,27 @@ public class Face
     }
     public static void resetLightMap(){
         lightmap = 15;
+    }
+
+    public static final BiFunction<Vector4f,Integer,Integer> alphaNoOverride = (v,a)->a;
+    public static final BiFunction<Vector4f,Integer,Integer> alphaOverrideYZZ = (v,a)->v.getY() == 0 ? 0 : a;
+    public static BiFunction<Vector4f,Integer,Integer> alphaOverride = alphaNoOverride;
+
+    public static void setAlphaOverride(BiFunction<Vector4f, Integer, Integer> alphaOverride) {
+        Face.alphaOverride = alphaOverride;
+    }
+    public static void resetAlphaOverride(){
+        Face.alphaOverride = alphaNoOverride;
+    }
+
+    public static final Vector4f uvDefaultOperator = new Vector4f(1,1,0,0);
+    public static Vector4f uvOperator = uvDefaultOperator;
+
+    public static void setUvOperator(float uScale, float vScale, float uOffset, float vOffset) {
+        Face.uvOperator = new Vector4f(uScale, vScale, uOffset, vOffset);
+    }
+    public static void resetUvOperator(){
+        Face.uvOperator = uvDefaultOperator;
     }
 
     public static Color col;
@@ -65,8 +88,8 @@ public class Face
         {
             for (int i = 0; i < textureCoordinates.length; ++i)
             {
-                averageU += textureCoordinates[i].u;
-                averageV += textureCoordinates[i].v;
+                averageU += textureCoordinates[i].u * uvOperator.getX() + uvOperator.getZ();
+                averageV += textureCoordinates[i].v * uvOperator.getY() + uvOperator.getW();
             }
 
             averageU = averageU / textureCoordinates.length;
@@ -97,24 +120,28 @@ public class Face
                 offsetU = textureOffset;
                 offsetV = textureOffset;
 
-                if (textureCoordinates[i].u > averageU)
+                float textureU = textureCoordinates[i].u * uvOperator.getX() + uvOperator.getZ();
+                float textureV = textureCoordinates[i].v * uvOperator.getY() + uvOperator.getW();
+
+                if (textureU > averageU)
                 {
                     offsetU = -offsetU;
                 }
-                if (textureCoordinates[i].v > averageV)
+                if (textureV > averageV)
                 {
                     offsetV = -offsetV;
                 }
 
 
-                wr.tex(textureCoordinates[i].u + offsetU, textureCoordinates[i].v + offsetV);
+                wr.tex(textureU + offsetU, textureV + offsetV);
             }else{
                 wr.tex(0, 0);
             }
 
             wr.lightmap(lightmap);
 
-            wr.color(col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha());
+            wr.color(col.getRed(), col.getGreen(), col.getBlue(),
+                    alphaOverride.apply(new Vector4f(vertices[i].x, vertices[i].y, vertices[i].z, 1.0F), col.getAlpha()));
 
             Vector3f vector3f;
             if(isSmoothShade && vertexNormals != null) {

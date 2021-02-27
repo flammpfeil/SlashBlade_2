@@ -10,19 +10,13 @@ import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
-import mods.flammpfeil.slashblade.client.renderer.entity.BladeItemEntityRenderer;
-import mods.flammpfeil.slashblade.client.renderer.entity.BladeStandEntityRenderer;
-import mods.flammpfeil.slashblade.client.renderer.entity.JudgementCutRenderer;
-import mods.flammpfeil.slashblade.client.renderer.entity.SummonedSwordRenderer;
+import mods.flammpfeil.slashblade.client.renderer.entity.*;
 import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
-import mods.flammpfeil.slashblade.entity.BladeItemEntity;
-import mods.flammpfeil.slashblade.entity.BladeStandEntity;
-import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
-import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
+import mods.flammpfeil.slashblade.entity.*;
 import mods.flammpfeil.slashblade.event.*;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
 import mods.flammpfeil.slashblade.item.BladeStandItem;
@@ -169,6 +163,7 @@ public class SlashBlade
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.BladeStand, BladeStandEntityRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.SlashEffect, SlashEffectRenderer::new);
 
         LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
     }
@@ -369,6 +364,15 @@ public class SlashBlade
                 .setCustomClientFactory(EntityJudgementCut::createInstance)
                 .build(JudgementCutLoc.toString());
 
+        public static final ResourceLocation SlashEffectLoc = new ResourceLocation(SlashBlade.modid, classToString(EntitySlashEffect.class));
+        public static final EntityType<EntitySlashEffect> SlashEffect = EntityType.Builder
+                .create(EntitySlashEffect::new, EntityClassification.MISC)
+                .size(3.0F, 3.0F)
+                .setTrackingRange(4)
+                .setUpdateInterval(20)
+                .setCustomClientFactory(EntitySlashEffect::createInstance)
+                .build(SlashEffectLoc.toString());
+
         @SubscribeEvent
         public static void onEntitiesRegistry(final RegistryEvent.Register<EntityType<?>> event){
             {
@@ -392,6 +396,12 @@ public class SlashBlade
             {
                 EntityType<BladeStandEntity> entity = BladeStand;
                 entity.setRegistryName(BladeStandEntityLoc);
+                event.getRegistry().register(entity);
+            }
+
+            {
+                EntityType<EntitySlashEffect> entity = SlashEffect;
+                entity.setRegistryName(SlashEffectLoc);
                 event.getRegistry().register(entity);
             }
         }

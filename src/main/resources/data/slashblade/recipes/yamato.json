@@ -33,7 +33,7 @@
                         "SummonedSwordColor": -13421569,
                         "RepairCounter": 0,
                         "rarityType": 3,
-                        "ComboRoot": "standby",
+                        "ComboRoot": "standby_ex",
                         "RangeAttackType": "none",
                         "isDefaultBewitched": 0,
                         "SpecialAttackType": "none",

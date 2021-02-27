@@ -1,7 +1,13 @@
 package mods.flammpfeil.slashblade.util;
 
+import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
+import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
+import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
+import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.entity.IShootable;
+import mods.flammpfeil.slashblade.event.FallHandler;
+import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.CreatureAttribute;
@@ -15,6 +21,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -44,6 +51,23 @@ public class AttackManager {
 
                     doMeleeAttack(playerIn, entity, forceHit, resetHit);
                 }
+
+
+
+                Vector3d pos = playerIn.getEyePosition(0).add(playerIn.getLookVec().scale(0.5f));
+                EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, playerIn.world);
+                jc.setPosition(pos.x ,pos.y, pos.z);
+                jc.setShooter(playerIn);
+
+                jc.setRotationRoll(-30);
+                jc.rotationYaw = playerIn.rotationYaw;
+                jc.rotationPitch = 0;
+
+                playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    jc.setColor(state.getColorCode());
+                });
+
+                playerIn.world.addEntity(jc);
 
             } finally {
                 playerIn.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(am);

@@ -5,29 +5,29 @@ public class TimeValueHelper {
     //30frames = 1sec
     
     static final double TicksToMSec = (1000.0/20.0);
-    public static float getMSecFromTicks(float ticks){
-        return (float)(ticks * TicksToMSec);
+    public static double getMSecFromTicks(float ticks){
+        return (ticks * TicksToMSec);
     }
     static final double FramesToMSec = (1000.0/30.0);
-    public static float getMSecFromFrames(float frames){
-        return (float)(frames * FramesToMSec);
+    public static double getMSecFromFrames(float frames){
+        return (frames * FramesToMSec);
     }
 
     static final double TicksToFrames = (30.0/20.0);
-    public static float getFramesFromTicks(float ticks){
-        return (float)(ticks * TicksToFrames);
+    public static double getFramesFromTicks(float ticks){
+        return (ticks * TicksToFrames);
     }
     static final double MSecToFrames = (30.0/1000.0);
-    public static float getFramesFromMSec(float msec){
-        return (float)(msec * MSecToFrames);
+    public static double getFramesFromMSec(float msec){
+        return (msec * MSecToFrames);
     }
 
     static final double MSecToTicks = (20.0/1000.0);
-    public static float getTicksFromMSec(float msec){
-        return (float)(msec * MSecToTicks);
+    public static double getTicksFromMSec(float msec){
+        return (msec * MSecToTicks);
     }
     static final double FramesToTicks = (20.0/30.0);
-    public static float getTicksFromFrames(float frames){
-        return (float)(frames * FramesToTicks);
+    public static double getTicksFromFrames(float frames){
+        return (frames * FramesToTicks);
     }
 }

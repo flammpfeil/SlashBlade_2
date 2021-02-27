@@ -78,7 +78,7 @@ public class ArrowReflector {
                 ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
             }
 
-            float period = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());
+            double period = TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed());
 
             if(ticks < period){
                 List<Entity> founds = TargetSelector.getReflectableEntitiesWithinAABB(attacker.world, 4.0f, attacker);

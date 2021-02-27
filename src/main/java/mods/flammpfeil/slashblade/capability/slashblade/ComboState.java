@@ -17,6 +17,7 @@ import mods.flammpfeil.slashblade.util.RegistryBase;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -185,6 +186,191 @@ public class ComboState extends RegistryBase<ComboState> {
                 FallHandler.fallDecrease(playerIn);
             });
 
+    public static final ResourceLocation exMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/motion_ex.vmd");
+
+    static List<Map.Entry<EnumSet<ImputCommand>, Supplier<ComboState>>> ex_standbyMap =
+            new HashMap<EnumSet<ImputCommand>, Supplier<ComboState>>(){{
+                this.put(EnumSet.of(ImputCommand.ON_GROUND, ImputCommand.SNEAK, ImputCommand.FORWARD, ImputCommand.R_CLICK),
+                        () -> ComboState.ARTS_RAPID_SLASH);
+                this.put(EnumSet.of(ImputCommand.ON_GROUND, ImputCommand.L_CLICK),
+                        () -> ComboState.COMBO_B1);
+                this.put(EnumSet.of(ImputCommand.ON_GROUND, ImputCommand.BACK, ImputCommand.SNEAK, ImputCommand.R_CLICK),
+                        () -> ComboState.COMBO_B1);
+
+                this.put(EnumSet.of(ImputCommand.ON_GROUND, ImputCommand.R_CLICK),
+                        () -> EX_COMBO_A1);
+
+                this.put(EnumSet.of(ImputCommand.ON_AIR, ImputCommand.SNEAK, ImputCommand.FORWARD, ImputCommand.R_CLICK),
+                        () -> ComboState.ARTS_HELM_BREAKER);
+                this.put(EnumSet.of(ImputCommand.ON_AIR),
+                        () -> ComboState.COMBO_AA1);
+            }}.entrySet().stream()
+                    .collect(Collectors.toList());
+
+    
+    
+    //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
+    
+    
+    public static final ComboState STANDBY_EX = new ComboState("standby_ex", 10,
+            ()->0,()->1,()->1.0f,()->true,()->1000,
+            exMotionLoc, (a)-> {
+
+        EnumSet<ImputCommand> commands =
+                a.getCapability(ComboState.IMPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(ImputCommand.class));
+
+        return ex_standbyMap.stream()
+                .filter((entry)->commands.containsAll(entry.getKey()))
+                //.findFirst()
+                .min(Comparator.comparingInt((entry)-> entry.getValue().get().getPriority()))
+                .map((entry)->entry.getValue().get())
+                .orElseGet(()->ComboState.NONE);
+
+    }, ()-> ComboState.NONE)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_A1 = new ComboState("ex_combo_a1",100,
+            ()->1,()->21,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_A2, ()-> ComboState.EX_COMBO_A1_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A1_END = new ComboState("ex_combo_a1_end",100,
+            ()->21,()->41,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_A2, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_A2 = new ComboState("ex_combo_a2",100,
+            ()->100,()->118,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_A3, ()-> ComboState.EX_COMBO_A2_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A2_END = new ComboState("ex_combo_a2_end",100,
+            ()->118,()->135,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_C, ()-> ComboState.EX_COMBO_A2_END2)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A2_END2 = new ComboState("ex_combo_a2_end2",100,
+            ()->135,()->151,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_C = new ComboState("ex_combo_c",100,
+            ()->400,()->488,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_A3 = new ComboState("ex_combo_a3",100,
+            ()->200,()->218,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> a.isPotionActive(Effects.STRENGTH) ? ComboState.EX_COMBO_A4EX : ComboState.EX_COMBO_A4 , ()-> ComboState.EX_COMBO_A3_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A3_END = new ComboState("ex_combo_a3_end",100,
+            ()->218,()->227,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_B1, ()-> ComboState.EX_COMBO_A3_END2)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A3_END2 = new ComboState("ex_combo_a3_end2",100,
+            ()->227,()->314,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_A4 = new ComboState("ex_combo_a4",100,
+            ()->500,()->608,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_A4EX = new ComboState("ex_combo_a4ex",100,
+            ()->800,()->839,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_A5EX , ()-> ComboState.EX_COMBO_A4EX_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_A4EX_END = new ComboState("ex_combo_a4ex_end",100,
+            ()->839,()->894,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+    public static final ComboState EX_COMBO_A5EX = new ComboState("ex_combo_a5ex",100,
+            ()->900,()->1061,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_B1 = new ComboState("ex_combo_b1",100,
+            ()->700,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B2 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B2 = new ComboState("ex_combo_b2",100,
+            ()->710,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B3 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B3 = new ComboState("ex_combo_b3",100,
+            ()->710,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B4 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B4 = new ComboState("ex_combo_b4",100,
+            ()->710,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B5 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B5 = new ComboState("ex_combo_b5",100,
+            ()->710,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B6 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B6 = new ComboState("ex_combo_b6",100,
+            ()->710,()->720,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)-> ComboState.EX_COMBO_B7 , ()-> ComboState.EX_COMBO_B_END)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+    public static final ComboState EX_COMBO_B7 = new ComboState("ex_combo_b7",100,
+            ()->710,()->787,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
+    public static final ComboState EX_COMBO_B_END = new ComboState("ex_combo_b_end",100,
+            ()->720,()->787,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
     //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
 
     public static final ComboState ARTS_RAPID_SLASH = new ComboState("arts_rapid_slash",70,
@@ -381,7 +567,7 @@ public class ComboState extends RegistryBase<ComboState> {
     }
 
     public int getTimeoutMS() {
-        return timeout.get();
+        return (int)(TimeValueHelper.getMSecFromFrames(Math.abs(getEndFrame() - getStartFrame())) / getSpeed()) + timeout.get();
     }
 
     public void holdAction(LivingEntity user){
@@ -478,8 +664,8 @@ public class ComboState extends RegistryBase<ComboState> {
     }
 
     @Nonnull
-    public ComboState checkTimeOut(float time){
-        return this.timeout.get() < time ? nextOfTimeout.get() : this;
+    public ComboState checkTimeOut(float msec){
+        return this.getTimeoutMS() < msec ? nextOfTimeout.get() : this;
     }
 
     public boolean isAerial(){
