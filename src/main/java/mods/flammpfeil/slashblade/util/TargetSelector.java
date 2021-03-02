@@ -107,7 +107,7 @@ public class TargetSelector {
 
         return Stream.of(
                 world.getEntitiesWithinAABB(ProjectileEntity.class, aabb).stream()
-                        .filter(e-> (e.func_234616_v_()/*getThrower()*/ == null || e.func_234616_v_()/*getThrower()*/ != attacker)))
+                        .filter(e-> ((e.func_234616_v_()/*getThrower()*/ == null || e.func_234616_v_()/*getThrower()*/ != attacker) && (e instanceof IShootable ? ((IShootable)e).getShooter() != attacker : true))))
                 /*
                 world.getEntitiesWithinAABB(DamagingProjectileEntity.class, aabb).stream()
                         .filter(e-> (e.shootingEntity == null || e.shootingEntity != attacker)),

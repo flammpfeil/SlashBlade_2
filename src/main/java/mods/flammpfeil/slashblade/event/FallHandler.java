@@ -3,6 +3,7 @@ package mods.flammpfeil.slashblade.event;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.particles.BlockParticleData;
@@ -10,6 +11,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
@@ -65,6 +67,25 @@ public class FallHandler {
                 int i = (int)(150.0D * d0);
                 if (!state.addLandingEffects((ServerWorld)user.world, pos, state, user, i))
                     ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), user.getPosX(), user.getPosY(), user.getPosZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+            }
+        }
+    }
+    public static void spawnLandingParticle(Entity user, Vector3d targetPos, Vector3d normal, float fallFactor){
+        if (!user.world.isRemote) {
+
+            Vector3d blockPos = targetPos.add(normal.normalize().scale(0.5f));
+
+            int x = MathHelper.floor(blockPos.getX());
+            int y = MathHelper.floor(blockPos.getY());
+            int z = MathHelper.floor(blockPos.getZ());
+            BlockPos pos = new BlockPos(x, y, z);
+            BlockState state = user.world.getBlockState(pos);
+
+            float f = (float) MathHelper.ceil(fallFactor);
+            if (!state.isAir(user.world, pos)) {
+                double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
+                int i = (int)(150.0D * d0);
+                ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), targetPos.getX(), targetPos.getY(), targetPos.getZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }

@@ -127,7 +127,8 @@ public class ItemSlashBlade extends SwordItem {
             playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().add(ImputCommand.R_CLICK));
 
             ComboState combo = state.progressCombo(playerIn);
-            state.setLastActionTime(worldIn.getGameTime());
+            if(combo != ComboState.NONE)
+                state.setLastActionTime(worldIn.getGameTime());
             combo.clickAction(playerIn);
 
             playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().remove(ImputCommand.R_CLICK));

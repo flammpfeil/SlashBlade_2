@@ -208,6 +208,10 @@ public interface ISlashBladeState {
         ComboState current = resolvCurrentComboState(user);
 
         ComboState next = current.getNext(user);
+
+        if(next != ComboState.NONE && next == current)
+            return ComboState.NONE;
+
         ComboState rootNext = getComboRoot().getNext(user);
 
         ComboState resolved = next.getPriority() <= rootNext.getPriority()

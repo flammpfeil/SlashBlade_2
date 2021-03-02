@@ -1,8 +1,6 @@
 package mods.flammpfeil.slashblade.capability.slashblade;
 
-import com.google.common.collect.ImmutableRangeMap;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeMap;
+import com.google.common.collect.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.ability.StunManager;
@@ -232,135 +230,218 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState EX_COMBO_A1 = new ComboState("ex_combo_a1",100,
             ()->1,()->21,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.EX_COMBO_A2, ()-> ComboState.EX_COMBO_A1_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(5, (a)->ComboState.EX_COMBO_A2), ()-> ComboState.EX_COMBO_A1_END)
+            .setClickAction((e)-> AttackManager.doSlash(e,  -10,true))
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_A1_END = new ComboState("ex_combo_a1_end",100,
             ()->21,()->41,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.EX_COMBO_A2, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            exMotionLoc, (a)->ComboState.EX_COMBO_A2, ()-> ComboState.NONE);
 
 
     public static final ComboState EX_COMBO_A2 = new ComboState("ex_combo_a2",100,
-            ()->100,()->118,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.EX_COMBO_A3, ()-> ComboState.EX_COMBO_A2_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            ()->100,()->115,()->1.0f,()->false,()->0,
+            exMotionLoc, TimeoutNext.buildFromFrame(5,(a)->ComboState.EX_COMBO_A3), ()-> ComboState.EX_COMBO_A2_END)
+            .setClickAction((e)-> AttackManager.doSlash(e,  180-10,true))
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_A2_END = new ComboState("ex_combo_a2_end",100,
-            ()->118,()->135,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.EX_COMBO_C, ()-> ComboState.EX_COMBO_A2_END2)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            ()->115,()->132,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_C, ()-> ComboState.EX_COMBO_A2_END2);
     public static final ComboState EX_COMBO_A2_END2 = new ComboState("ex_combo_a2_end2",100,
-            ()->135,()->151,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            ()->132,()->151,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE);
 
 
     public static final ComboState EX_COMBO_C = new ComboState("ex_combo_c",100,
             ()->400,()->488,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> ComboState.NONE)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -30))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  -35, true))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
 
     public static final ComboState EX_COMBO_A3 = new ComboState("ex_combo_a3",100,
             ()->200,()->218,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> a.isPotionActive(Effects.STRENGTH) ? ComboState.EX_COMBO_A4EX : ComboState.EX_COMBO_A4 , ()-> ComboState.EX_COMBO_A3_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(9,(a)-> a.isPotionActive(Effects.STRENGTH) ? ComboState.EX_COMBO_A4EX : ComboState.EX_COMBO_A4) , ()-> ComboState.EX_COMBO_A3_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                            .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -61))
+                            .put(6, (entityIn)->AttackManager.doSlash(entityIn,  180-42))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_A3_END = new ComboState("ex_combo_a3_end",100,
-            ()->218,()->227,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.EX_COMBO_B1, ()-> ComboState.EX_COMBO_A3_END2)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            ()->218,()->230,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_B1, ()-> ComboState.EX_COMBO_A3_END2);
     public static final ComboState EX_COMBO_A3_END2 = new ComboState("ex_combo_a3_end2",100,
-            ()->227,()->314,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            ()->230,()->314,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE);
 
 
     public static final ComboState EX_COMBO_A4 = new ComboState("ex_combo_a4",100,
             ()->500,()->608,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(21,(a)->ComboState.NONE), ()-> ComboState.NONE)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(8, (entityIn)->AttackManager.doSlash(entityIn,  45))
+                    .put(9, (entityIn)->AttackManager.doSlash(entityIn,  50, true))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
 
     public static final ComboState EX_COMBO_A4EX = new ComboState("ex_combo_a4ex",100,
             ()->800,()->839,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_A5EX , ()-> ComboState.EX_COMBO_A4EX_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(22,(a)-> ComboState.EX_COMBO_A5EX) , ()-> ComboState.EX_COMBO_A4EX_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(7, (entityIn)->AttackManager.doSlash(entityIn,  70))
+                    .put(14, (entityIn)->AttackManager.doSlash(entityIn,  180+75))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_A4EX_END = new ComboState("ex_combo_a4ex_end",100,
             ()->839,()->894,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
-            .addHitEffect(StunManager::setStun)
-            .setQuickChargeEnabled(()->false);
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE);
 
     public static final ComboState EX_COMBO_A5EX = new ComboState("ex_combo_a5ex",100,
             ()->900,()->1061,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> ComboState.NONE)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(15, (entityIn)->AttackManager.doSlash(entityIn,  35,false,true))
+                    .put(17, (entityIn)->AttackManager.doSlash(entityIn,  40,true,true))
+                    .put(19, (entityIn)->AttackManager.doSlash(entityIn,  30,true,true))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
 
+    private final static float rushDamageBase = 0.1f;
     public static final ComboState EX_COMBO_B1 = new ComboState("ex_combo_b1",100,
             ()->700,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B2 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc,  TimeoutNext.buildFromFrame(13, (a)-> ComboState.EX_COMBO_B2) , ()-> ComboState.EX_COMBO_B1_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(6, (entityIn)->{
+                        AttackManager.doSlash(entityIn,  -30, false, false, 0.25f);
+                        AttackManager.doSlash(entityIn,  180-35, true, false, 0.25f);
+                    })
+                    .put(7+0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(7+1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(7+2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(7+3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(7+4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(7+5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(7+6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(7+7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
+
+    public static final ComboState EX_COMBO_B1_END = new ComboState("ex_combo_b_end",100,
+            ()->720,()->743,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.EX_COMBO_B1_END, ()-> ComboState.EX_COMBO_B1_END2)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(7+12, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(7+13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .build())
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+    public static final ComboState EX_COMBO_B1_END2 = new ComboState("ex_combo_b_end",100,
+            ()->743,()->787,()->1.0f,()->false,()->0,
+            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            .addHitEffect(StunManager::setStun)
+            .setQuickChargeEnabled(()->false);
+
+
     public static final ComboState EX_COMBO_B2 = new ComboState("ex_combo_b2",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B3 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(6, (a)-> ComboState.EX_COMBO_B3)  , ()-> ComboState.EX_COMBO_B_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                        .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                        .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                        .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                        .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                        .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                        .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                        .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                        .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_B3 = new ComboState("ex_combo_b3",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B4 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(6, (a)-> ComboState.EX_COMBO_B4)  , ()-> ComboState.EX_COMBO_B_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_B4 = new ComboState("ex_combo_b4",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B5 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(6, (a)-> ComboState.EX_COMBO_B5)  , ()-> ComboState.EX_COMBO_B_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_B5 = new ComboState("ex_combo_b5",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B6 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(6, (a)-> ComboState.EX_COMBO_B6)  , ()-> ComboState.EX_COMBO_B_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_B6 = new ComboState("ex_combo_b6",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.EX_COMBO_B7 , ()-> ComboState.EX_COMBO_B_END)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(6, (a)-> ComboState.EX_COMBO_B7)  , ()-> ComboState.EX_COMBO_B_END)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     public static final ComboState EX_COMBO_B7 = new ComboState("ex_combo_b7",100,
             ()->710,()->787,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            exMotionLoc, TimeoutNext.buildFromFrame(33, (a)-> ComboState.NONE) , ()-> ComboState.NONE)
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), false, false, rushDamageBase))
+                    .put(7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0), true , false, rushDamageBase))
+
+                    .put(12, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
 
@@ -368,7 +449,10 @@ public class ComboState extends RegistryBase<ComboState> {
     public static final ComboState EX_COMBO_B_END = new ComboState("ex_combo_b_end",100,
             ()->720,()->787,()->1.0f,()->false,()->0,
             exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
-            .setClickAction((e)-> AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
+            .addTickAction(TimeLineTickAction.getBuilder()
+                    .put(12, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .build())
             .addHitEffect(StunManager::setStun)
             .setQuickChargeEnabled(()->false);
     //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
@@ -678,5 +762,83 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public int getPriority() {
         return priority;
+    }
+
+    public static class TimeoutNext implements Function<LivingEntity, ComboState>{
+
+        long timeout;
+        Function<LivingEntity, ComboState> next;
+
+        static public TimeoutNext buildFromFrame(int timeoutFrame, Function<LivingEntity, ComboState> next){
+            return new TimeoutNext((int)TimeValueHelper.getTicksFromFrames(timeoutFrame), next);
+        }
+
+        public TimeoutNext(long timeout, Function<LivingEntity, ComboState> next){
+            this.timeout = timeout;
+            this.next = next;
+        }
+
+        @Override
+        public ComboState apply(LivingEntity livingEntity) {
+
+            long elapsed = livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                    .map((state)->state.getElapsedTime(livingEntity))
+                    .orElseGet(()->0l);
+
+
+            if(timeout <= elapsed){
+                return next.apply(livingEntity);
+            }else{
+                return livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                        .map((state)->state.getComboSeq())
+                        .orElseGet(()->ComboState.NONE);
+            }
+        }
+    }
+
+    public static class TimeLineTickAction implements Consumer<LivingEntity>{
+
+        public static TimeLineTickActionBuilder getBuilder(){
+            return new TimeLineTickActionBuilder();
+        }
+
+        public static class TimeLineTickActionBuilder{
+            Map<Integer, Consumer<LivingEntity>> timeLine = Maps.newHashMap();
+
+            public TimeLineTickActionBuilder put(int ticks, Consumer<LivingEntity> action){
+                timeLine.put(ticks, action);
+                return this;
+            }
+
+            public TimeLineTickAction build(){
+                return new TimeLineTickAction(timeLine);
+            }
+        }
+
+        Map<Integer, Consumer<LivingEntity>> timeLine = Maps.newHashMap();
+
+        TimeLineTickAction(Map<Integer, Consumer<LivingEntity>> timeLine){
+            this.timeLine.putAll(timeLine);
+        }
+
+        @Override
+        public void accept(LivingEntity livingEntity) {
+            long elapsed = livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                    .map((state)->state.getElapsedTime(livingEntity))
+                    .orElseGet(()->0l);
+
+            Consumer<LivingEntity> action = timeLine.getOrDefault((int)elapsed, this::defaultConsumer);
+
+            action.accept(livingEntity);
+        }
+
+        void defaultConsumer(LivingEntity entityIn){
+
+            long elapsed = entityIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                    .map((state)->state.getElapsedTime(entityIn))
+                    .orElseGet(()->0l);
+
+            elapsed = 1;
+        }
     }
 }

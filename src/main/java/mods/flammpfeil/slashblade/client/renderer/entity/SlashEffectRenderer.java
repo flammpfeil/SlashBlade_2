@@ -52,7 +52,6 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
 
             matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw) - 90.0F));
             matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch)));
-
             matrixStackIn.rotate(Vector3f.XP.rotationDegrees(entity.getRotationRoll()));
 
 
@@ -67,34 +66,47 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             double baseAlpha = (Math.min(deathTime, Math.max(0, (lifetime - (entity.ticksExisted) - partialTicks))) / deathTime);
             baseAlpha = -Math.pow(baseAlpha - 1, 4.0)+1.0;
 
-            baseAlpha = Math.sin(-Math.PI + Math.PI * 2 * progress) * 0.5f + 0.5f;
-            baseAlpha = Math.sin(Math.PI * progress);
+            //baseAlpha = Math.sin(-Math.PI + Math.PI * 2 * progress) * 0.5f + 0.5f;
+            //baseAlpha = Math.sin(Math.PI * progress);
 
             //time
-            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entity.getRotationOffset() -100.0F * progress));
+            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entity.getRotationOffset() -135.0F * progress));
 
-            float scale = entity.getBaseSize() * MathHelper.lerp(progress, 0.025f,0.035f);
-            matrixStackIn.scale(scale, scale, scale);
             matrixStackIn.scale(1,0.25f,1);
+
+            float scale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.035f);
 
             int color = entity.getColor() & 0xFFFFFF;
 
+            ResourceLocation rl = getEntityTexture(entity);
+
             //baseAlpha = 1.0f;
             int alpha = ((0xFF & (int) (0xFF * baseAlpha)) << 24);
-            Face.setAlphaOverride(Face.alphaOverrideYZZ);
-            Face.setUvOperator(1,1,0, -0.45f + progress * -0.3f);
-            BladeRenderState.setCol(color | alpha);
-            BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "base", textureLocation, matrixStackIn, bufferIn, packedLightIn);
 
-            Face.setAlphaOverride(Face.alphaOverrideYZZ);
-            Face.setUvOperator(1,1,0, -0.5f + progress * -0.2f);
-            BladeRenderState.setCol(0x404040 | alpha);
-            BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", textureLocation, matrixStackIn, bufferIn, packedLightIn);
+            try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
+                matrixStackIn.scale(scale, scale, scale);
+                Face.setAlphaOverride(Face.alphaOverrideYZZ);
+                Face.setUvOperator(1,1,0, -0.35f + progress * -0.15f);
+                BladeRenderState.setCol(color | alpha);
+                BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
+            }
 
-            Face.setAlphaOverride(Face.alphaOverrideYZZ);
-            Face.setUvOperator(1,1,0, -0.45f + progress * -0.3f);
-            BladeRenderState.setCol(color | alpha);
-            BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", textureLocation, matrixStackIn, bufferIn, packedLightIn);
+            try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
+                float windscale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.0375f);
+                matrixStackIn.scale(windscale, windscale, windscale);
+                Face.setAlphaOverride(Face.alphaOverrideYZZ);
+                Face.setUvOperator(1, 1, 0, -0.5f + progress * -0.2f);
+                BladeRenderState.setCol(0x404040 | alpha);
+                BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
+            }
+
+            try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
+                matrixStackIn.scale(scale, scale, scale);
+                Face.setAlphaOverride(Face.alphaOverrideYZZ);
+                Face.setUvOperator(1, 1, 0, -0.35f + progress * -0.15f);
+                BladeRenderState.setCol(color | alpha);
+                BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
+            }
         }
     }
 }

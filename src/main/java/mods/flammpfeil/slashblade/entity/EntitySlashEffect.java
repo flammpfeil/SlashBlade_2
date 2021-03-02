@@ -1,14 +1,16 @@
 package mods.flammpfeil.slashblade.entity;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.NBTHelper;
-import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
@@ -16,16 +18,17 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.potion.PotionUtils;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -160,6 +163,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     enum FlagsState {
         Critical,
         NoClip,
+        Mute,
     }
 
     EnumSet<FlagsState> flags = EnumSet.noneOf(FlagsState.class);
@@ -190,6 +194,16 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
         }
     }
 
+    public void setMute(boolean value) {
+        if(value)
+            setFlags(FlagsState.Mute);
+        else
+            removeFlags(FlagsState.Mute);
+    }
+    public boolean getMute() {
+        refreshFlags();
+        return flags.contains(FlagsState.Mute);
+    }
 
     public void setIsCritical(boolean value) {
         if(value)
@@ -223,8 +237,47 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     public void tick() {
         super.tick();
 
-        if(ticksExisted < 8 && ticksExisted % 2 == 0) {
-            this.playSound(getHitEntitySound(), 0.2F, 0.5F + 0.25f * this.rand.nextFloat());
+        if (ticksExisted == 2){
+
+            if (!getMute())
+                this.playSound(SoundEvents.ITEM_TRIDENT_THROW, 0.80F, 0.625F + 0.1f * this.rand.nextFloat());
+            else
+                this.world.playSound((PlayerEntity) null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.5F, 0.4F / (this.rand.nextFloat() * 0.4F + 0.8F));
+
+            if(getIsCritical())
+                this.playSound(getHitEntitySound(), 0.2F, 0.4F + 0.25f * this.rand.nextFloat());
+        }
+
+        if(getShooter() != null && !getShooter().isWet() && ticksExisted < (getLifetime() * 0.75)){
+            Vector3d start = this.getPositionVec();
+            Vector4f normal = new Vector4f(1,0,0,1);
+
+            float progress = this.ticksExisted / (float)lifetime;
+
+            MatrixStack matrixStack = new MatrixStack();
+            matrixStack.rotate(Vector3f.YP.rotationDegrees(-this.rotationYaw -90));
+            matrixStack.rotate(Vector3f.ZP.rotationDegrees(this.rotationPitch));
+            matrixStack.rotate(Vector3f.XP.rotationDegrees(this.getRotationRoll()));
+
+            matrixStack.rotate(Vector3f.YP.rotationDegrees(140 + this.getRotationOffset() -200.0F * progress));
+
+
+
+            normal.transform(matrixStack.getLast().getMatrix());
+
+            Vector3d normal3d = new Vector3d(normal.getX(), normal.getY(), normal.getZ());
+
+            BlockRayTraceResult rayResult = this.getEntityWorld().rayTraceBlocks(
+                    new RayTraceContext(
+                            start.add(normal3d.scale(1.5)),
+                            start.add(normal3d.scale(3)),
+                            RayTraceContext.BlockMode.COLLIDER,
+                            RayTraceContext.FluidMode.ANY,
+                            null));
+
+            if(rayResult.getType() == RayTraceResult.Type.BLOCK){
+                FallHandler.spawnLandingParticle(this, rayResult.getHitVec(), normal3d , 3);
+            }
         }
 
         if(this.getShooter() != null) {
@@ -233,7 +286,13 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
             //cyclehit
             if (this.ticksExisted % 2 == 0) {
                 //this::onHitEntity ro KnockBackHandler::setCancel
-                AttackManager.areaAttack(this, KnockBackHandler::setCancel,4.0, this.doCycleHit(),false);
+                if(getShooter() instanceof LivingEntity) {
+                    LivingEntity shooter = (LivingEntity) getShooter();
+                    float ratio = (float)damage * (getIsCritical() ? 1.1f : 1.0f);
+                    AttackManager.areaAttack(shooter, KnockBackHandler::setCancel, ratio, this.doCycleHit(),false, true);
+                }else{
+                    AttackManager.areaAttack(this, KnockBackHandler::setCancel,4.0, this.doCycleHit(),false);
+                }
             }
         }
 
@@ -243,68 +302,10 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
     protected void tryDespawn() {
         if(!this.world.isRemote){
-            if (getLifetime() < this.ticksExisted) {
-                this.burst();
-            }
+            if (getLifetime() < this.ticksExisted)
+                super.remove();
         }
     }
-
-    /*
-    protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
-        Entity targetEntity = p_213868_1_.getEntity();
-        float f = (float)this.getMotion().length();
-        int i = MathHelper.ceil(Math.max((double)f * this.damage, 0.0D));
-
-        if (this.getIsCritical()) {
-            i += this.rand.nextInt(i / 2 + 2);
-        }
-
-        Entity shooter = this.getShooter();
-        DamageSource damagesource;
-        if (shooter == null) {
-            damagesource = CustomDamageSource.causeSummonedSwordDamage(this, this);
-        } else {
-            damagesource = CustomDamageSource.causeSummonedSwordDamage(this, shooter);
-            if (shooter instanceof LivingEntity) {
-                ((LivingEntity)shooter).setLastAttackedEntity(targetEntity);
-            }
-        }
-
-        int fireTime = targetEntity.func_223314_ad();
-        if (this.isBurning() && !(targetEntity instanceof EndermanEntity)) {
-            targetEntity.setFire(5);
-        }
-
-        if (targetEntity.attackEntityFrom(damagesource, (float)i)) {
-            if (targetEntity instanceof LivingEntity) {
-                LivingEntity targetLivingEntity = (LivingEntity)targetEntity;
-
-                if (!this.world.isRemote && shooter instanceof LivingEntity) {
-                    EnchantmentHelper.applyThornEnchantments(targetLivingEntity, shooter);
-                    EnchantmentHelper.applyArthropodEnchantments((LivingEntity)shooter, targetLivingEntity);
-                }
-
-                //this.arrowHit(targetLivingEntity);
-
-                affectEntity(targetLivingEntity, getPotionEffects(), 1.0f);
-
-                if (shooter != null && targetLivingEntity != shooter && targetLivingEntity instanceof PlayerEntity && shooter instanceof ServerPlayerEntity) {
-                    ((ServerPlayerEntity) shooter).func_213823_a(this.getHitEntityPlayerSound(), SoundCategory.PLAYERS, 0.18F, 0.45F);
-                }
-            }
-
-            this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-        } else {
-            targetEntity.func_223308_g(fireTime);
-            this.setMotion(this.getMotion().scale(-0.1D));
-            this.rotationYaw += 180.0F;
-            this.prevRotationYaw += 180.0F;
-            if (!this.world.isRemote && this.getMotion().lengthSquared() < 1.0E-7D) {
-                this.burst();
-            }
-        }
-
-    }*/
 
     public int getColor(){
         return this.getDataManager().get(COLOR);
@@ -356,58 +357,6 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
             effects.add(new EffectInstance(Effects.POISON, 1, 1));
 
         return effects;
-    }
-
-    public void burst(){
-        //this.playSound(SoundEvents.BLOCK_GLASS_BREAK, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-
-        if(!this.world.isRemote){
-            if(this.world instanceof ServerWorld)
-                ((ServerWorld)this.world).spawnParticle(ParticleTypes.CRIT, this.getPosX(), this.getPosY(), this.getPosZ(), 16, 0.5, 0.5,0.5,0.25f);
-
-            this.burst( getPotionEffects(), null);
-        }
-
-        super.remove();
-    }
-
-
-    public void burst(List<EffectInstance> effects, @Nullable Entity focusEntity) {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox().grow(4.0D, 2.0D, 4.0D);
-        List<Entity> list = TargetSelector.getTargettableEntitiesWithinAABB(
-                this.world,
-                2,
-                this);
-        //this.world.getEntitiesWithinAABB(LivingEntity.class, axisalignedbb);
-
-        list.stream()
-                .filter(e -> e instanceof LivingEntity)
-                .map(e -> (LivingEntity) e)
-                .forEach(e -> {
-                    double distanceSq = this.getDistanceSq(e);
-                    if (distanceSq < 9.0D) {
-                        double factor = 1.0D - Math.sqrt(distanceSq) / 4.0D;
-                        if (e == focusEntity) {
-                            factor = 1.0D;
-                        }
-
-                        affectEntity(e, effects, factor);
-                    }
-                });
-    }
-
-    public void affectEntity(LivingEntity focusEntity, List<EffectInstance> effects, double factor){
-        for(EffectInstance effectinstance : getPotionEffects()) {
-            Effect effect = effectinstance.getPotion();
-            if (effect.isInstant()) {
-                effect.affectEntity(this, this.getShooter(), focusEntity, effectinstance.getAmplifier(), factor);
-            } else {
-                int duration = (int)(factor * (double)effectinstance.getDuration() + 0.5D);
-                if (duration > 0) {
-                    focusEntity.addPotionEffect(new EffectInstance(effect, duration, effectinstance.getAmplifier(), effectinstance.isAmbient(), effectinstance.doesShowParticles()));
-                }
-            }
-        }
     }
 
     public void setDamage(double damageIn) {
