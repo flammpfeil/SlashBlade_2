@@ -1,18 +1,15 @@
 package mods.flammpfeil.slashblade.network;
 
 import mods.flammpfeil.slashblade.ability.LockOnManager;
-import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
-import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
+import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Hand;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.EnumSet;
@@ -43,17 +40,17 @@ public class MoveCommandMessage {
             if (stack.isEmpty()) return;
             if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-            sender.getCapability(CapabilityImputState.IMPUT_STATE).ifPresent((state)->{
-                EnumSet<ImputCommand> old = state.getCommands().clone();
+            sender.getCapability(CapabilityInputState.INPUT_STATE).ifPresent((state)->{
+                EnumSet<InputCommand> old = state.getCommands().clone();
 
                 state.getCommands().clear();
                 state.getCommands().addAll(
-                        EnumSetConverter.convertToEnumSet(ImputCommand.class,ImputCommand.values(),msg.command));
+                        EnumSetConverter.convertToEnumSet(InputCommand.class, InputCommand.values(),msg.command));
 
-                EnumSet<ImputCommand> current = state.getCommands().clone();
+                EnumSet<InputCommand> current = state.getCommands().clone();
 
-                LockOnManager.onImputChange(old, current, sender);
-                TargetSelector.onImputChange(old, current, sender);
+                LockOnManager.onInputChange(old, current, sender);
+                TargetSelector.onInputChange(old, current, sender);
             });
         });
         ctx.get().setPacketHandled(true);

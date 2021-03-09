@@ -222,7 +222,7 @@ public interface ISlashBladeState {
         return resolved;
     }
 
-    default ComboState progressCombo(LivingEntity user, int elapsed){
+    default ComboState doChargeAction(LivingEntity user, int elapsed){
         int fullChargeTicks = getFullChargeTicks(user);
         int justReceptionSpan = 3; //todo:+ justTime Extension
         int justChargePeriod = fullChargeTicks + justReceptionSpan;
@@ -265,10 +265,14 @@ public interface ISlashBladeState {
 
         ComboState cs = this.getSlashArts().doArts(type, user);
         if(cs != ComboState.NONE){
-            this.setComboSeq(cs);
-            this.setLastActionTime(user.world.getGameTime());
+            updateComboSeq(user, cs);
         }
         return cs;
+    }
+
+    default void updateComboSeq(LivingEntity entity, ComboState cs){
+        this.setComboSeq(cs);
+        this.setLastActionTime(entity.world.getGameTime());
     }
 
     default ComboState resolvCurrentComboState(LivingEntity user){

@@ -2,14 +2,12 @@ package mods.flammpfeil.slashblade.client.renderer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mods.flammpfeil.slashblade.ability.LockOnManager;
-import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
+import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.Face;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,7 +17,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,7 +50,7 @@ public class LockonCircleRender {
         //todo : render faled
         PlayerEntity player = Minecraft.getInstance().player;
         if(player == null) return;
-        if(!player.getCapability(CapabilityImputState.IMPUT_STATE).filter(imput->imput.getCommands().contains(ImputCommand.SNEAK)).isPresent()) return;
+        if(!player.getCapability(CapabilityInputState.INPUT_STATE).filter(input->input.getCommands().contains(InputCommand.SNEAK)).isPresent()) return;
 
         ItemStack stack = player.getHeldItemMainhand();
         if(stack.isEmpty()) return;

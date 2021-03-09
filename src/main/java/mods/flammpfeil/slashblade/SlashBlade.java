@@ -1,11 +1,10 @@
 package mods.flammpfeil.slashblade;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableMap;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
-import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
+import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
@@ -19,6 +18,7 @@ import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
 import mods.flammpfeil.slashblade.entity.*;
 import mods.flammpfeil.slashblade.event.*;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
+import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.item.BladeStandItem;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
@@ -27,10 +27,7 @@ import mods.flammpfeil.slashblade.network.NetworkManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -40,15 +37,10 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.geometry.IModelGeometry;
-import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.event.RegistryEvent;
@@ -68,7 +60,6 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.EnumMap;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -107,7 +98,7 @@ public class SlashBlade
             FMLJavaModLoadingContext.get().getModEventBus().addListener(this::Baked);
             //OBJLoader.INSTANCE.addDomain("slashblade");
 
-            MinecraftForge.EVENT_BUS.addListener(MoveImputHandler::onPlayerPostTick);
+            MinecraftForge.EVENT_BUS.addListener(MoveInputHandler::onPlayerPostTick);
         });
 
 
@@ -120,7 +111,7 @@ public class SlashBlade
     {
         CapabilitySlashBlade.register();
         CapabilityMobEffect.register();
-        CapabilityImputState.register();
+        CapabilityInputState.register();
         CapabilityConcentrationRank.register();
 
         MinecraftForge.EVENT_BUS.addListener(KnockBackHandler::onLivingKnockBack);
@@ -150,6 +141,7 @@ public class SlashBlade
                 .forEach((lr)->lr.addLayer(new LayerMainBlade(lr)));
 
         SneakingMotionCanceller.getInstance().register();
+        UserPoseOverrider.getInstance().register();
         LockonCircleRender.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
 

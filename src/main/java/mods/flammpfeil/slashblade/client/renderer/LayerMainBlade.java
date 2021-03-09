@@ -85,8 +85,8 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
     public void render(MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         float motionYOffset = 1.5f;
-        float motionScale = 1.5f / 12.0f;
-        float modelScaleBase = 0.0078125F; //0.5^7
+        double motionScale = 1.5 / 12.0;
+        double modelScaleBase = 0.0078125F; //0.5^7
 
         ItemStack stack = entity.getHeldItem(Hand.MAIN_HAND);
 
@@ -96,6 +96,18 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
             motionPlayer.ifPresent(mmp ->
             {
                 ComboState combo = s.getComboSeq();
+                //tick to msec
+                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.world.getGameTime() - s.getLastActionTime()) + partialTicks);
+
+                while(combo != ComboState.NONE && combo.getTimeoutMS() < time){
+                    time -= combo.getTimeoutMS();
+
+                    combo = combo.getNextOfTimeout();
+                }
+                if(combo == ComboState.NONE){
+                    combo = s.getComboRoot();
+                }
+
                 MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(combo.getMotionLoc());
 
                 double maxSeconds = 0;
@@ -106,34 +118,11 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                     e.printStackTrace();
                 }
 
-                //tick to msec
-                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.world.getGameTime() - s.getLastActionTime()) + partialTicks);
-
-
-                while(combo != ComboState.NONE && combo.getTimeoutMS() < time){
-                    time -= combo.getTimeoutMS();
-
-                    combo = combo.getNextOfTimeout();
-                }
-                if(combo == ComboState.NONE){
-                    combo = s.getComboRoot();
-                }
-                /*
-                ComboState next = combo.checkTimeOut((float)time);
-                if(combo != next){
-                    time -= combo.getTimeoutMS();
-                    combo = next;
-                }*/
-
-
                 double start = TimeValueHelper.getMSecFromFrames(combo.getStartFrame());
                 double end = TimeValueHelper.getMSecFromFrames(combo.getEndFrame());
                 double span = Math.abs(end - start);
 
                 span = Math.min(maxSeconds, span);
-
-
-                //time *= modifiedSpeed(combo.getSpeed(), entity);
 
                 boolean isRoop = combo.getRoop();
                 if (isRoop) {
@@ -155,7 +144,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                     //mmd model neckPoint height = 12.0f
                     matrixStack.translate(0, motionYOffset, 0);
 
-                    matrixStack.scale(motionScale, motionScale, motionScale);
+                    matrixStack.scale((float)motionScale, (float)motionScale, (float)motionScale);
 
 
                     //transpoze mmd to mc
@@ -183,7 +172,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             matrixStack.scale(-1, 1, 1);
                         }
 
-                        float modelScale = modelScaleBase * (1.0f / motionScale);
+                        float modelScale = (float)(modelScaleBase * (1.0f / motionScale));
                         matrixStack.scale(modelScale, modelScale, modelScale);
 
                         //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));
@@ -216,7 +205,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                         }
 
 
-                        float modelScale = modelScaleBase * (1.0f / motionScale);
+                        float modelScale = (float)(modelScaleBase * (1.0f / motionScale));
                         matrixStack.scale(modelScale, modelScale, modelScale);
 
                         //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));

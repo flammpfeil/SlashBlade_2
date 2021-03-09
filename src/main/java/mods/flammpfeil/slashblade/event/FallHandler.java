@@ -3,6 +3,8 @@ package mods.flammpfeil.slashblade.event;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -105,8 +107,16 @@ public class FallHandler {
                 return decRatio;
             }).orElseGet(()->1.0f);
 
+
+            double gravityReductionFactor = 0.85f;
+
+            int level = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.FEATHER_FALLING, user);
+            if(0 < level){
+                gravityReductionFactor = Math.min(0.93, gravityReductionFactor + 0.2 * level);
+            }
+
             ModifiableAttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
-            double g = gravity.getValue() * 0.9;
+            double g = gravity.getValue() * gravityReductionFactor;
 
             Vector3d motion = user.getMotion();
             if(motion.y < 0)

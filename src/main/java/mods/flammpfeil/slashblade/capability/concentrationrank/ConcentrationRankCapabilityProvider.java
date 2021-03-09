@@ -1,6 +1,5 @@
 package mods.flammpfeil.slashblade.capability.concentrationrank;
 
-import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;

@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.util;
 
-public enum ImputCommand {
+public enum InputCommand {
     FORWARD,
     BACK,
     LEFT,

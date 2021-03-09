@@ -2,11 +2,11 @@ package mods.flammpfeil.slashblade.item;
 
 import com.google.common.collect.*;
 import mods.flammpfeil.slashblade.SlashBlade;
-import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
+import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.BladeItemEntity;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.block.BlockState;
@@ -56,8 +56,8 @@ public class ItemSlashBlade extends SwordItem {
 
     @CapabilityInject(ISlashBladeState.class)
     public static Capability<ISlashBladeState> BLADESTATE = null;
-    @CapabilityInject(IImputState.class)
-    public static Capability<IImputState> IMPUT_STATE = null;
+    @CapabilityInject(IInputState.class)
+    public static Capability<IInputState> INPUT_STATE = null;
 
     public ItemSlashBlade(IItemTier tier, int attackDamageIn, float attackSpeedIn, Properties builder) {
         super(tier, attackDamageIn, attackSpeedIn, builder);
@@ -124,14 +124,14 @@ public class ItemSlashBlade extends SwordItem {
 
         boolean result = itemstack.getCapability(BLADESTATE).map((state) -> {
 
-            playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().add(ImputCommand.R_CLICK));
+            playerIn.getCapability(INPUT_STATE).ifPresent((s)->s.getCommands().add(InputCommand.R_CLICK));
 
             ComboState combo = state.progressCombo(playerIn);
             if(combo != ComboState.NONE)
                 state.setLastActionTime(worldIn.getGameTime());
             combo.clickAction(playerIn);
 
-            playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().remove(ImputCommand.R_CLICK));
+            playerIn.getCapability(INPUT_STATE).ifPresent((s)->s.getCommands().remove(InputCommand.R_CLICK));
 
             if(combo != ComboState.NONE)
                 playerIn.swingArm(handIn);
@@ -152,13 +152,13 @@ public class ItemSlashBlade extends SwordItem {
                 .filter((state) -> !state.onClick());
 
         stateHolder.ifPresent((state) -> {
-            playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().add(ImputCommand.L_CLICK));
+            playerIn.getCapability(INPUT_STATE).ifPresent((s)->s.getCommands().add(InputCommand.L_CLICK));
 
             ComboState combo = state.progressCombo(playerIn);
             state.setLastActionTime(worldIn.getGameTime());
             combo.clickAction(playerIn);
 
-            playerIn.getCapability(IMPUT_STATE).ifPresent((s)->s.getCommands().remove(ImputCommand.L_CLICK));
+            playerIn.getCapability(INPUT_STATE).ifPresent((s)->s.getCommands().remove(InputCommand.L_CLICK));
         });
 
         return stateHolder.isPresent();
@@ -201,7 +201,7 @@ public class ItemSlashBlade extends SwordItem {
         ItemStack stack = attacker.getHeldItemMainhand();
 
         stack.getCapability(BLADESTATE).ifPresent((state)->{
-            state.resolvCurrentComboState(attacker).hitEffect(target);
+            state.resolvCurrentComboState(attacker).hitEffect(target, attacker);
 
             state.damageBlade(stack, 1, attacker, this.getOnBroken(stack));
 
@@ -228,7 +228,7 @@ public class ItemSlashBlade extends SwordItem {
 
             stack.getCapability(BLADESTATE).ifPresent((state) -> {
 
-                ComboState sa = state.progressCombo(entityLiving, elapsed);
+                ComboState sa = state.doChargeAction(entityLiving, elapsed);
 
                 //sa.tickAction(entityLiving);
                 if (sa != ComboState.NONE){

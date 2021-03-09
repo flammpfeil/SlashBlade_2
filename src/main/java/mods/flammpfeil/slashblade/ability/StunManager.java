@@ -45,6 +45,9 @@ public class StunManager {
 
     }
 
+    public static void setStun(LivingEntity target, LivingEntity attacker){
+        setStun(target);
+    }
     public static void setStun(LivingEntity target){
         setStun(target, 10);
     }

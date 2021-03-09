@@ -2,21 +2,14 @@ package mods.flammpfeil.slashblade.util;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
-import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
-import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
-import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.entity.IShootable;
-import mods.flammpfeil.slashblade.event.FallHandler;
-import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.CreatureAttribute;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
@@ -34,46 +27,29 @@ public class AttackManager {
     }
 
     static public void doSlash(LivingEntity playerIn, float roll) {
-
-        int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                .map(state->state.getColorCode())
-                .orElseGet(()->0xFFFFFF);
-
-        doSlash(playerIn,roll,colorCode, Vector3d.ZERO, false, false, 1.0);
+        doSlash(playerIn,roll, false);
     }
     static public void doSlash(LivingEntity playerIn, float roll, boolean mute) {
-
-        int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                .map(state->state.getColorCode())
-                .orElseGet(()->0xFFFFFF);
-
-        doSlash(playerIn,roll,colorCode, Vector3d.ZERO, mute, false, 1.0);
+        doSlash(playerIn,roll, mute, false);
     }
     static public void doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical) {
-
-        int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                .map(state->state.getColorCode())
-                .orElseGet(()->0xFFFFFF);
-
-        doSlash(playerIn,roll,colorCode, Vector3d.ZERO, mute, critical, 1.0);
+        doSlash(playerIn,roll,  mute, critical, 1.0);
     }
     static public void doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical, double damage) {
-
-        int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                .map(state->state.getColorCode())
-                .orElseGet(()->0xFFFFFF);
-
-        doSlash(playerIn,roll,colorCode, Vector3d.ZERO, mute, critical, damage);
+        doSlash(playerIn,roll, Vector3d.ZERO, mute, critical, damage);
     }
     static public void doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage) {
+        doSlash(playerIn,roll, centerOffset, mute, critical, damage, KnockBacks.cancel);
+    }
+    static public void doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
         int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
                 .map(state->state.getColorCode())
                 .orElseGet(()->0xFFFFFF);
 
-        doSlash(playerIn,roll,colorCode, centerOffset, mute, critical, damage);
+        doSlash(playerIn,roll,colorCode, centerOffset, mute, critical, damage, knockback);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, int colorCode, Vector3d centerOffset, boolean mute, boolean critical, double damage) {
+    static public void doSlash(LivingEntity playerIn, float roll, int colorCode, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
         Vector3d pos = playerIn.getPositionVec()
                 .add(0.0D, (double)playerIn.getEyeHeight() * 0.75D, 0.0D)
@@ -98,6 +74,8 @@ public class AttackManager {
 
         jc.setDamage(damage);
 
+        jc.setKnockBack(knockback);
+
         playerIn.world.addEntity(jc);
 
     }
@@ -110,14 +88,6 @@ public class AttackManager {
         float f4 = MathHelper.cos(f);
         float f5 = MathHelper.sin(f);
         return new Vector3d((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
-    }
-
-    static public void slashAttack(EntitySlashEffect slash, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {
-        if(slash.getShooter() instanceof LivingEntity){
-            LivingEntity playerIn = (LivingEntity)slash.getShooter();
-            areaAttack(playerIn, beforeHit, ratio, forceHit, resetHit, true);
-        }
-
     }
 
     static public void areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {

@@ -1,25 +1,18 @@
 package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
-import mods.flammpfeil.slashblade.ability.LockOnManager;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.DamagingProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -210,9 +203,9 @@ public class TargetSelector {
         return reach;
     }
 
-    public static void onImputChange(EnumSet<ImputCommand> old, EnumSet<ImputCommand> current, ServerPlayerEntity sender) {
+    public static void onInputChange(EnumSet<InputCommand> old, EnumSet<InputCommand> current, ServerPlayerEntity sender) {
         //SneakHold & Middle Click
-        if (!(!old.contains(ImputCommand.M_DOWN) && current.contains(ImputCommand.M_DOWN) && current.contains(ImputCommand.SNEAK))) return;
+        if (!(!old.contains(InputCommand.M_DOWN) && current.contains(InputCommand.M_DOWN) && current.contains(InputCommand.SNEAK))) return;
 
         ItemStack stack = sender.getHeldItemMainhand();
         if (stack.isEmpty()) return;

@@ -1,43 +1,29 @@
 package mods.flammpfeil.slashblade.ability;
 
-import mods.flammpfeil.slashblade.capability.imputstate.CapabilityImputState;
-import mods.flammpfeil.slashblade.event.AnvilCrafting;
+import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.NativeUtil;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.passive.RabbitEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class LockOnManager {
     private static final class SingletonHolder {
@@ -55,8 +41,8 @@ public class LockOnManager {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static void onImputChange(EnumSet<ImputCommand> old, EnumSet<ImputCommand> current, ServerPlayerEntity player) {
-        if(old.contains(ImputCommand.SNEAK) == current.contains(ImputCommand.SNEAK)) return;
+    public static void onInputChange(EnumSet<InputCommand> old, EnumSet<InputCommand> current, ServerPlayerEntity player) {
+        if(old.contains(InputCommand.SNEAK) == current.contains(InputCommand.SNEAK)) return;
 
         //set target
         ItemStack stack = player.getHeldItemMainhand();
@@ -65,7 +51,7 @@ public class LockOnManager {
 
         Entity targetEntity;
 
-        if((old.contains(ImputCommand.SNEAK) && !current.contains(ImputCommand.SNEAK))){
+        if((old.contains(InputCommand.SNEAK) && !current.contains(InputCommand.SNEAK))){
             //remove target
             targetEntity = null;
         }else{
@@ -125,7 +111,7 @@ public class LockOnManager {
             LivingEntity entity = event.player;
 
             if(!entity.world.isRemote) return;
-            if(!entity.getCapability(CapabilityImputState.IMPUT_STATE).filter(imput->imput.getCommands().contains(ImputCommand.SNEAK)).isPresent()) return;
+            if(!entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input->input.getCommands().contains(InputCommand.SNEAK)).isPresent()) return;
 
 
             float partialTicks = Minecraft.getInstance().getRenderPartialTicks();

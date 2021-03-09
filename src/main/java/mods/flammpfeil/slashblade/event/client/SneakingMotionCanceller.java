@@ -1,10 +1,15 @@
 package mods.flammpfeil.slashblade.event.client;
 
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class SneakingMotionCanceller {
     private static final class SingletonHolder {
@@ -25,20 +30,14 @@ public class SneakingMotionCanceller {
         if(stack.isEmpty()) return;
         if(!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-        if(!event.getPlayer().isCrouching()) return;
+        if(!event.getRenderer().getEntityModel().isSneak) return;
 
-        if(event.getPlayer().abilities.isFlying) return;
+        event.getRenderer().getEntityModel().isSneak = false;
 
-        event.getPlayer().getPersistentData().putBoolean("CancelSneak",true);
-        event.getPlayer().abilities.isFlying = true;
-    }
+        Vector3d offset = event.getRenderer()
+                .getRenderOffset((AbstractClientPlayerEntity) event.getPlayer(), event.getPartialRenderTick())
+                .scale(-1);
 
-    @SubscribeEvent
-    public void onRenderPlayerEventPost(RenderPlayerEvent.Post event){
-        if(event.getPlayer().getPersistentData().contains("CancelSneak")){
-            event.getPlayer().getPersistentData().remove("CancelSneak");
-
-            event.getPlayer().abilities.isFlying = false;
-        }
+        event.getMatrixStack().translate(offset.x, offset.y, offset.z);
     }
 }

@@ -74,6 +74,9 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
 
             matrixStackIn.scale(1,0.25f,1);
 
+            float baseScale = 1.2f;
+            matrixStackIn.scale(baseScale,baseScale,baseScale);
+
             float scale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.035f);
 
             int color = entity.getColor() & 0xFFFFFF;
@@ -83,6 +86,17 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             //baseAlpha = 1.0f;
             int alpha = ((0xFF & (int) (0xFF * baseAlpha)) << 24);
 
+            //black alpha inside
+            try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
+                float windscale = entity.getBaseSize() * MathHelper.lerp(progress, 0.035f,0.03f);
+                matrixStackIn.scale(windscale, windscale, windscale);
+                Face.setAlphaOverride(Face.alphaOverrideYZZ);
+                Face.setUvOperator(1, 1, 0, -0.8f + progress * 0.3f);
+                BladeRenderState.setCol(0x222222 | alpha);
+                BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
+            }
+
+            //color alpha base
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
                 matrixStackIn.scale(scale, scale, scale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);
@@ -91,6 +105,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
                 BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
             }
 
+            //white add outside
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
                 float windscale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.0375f);
                 matrixStackIn.scale(windscale, windscale, windscale);
@@ -100,6 +115,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
                 BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", rl, matrixStackIn, bufferIn, packedLightIn);
             }
 
+            //color add base
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
                 matrixStackIn.scale(scale, scale, scale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);

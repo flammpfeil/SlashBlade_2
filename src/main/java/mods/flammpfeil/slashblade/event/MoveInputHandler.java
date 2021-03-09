@@ -1,19 +1,18 @@
 package mods.flammpfeil.slashblade.event;
 
 import com.google.gson.*;
-import mods.flammpfeil.slashblade.capability.imputstate.IImputState;
+import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.network.MoveCommandMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.JSONUtil;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -25,10 +24,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.EnumSet;
 
-public class MoveImputHandler {
+public class MoveInputHandler {
 
-    @CapabilityInject(IImputState.class)
-    public static Capability<IImputState> IMPUT_STATE = null;
+    @CapabilityInject(IInputState.class)
+    public static Capability<IInputState> INPUT_STATE = null;
 
     public static boolean checkFlag(int data, int flags){
         return (data & flags) == flags;
@@ -43,19 +42,19 @@ public class MoveImputHandler {
 
         ClientPlayerEntity player = (ClientPlayerEntity)event.player;
 
-        EnumSet<ImputCommand> commands = EnumSet.noneOf(ImputCommand.class);
+        EnumSet<InputCommand> commands = EnumSet.noneOf(InputCommand.class);
 
         if(player.movementInput.forwardKeyDown)
-            commands.add(ImputCommand.FORWARD);
+            commands.add(InputCommand.FORWARD);
         if(player.movementInput.backKeyDown)
-            commands.add(ImputCommand.BACK);
+            commands.add(InputCommand.BACK);
         if(player.movementInput.leftKeyDown)
-            commands.add(ImputCommand.LEFT);
+            commands.add(InputCommand.LEFT);
         if(player.movementInput.rightKeyDown)
-            commands.add(ImputCommand.RIGHT);
+            commands.add(InputCommand.RIGHT);
 
         if(player.movementInput.sneaking)
-            commands.add(ImputCommand.SNEAK);
+            commands.add(InputCommand.SNEAK);
 
 /*
         if((player.movementInput.sneak && SlashBlade.SneakForceLockOn)
@@ -71,20 +70,20 @@ public class MoveImputHandler {
 */
 
         if(Minecraft.getInstance().gameSettings.keyBindUseItem.isKeyDown())
-            commands.add(ImputCommand.R_DOWN);
+            commands.add(InputCommand.R_DOWN);
         if(Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown())
-            commands.add(ImputCommand.L_DOWN);
+            commands.add(InputCommand.L_DOWN);
 
         if(Minecraft.getInstance().gameSettings.keyBindPickBlock.isKeyDown())
-            commands.add(ImputCommand.M_DOWN);
+            commands.add(InputCommand.M_DOWN);
 
 
         if(Minecraft.getInstance().gameSettings.keyBindSaveToolbar.isKeyDown())
-            commands.add(ImputCommand.SAVE_TOOLBAR);
+            commands.add(InputCommand.SAVE_TOOLBAR);
 
-        EnumSet<ImputCommand> old = player.getCapability(IMPUT_STATE)
+        EnumSet<InputCommand> old = player.getCapability(INPUT_STATE)
                 .map((state)->state.getCommands())
-                .orElseGet(()->EnumSet.noneOf(ImputCommand.class));
+                .orElseGet(()->EnumSet.noneOf(InputCommand.class));
 
         long currentTime = player.getEntityWorld().getGameTime();
 
@@ -95,7 +94,7 @@ public class MoveImputHandler {
             player.getPersistentData().putLong("SB.MCS.B",currentTime);
         */
 
-        if(old.contains(ImputCommand.SAVE_TOOLBAR) && !commands.contains(ImputCommand.SAVE_TOOLBAR)){
+        if(old.contains(InputCommand.SAVE_TOOLBAR) && !commands.contains(InputCommand.SAVE_TOOLBAR)){
             ItemStack stack = player.getHeldItemMainhand();
 
             JsonObject ret = new JsonObject();
@@ -165,7 +164,7 @@ public class MoveImputHandler {
 
 
         if(!old.equals(commands)){
-            player.getCapability(IMPUT_STATE)
+            player.getCapability(INPUT_STATE)
                     .ifPresent((state)->{
                         state.getCommands().clear();
                         state.getCommands().addAll(commands);

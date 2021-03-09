@@ -15,10 +15,10 @@ public class KnockBackHandler {
     static public void setCancel(LivingEntity target){
         setFactor(target, 0, 0, 0);
     }
-    static public void setBoost(LivingEntity target, double horizontalFactor){
+    static public void setSmash(LivingEntity target, double horizontalFactor){
         setFactor(target, horizontalFactor, 0, 0);
     }
-    static public void setSmash(LivingEntity target, double verticalFactor){
+    static public void setVertical(LivingEntity target, double verticalFactor){
         setFactor(target, 0, verticalFactor, -verticalFactor);
     }
     static public void setFactor(LivingEntity target, double horizontalFactor, double verticalFactor, double addFallDistance){
@@ -39,6 +39,10 @@ public class KnockBackHandler {
 
         Vector3d factor = NBTHelper.getVector3d(nbt, NBT_KEY);
         nbt.remove(NBT_KEY);
+
+
+        if(target.fallDistance < 0)
+            target.fallDistance = 0;
 
         //z = falldistance factor
         target.fallDistance += factor.z;

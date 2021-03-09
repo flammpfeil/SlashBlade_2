@@ -3,9 +3,9 @@ package mods.flammpfeil.slashblade.entity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.event.FallHandler;
-import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
+import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -25,7 +25,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
@@ -49,15 +48,24 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     private static final DataParameter<Float> BASESIZE = EntityDataManager.<Float>createKey(EntitySlashEffect.class, DataSerializers.FLOAT);
 
     private int lifetime = 10;
-    private int seed = -1;
+    private KnockBacks action = KnockBacks.cancel;
 
     private double damage = 1.0D;
 
     private boolean cycleHit = false;
 
 
-    public int getSeed() {
-        return seed;
+    public KnockBacks getKnockBack() {
+        return action;
+    }
+    public void setKnockBack(KnockBacks action){
+        this.action = action;
+    }
+    public void setKnockBackOrdinal(int ordinal){
+        if(0 <= ordinal && ordinal < KnockBacks.values().length)
+            this.action = KnockBacks.values()[ordinal];
+        else
+            this.action = KnockBacks.cancel;
     }
 
     public boolean doCycleHit() {
@@ -78,8 +86,6 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
         super(entityTypeIn, worldIn);
         this.setNoGravity(true);
         //this.setGlowing(true);
-
-        this.seed = this.rand.nextInt(360);
     }
 
     public static EntitySlashEffect createInstance(FMLPlayMessages.SpawnEntity packet, World worldIn){
@@ -108,7 +114,8 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
                 .put("OwnerUUID", this.shootingEntity)
-                .put("Lifetime", this.getLifetime());
+                .put("Lifetime", this.getLifetime())
+                .put("Knockback", this.getKnockBack().ordinal());
     }
 
     @Override
@@ -122,7 +129,8 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
                 .get("OwnerUUID",  ((UUID v)->this.shootingEntity = v), true)
-                .get("Lifetime",this::setLifetime);
+                .get("Lifetime",this::setLifetime)
+                .get("Knockback", this::setKnockBackOrdinal);
     }
 
     @Override
@@ -283,15 +291,15 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
         if(this.getShooter() != null) {
             AxisAlignedBB bb = this.getBoundingBox();
 
-            //cyclehit
+            //no cyclehit
             if (this.ticksExisted % 2 == 0) {
                 //this::onHitEntity ro KnockBackHandler::setCancel
                 if(getShooter() instanceof LivingEntity) {
                     LivingEntity shooter = (LivingEntity) getShooter();
                     float ratio = (float)damage * (getIsCritical() ? 1.1f : 1.0f);
-                    AttackManager.areaAttack(shooter, KnockBackHandler::setCancel, ratio, this.doCycleHit(),false, true);
+                    AttackManager.areaAttack(shooter, this.action.action, ratio, this.doCycleHit(),false, true);
                 }else{
-                    AttackManager.areaAttack(this, KnockBackHandler::setCancel,4.0, this.doCycleHit(),false);
+                    AttackManager.areaAttack(this, this.action.action,4.0, this.doCycleHit(),false);
                 }
             }
         }

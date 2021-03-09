@@ -1,7 +1,7 @@
-package mods.flammpfeil.slashblade.capability.imputstate;
+package mods.flammpfeil.slashblade.capability.inputstate;
 
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
-import mods.flammpfeil.slashblade.util.ImputCommand;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
@@ -11,20 +11,20 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 
 import javax.annotation.Nullable;
 
-public class CapabilityImputState {
+public class CapabilityInputState {
 
-    @CapabilityInject(IImputState.class)
-    public static Capability<IImputState> IMPUT_STATE = null;
+    @CapabilityInject(IInputState.class)
+    public static Capability<IInputState> INPUT_STATE = null;
 
     public static void register()
     {
-        CapabilityManager.INSTANCE.register(IImputState.class, new Capability.IStorage<IImputState>(){
+        CapabilityManager.INSTANCE.register(IInputState.class, new Capability.IStorage<IInputState>(){
 
             static final String KEY = "Command";
 
             @Nullable
             @Override
-            public INBT writeNBT(Capability<IImputState> capability, IImputState instance, Direction side) {
+            public INBT writeNBT(Capability<IInputState> capability, IInputState instance, Direction side) {
                 CompoundNBT nbt = new CompoundNBT();
 
                 nbt.putInt(KEY, EnumSetConverter.convertToInt(instance.getCommands()));
@@ -33,12 +33,12 @@ public class CapabilityImputState {
             }
 
             @Override
-            public void readNBT(Capability<IImputState> capability, IImputState instance, Direction side, INBT nbt) {
+            public void readNBT(Capability<IInputState> capability, IInputState instance, Direction side, INBT nbt) {
                 CompoundNBT tags = (CompoundNBT) nbt;
 
                 instance.getCommands().addAll(
-                        EnumSetConverter.convertToEnumSet(ImputCommand.class, ImputCommand.values(), tags.getInt(KEY)));
+                        EnumSetConverter.convertToEnumSet(InputCommand.class, InputCommand.values(), tags.getInt(KEY)));
             }
-        }, ()-> new ImputState());
+        }, ()-> new InputState());
     }
 }
