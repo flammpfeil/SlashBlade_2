@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import jp.nyatla.nymmd.MmdException;
 import jp.nyatla.nymmd.MmdVmdMotionMc;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,7 +28,7 @@ public class BladeMotionManager {
     }
 
     MmdVmdMotionMc defaultMotion;
-    public static final ResourceLocation resourceDefaultMotion = new ResourceLocation(SlashBlade.modid,"combostate/motion_old.vmd");
+    public static final ResourceLocation resourceDefaultMotion = new ResourceLocation(SlashBlade.modid, "combostate/motion.vmd");;
 
 
     LoadingCache<ResourceLocation, MmdVmdMotionMc> cache;

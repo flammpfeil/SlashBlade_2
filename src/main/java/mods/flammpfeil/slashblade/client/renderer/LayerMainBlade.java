@@ -11,6 +11,7 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
+import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
@@ -22,6 +23,7 @@ import net.minecraft.potion.EffectUtils;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.common.util.LazyOptional;
@@ -140,6 +142,9 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
 
                 try(MSAutoCloser msacA = MSAutoCloser.pushMatrix(matrixStack)){
+
+                    UserPoseOverrider.invertRot(matrixStack,entity,partialTicks);
+
                     //minecraft model neckPoint height = 1.5f
                     //mmd model neckPoint height = 12.0f
                     matrixStack.translate(0, motionYOffset, 0);

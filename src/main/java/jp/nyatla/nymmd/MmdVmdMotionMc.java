@@ -41,18 +41,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class MmdVmdMotionMc extends MmdVmdMotion_BasicClass
 {
     static private InputStream getStream(ResourceLocation loc) throws IOException {
-        return Minecraft.getInstance()
+        return new BufferedInputStream(Minecraft.getInstance()
                 .getResourceManager()
                 .getResource(loc)
-                .getInputStream();
+                .getInputStream());
     }
 
 	public MmdVmdMotionMc(ResourceLocation loc) throws IOException, MmdException

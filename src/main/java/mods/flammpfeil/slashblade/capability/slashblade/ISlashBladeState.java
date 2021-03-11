@@ -22,6 +22,7 @@ package mods.flammpfeil.slashblade.capability.slashblade;
 import com.google.common.collect.ImmutableRangeMap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
+import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.network.ActiveStateSyncMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
@@ -296,7 +297,7 @@ public interface ISlashBladeState {
     void setComboRootName(String comboRootName);
 
     default ComboState getComboRoot(){
-        return Optional.ofNullable(ComboState.NONE.valueOf(this.getComboRootName())).orElseGet(()->ComboState.STANDBY);
+        return Optional.ofNullable(ComboState.NONE.valueOf(this.getComboRootName())).orElseGet(()-> Extra.STANDBY_EX);
     }
 
     CompoundNBT getShareTag();

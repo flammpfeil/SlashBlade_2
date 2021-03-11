@@ -82,7 +82,7 @@ public class Extra {
             ()->1,()->10,()->1.0f,()->false,()->0,
             exMotionLoc, ComboState.TimeoutNext.buildFromFrame(5, (a)->Extra.EX_COMBO_A2), ()-> Extra.EX_COMBO_A1_END)
             .setClickAction((e)-> AttackManager.doSlash(e,  -10,true))
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A1_END = new ComboState("ex_combo_a1_end",100,
             ()->10,()->21,()->1.0f,()->false,()->0,
@@ -151,12 +151,12 @@ public class Extra {
                     .put(9, (entityIn)->AttackManager.doSlash(entityIn,  50, true))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(8+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(8+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(8+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(8+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(8+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(8+5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(8+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(8+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(8+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(8+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(8+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(8+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A4_END = new ComboState("ex_combo_a4_end",100,
@@ -192,12 +192,12 @@ public class Extra {
                     .put(19, (entityIn)->AttackManager.doSlash(entityIn,  30,true,true))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(13+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(13+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(13+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(13+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(13+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(13+5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(13+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(13+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(13+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(13+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(13+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(13+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A5EX_END = new ComboState("ex_combo_a5ex_end",100,
@@ -236,12 +236,12 @@ public class Extra {
                     .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(12-3 +5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addHitEffect(StunManager::setStun);
 
@@ -340,12 +340,12 @@ public class Extra {
                     .put(13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(12 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(12 +5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(12 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12 +5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B7_END = new ComboState("ex_combo_b7_end",100,
@@ -362,12 +362,12 @@ public class Extra {
                     .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(12-3 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(12-3 +5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(12-3 +5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addHitEffect(StunManager::setStun);
 
@@ -392,7 +392,7 @@ public class Extra {
                     .build()
                     .andThen(FallHandler::fallDecrease))
             .addHitEffect(StunManager::setStun)
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_A1_END = new ComboState("ex_aerial_rave_a1_end",80,
             ()->1122,()->1132,()->1.0f,()->false,()->0,
@@ -459,11 +459,11 @@ public class Extra {
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, -90, true))
                     .put(1, (entityIn)->UserPoseOverrider.setRot(entityIn, -90, true))
                     .put(2, (entityIn)->UserPoseOverrider.setRot(entityIn, -90, true))
-                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, -90, true))
                     .put(4, (entityIn)->UserPoseOverrider.setRot(entityIn, -120, true))
                     .put(5, (entityIn)->UserPoseOverrider.setRot(entityIn, -120, true))
-                    .put(6, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(7, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(6, (entityIn)->UserPoseOverrider.setRot(entityIn, -120, true))
+                    .put(7, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
@@ -488,8 +488,8 @@ public class Extra {
                     .put(5+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(5+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(5+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
-                    .put(5+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(5+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(5+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
+                    .put(5+4, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
@@ -548,8 +548,8 @@ public class Extra {
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(1, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(2, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
-                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
+                    .put(4, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
@@ -601,9 +601,9 @@ public class Extra {
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(1, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
-                    .put(2, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, false))
-                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(2, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
+                    .put(3, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
+                    .put(4, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build());
     //fall loop 1sec timeout
     public static final ComboState EX_AERIAL_CLEAVE_LOOP = new ComboState("ex_aerial_cleave_loop",70,
@@ -637,13 +637,13 @@ public class Extra {
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  60, Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
                     .build())
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false));
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_AERIAL_CLEAVE_END = new ComboState("ex_aerial_cleave_end",70,
             ()->1859, ()->1886, ()->1.0f, ()->false,()->0,
             exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
     
@@ -734,17 +734,17 @@ public class Extra {
                     .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.cancel))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(0+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(0+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(0+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(0+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(5+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(5+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(5+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(5+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 75, true))
-                    .put(5+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
-                    .put(5+5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+                    .put(0+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(0+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(0+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(0+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(0+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
+                    .put(5+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)-> {
@@ -834,7 +834,7 @@ public class Extra {
                 e.setMotion(e.getMotion().mul(0,1,0));
             })
             .addTickAction(FallHandler::fallDecrease)
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false));
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_JUDGEMENT_CUT_SLASH = new ComboState("ex_judgement_cut_slash",50,
             ()->1923,()->1928,()->0.4f,()->false,()->0,
             exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH, ()->Extra.EX_JUDGEMENT_CUT_SHEATH)
@@ -853,7 +853,7 @@ public class Extra {
             exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_AIR, ()->Extra.EX_JUDGEMENT_CUT_SHEATH_AIR)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCut).build())
             .addTickAction(FallHandler::fallResist)
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false));
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_JUDGEMENT_CUT_SHEATH_AIR = new ComboState("ex_judgement_cut_sheath_air",50,
             ()->1928,()->1963,()->1.0f,()->false,()->0,
             exMotionLoc, (a)-> ComboState.NONE, ()->ComboState.NONE)
@@ -865,17 +865,17 @@ public class Extra {
             ()->1923,()->1928,()->1.0f,()->false,()->0,
             exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCutJust).build())
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallResist);
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_JUST2 = new ComboState("ex_judgement_cut_slash_just2",50,
             ()->1923,()->1928,()->0.75f,()->false,()->0,
             exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST2, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST_SHEATH)
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallResist);
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_JUST_SHEATH = new ComboState("ex_judgement_cut_slash_just_sheath",50,
             ()->1928,()->1963,()->1.0f,()->false,()->0,
             exMotionLoc, (a)-> ComboState.NONE, ()->ComboState.NONE)
-            .addTickAction((entityIn)->UserPoseOverrider.setRot(entityIn, 0, false))
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallDecrease)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);

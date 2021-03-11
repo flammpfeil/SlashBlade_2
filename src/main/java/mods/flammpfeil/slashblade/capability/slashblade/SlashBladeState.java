@@ -19,6 +19,7 @@
 
 package mods.flammpfeil.slashblade.capability.slashblade;
 
+import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
@@ -414,7 +415,7 @@ public class SlashBladeState implements ISlashBladeState {
     private LazyOptional<ComboState> instantiateRootComboHolder(){
         return LazyOptional.of(()->{
             if(ComboState.NONE.valueOf(getComboRootName()) == null){
-                return ComboState.STANDBY;
+                return Extra.STANDBY_EX;
             }else{
                 return ComboState.NONE.valueOf(getComboRootName());
             }
@@ -423,7 +424,7 @@ public class SlashBladeState implements ISlashBladeState {
 
     @Override
     public ComboState getComboRoot() {
-        return rootCombo.orElse(ComboState.STANDBY);
+        return rootCombo.orElse(Extra.STANDBY_EX);
     }
 
 

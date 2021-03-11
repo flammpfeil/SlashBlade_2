@@ -127,4 +127,16 @@ public class UserPoseOverrider {
 
         tag.putFloat(TAG_ROT, rotYaw);
     }
+
+    static public void resetRot(Entity target){
+        CompoundNBT tag = target.getPersistentData();
+        tag.putFloat(TAG_ROT_PREV, 0);
+        tag.putFloat(TAG_ROT, 0);
+    }
+
+    static public void invertRot(MatrixStack matrixStack, Entity entity, float partialTicks){
+        float rot = entity.getPersistentData().getFloat(TAG_ROT);
+        float rotPrev = entity.getPersistentData().getFloat(TAG_ROT_PREV);
+        matrixStack.rotate(Vector3f.YP.rotationDegrees(MathHelper.interpolateAngle(partialTicks,rot,rotPrev)));
+    }
 }

@@ -30,15 +30,16 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 
 public class ComboState extends RegistryBase<ComboState> {
-    public static final ResourceLocation baseMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/motion_old.vmd");
+    public static final ResourceLocation baseMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/old_motion.vmd");
+    public static final ResourceLocation exMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/motion.vmd");
 
     @CapabilityInject(IInputState.class)
     public static Capability<IInputState> INPUT_STATE = null;
 
     public static final ComboState NONE = new ComboState(BaseInstanceName, 1000,
             ()->0, ()->1, ()->1.0f, ()->true,()->0,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
-            .addTickAction((e)->UserPoseOverrider.setRot(e,0,false));
+            exMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            .addTickAction((e)->UserPoseOverrider.resetRot(e));
 
     static List<Map.Entry<EnumSet<InputCommand>, Supplier<ComboState>>> standbyMap =
             new HashMap<EnumSet<InputCommand>, Supplier<ComboState>>(){{
