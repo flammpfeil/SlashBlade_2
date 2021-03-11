@@ -21,6 +21,7 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -214,8 +215,31 @@ public class EntityJudgementCut extends ProjectileEntity implements IShootable {
 
             //cyclehit
             if (this.ticksExisted % 2 == 0) {
-                //this::onHitEntity ro KnockBackHandler::setCancel
-                AttackManager.areaAttack(this, KnockBackHandler::setCancel,4.0, this.doCycleHit(),false);
+                KnockBacks knockBackType = getIsCritical() ? KnockBacks.toss : KnockBacks.cancel;
+                AttackManager.areaAttack(this, knockBackType.action,4.0, this.doCycleHit(),false);
+            }
+
+            final int count = 3;
+            if(getIsCritical() && 0 < ticksExisted && ticksExisted <= count){
+                EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, this.world);
+                jc.setPositionAndRotation(
+                        this.getPosX(), this.getPosY(), this.getPosZ(),
+                        (360.0f / count) * ticksExisted + this.seed, 0);
+                jc.setRotationRoll(30);
+
+                jc.setShooter(this.getShooter());
+
+                jc.setMute(false);
+                jc.setIsCritical(true);
+
+                jc.setDamage(0.5);
+
+                jc.setColor(this.getColor());
+                jc.setBaseSize(0.5f);
+
+                jc.setKnockBack(KnockBacks.cancel);
+
+                this.world.addEntity(jc);
             }
         }
 

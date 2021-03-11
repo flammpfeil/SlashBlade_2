@@ -55,8 +55,8 @@ public class UserPoseOverrider {
     }
 
     static public void anotherPoseRotP(MatrixStack matrixStackIn, LivingEntity entityLiving, float partialTicks){
-        boolean isPositive = true;
-        float np = isPositive ? 1 : -1;
+        final boolean isPositive = true;
+        final float np = isPositive ? 1 : -1;
 
         float f = entityLiving.getSwimAnimation(partialTicks);
         if (entityLiving.isElytraFlying()) {
@@ -85,8 +85,8 @@ public class UserPoseOverrider {
         }
     }
     static public void anotherPoseRotN(MatrixStack matrixStackIn, LivingEntity entityLiving, float partialTicks){
-        boolean isPositive = false;
-        float np = isPositive ? 1 : -1;
+        final boolean isPositive = false;
+        final float np = isPositive ? 1 : -1;
 
         float f = entityLiving.getSwimAnimation(partialTicks);
         if (entityLiving.isElytraFlying()) {

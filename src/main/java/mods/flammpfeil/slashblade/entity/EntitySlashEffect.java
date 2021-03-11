@@ -250,7 +250,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
             if (!getMute())
                 this.playSound(SoundEvents.ITEM_TRIDENT_THROW, 0.80F, 0.625F + 0.1f * this.rand.nextFloat());
             else
-                this.world.playSound((PlayerEntity) null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.5F, 0.4F / (this.rand.nextFloat() * 0.4F + 0.8F));
+                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 0.4F / (this.rand.nextFloat() * 0.4F + 0.8F));
 
             if(getIsCritical())
                 this.playSound(getHitEntitySound(), 0.2F, 0.4F + 0.25f * this.rand.nextFloat());

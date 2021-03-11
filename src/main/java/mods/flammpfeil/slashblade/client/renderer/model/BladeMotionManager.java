@@ -27,7 +27,7 @@ public class BladeMotionManager {
     }
 
     MmdVmdMotionMc defaultMotion;
-    public static final ResourceLocation resourceDefaultMotion = new ResourceLocation(SlashBlade.modid,"combostate/motion.vmd");
+    public static final ResourceLocation resourceDefaultMotion = new ResourceLocation(SlashBlade.modid,"combostate/motion_old.vmd");
 
 
     LoadingCache<ResourceLocation, MmdVmdMotionMc> cache;

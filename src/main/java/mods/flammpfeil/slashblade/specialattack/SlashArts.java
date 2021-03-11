@@ -1,64 +1,55 @@
 package mods.flammpfeil.slashblade.specialattack;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
+import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.util.RegistryBase;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class SlashArts extends RegistryBase<SlashArts> {
+
+    static public final int ChargeTicks = 9;
+    static public final int ChargeJustTicks = 3;
+    static public final int ChargeJustTicksMax = 5;
+
+    static public int getJustReceptionSpan(LivingEntity user){
+        return Math.min(ChargeJustTicksMax , ChargeJustTicks + EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.SOUL_SPEED,user));
+    }
+
     public enum ArtsType{
         Fail,
         Success,
         Jackpot
     }
 
-    public static final SlashArts NONE = new SlashArts(BaseInstanceName);
+    public static final SlashArts NONE = new SlashArts(BaseInstanceName, (e)->ComboState.NONE);
 
-    public static final SlashArts JUDGEMENT_CUT = new SlashArts("judgement_cut")
-            .setComboState(ComboState.SLASH_ARTS_JC)
-            .setArts(JudgementCut::doJudgementCut)
-            .setArtsJust(JudgementCut::doJudgementCutJust);
+    public static final SlashArts JUDGEMENT_CUT =
+            new SlashArts("judgement_cut", (e)-> e.isOnGround() ? Extra.EX_JUDGEMENT_CUT : Extra.EX_JUDGEMENT_CUT_SLASH_AIR)
+            .setComboStateJust((e)->Extra.EX_JUDGEMENT_CUT_SLASH_JUST);
 
-    private ComboState comboState = ComboState.NONE;
-    private ComboState comboStateJust = ComboState.NONE;
-
-    private Consumer<LivingEntity> arts;
-    private Consumer<LivingEntity> arts_just;
+    private Function<LivingEntity,ComboState> comboState;
+    private Function<LivingEntity,ComboState> comboStateJust;
 
     public ComboState doArts(ArtsType type, LivingEntity user) {
         switch (type){
             case Jackpot:
-                return doArtsJust(user);
+                return getComboStateJust(user);
             case Success:
-                return doArts(user);
+                return getComboState(user);
         }
         return ComboState.NONE;
     }
 
-    public ComboState doArts(LivingEntity user) {
-        arts.accept(user);
-        return this.getComboState();
-    }
-
-    public SlashArts setArts(Consumer<LivingEntity> arts) {
-        this.arts = arts;
-        return this;
-    }
-
-    public ComboState doArtsJust(LivingEntity user) {
-        arts_just.accept(user);
-        ComboState result = this.getComboStateJust();
-        return result != ComboState.NONE ? result : this.getComboState();
-    }
-
-    public SlashArts setArtsJust(Consumer<LivingEntity> arts) {
-        this.arts_just = arts;
-        return this;
-    }
-
-    public SlashArts(String name) {
+    public SlashArts(String name, Function<LivingEntity,ComboState> state) {
         super(name);
+
+        this.comboState = state;
+        this.comboStateJust = state;
     }
 
     @Override
@@ -71,18 +62,15 @@ public class SlashArts extends RegistryBase<SlashArts> {
         return NONE;
     }
 
-    public SlashArts setComboState(ComboState state){
-        this.comboState = state;
-        return this;
+    public ComboState getComboState(LivingEntity user) {
+        return this.comboState.apply(user);
     }
-    public ComboState getComboState() {
-        return this.comboState;
-    }
-    public SlashArts setComboStateJust(ComboState state){
+
+    public SlashArts setComboStateJust(Function<LivingEntity,ComboState> state){
         this.comboStateJust = state;
         return this;
     }
-    public ComboState getComboStateJust() {
-        return this.comboStateJust;
+    public ComboState getComboStateJust(LivingEntity user) {
+        return this.comboStateJust.apply(user);
     }
 }

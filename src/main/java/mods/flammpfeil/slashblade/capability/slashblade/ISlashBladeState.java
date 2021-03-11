@@ -45,9 +45,12 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * An slashblade state is the unit of interaction with Energy inventories.
@@ -196,7 +199,7 @@ public interface ISlashBladeState {
     }
 
     default int getFullChargeTicks(LivingEntity user){
-        return 20;
+        return SlashArts.ChargeTicks;
     }
 
     default boolean isCharged(LivingEntity user){
@@ -223,8 +226,17 @@ public interface ISlashBladeState {
     }
 
     default ComboState doChargeAction(LivingEntity user, int elapsed){
+        Map.Entry<Integer, ComboState> current = resolvCurrentComboStateTicks(user);
+
+        if (elapsed <= 2)
+            return ComboState.NONE;
+
+        //Uninterrupted
+        if(current.getValue().getNext(user) == current.getValue())
+            return ComboState.NONE;
+
         int fullChargeTicks = getFullChargeTicks(user);
-        int justReceptionSpan = 3; //todo:+ justTime Extension
+        int justReceptionSpan = SlashArts.getJustReceptionSpan(user); //todo:+ justTime Extension
         int justChargePeriod = fullChargeTicks + justReceptionSpan;
 
         RangeMap<Integer, SlashArts.ArtsType> charge_accept = ImmutableRangeMap.<Integer, SlashArts.ArtsType>builder()
@@ -237,35 +249,16 @@ public interface ISlashBladeState {
 
         if(type != SlashArts.ArtsType.Jackpot){
             //quick charge
-            ComboState current = resolvCurrentComboState(user);
-            if(current.getQuickChargeEnabled()){
+            SlashArts.ArtsType result = current.getValue().releaseAction(user, current.getKey());
 
-                int offsetTicks = 0;
-                ComboState old = this.getComboSeq();
-                if(old != current){
-                    offsetTicks = (int)TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
-                }
-
-                int quickReceptionSpan = 5; //todo:+ quickTime Extension
-                int quickChargeTicks = (int)(TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame())
-                        * (1.0f / current.getSpeed()) + offsetTicks);
-                int quickJustChargePeriod = quickChargeTicks + justReceptionSpan;
-                int quickChargePeriod = quickChargeTicks + quickReceptionSpan;
-
-                RangeMap<Integer, SlashArts.ArtsType> qcharge_accept = ImmutableRangeMap.<Integer, SlashArts.ArtsType>builder()
-                        .put(Range.lessThan(quickChargeTicks), type)//SlashArts.ArtsType.Fail)
-                        .put(Range.closedOpen(quickChargeTicks, quickJustChargePeriod), SlashArts.ArtsType.Jackpot)
-                        .put(Range.closedOpen(quickJustChargePeriod, quickChargePeriod), SlashArts.ArtsType.Success)
-                        .put(Range.atLeast(quickChargePeriod), type)//SlashArts.ArtsType.Fail)
-                        .build();
-
-                type = qcharge_accept.get(elapsed);
-            }
+            if(result != SlashArts.ArtsType.Fail)
+                type = result;
         }
 
         ComboState cs = this.getSlashArts().doArts(type, user);
-        if(cs != ComboState.NONE){
-            updateComboSeq(user, cs);
+        if(current.getValue() != cs && cs != ComboState.NONE){
+            if(current.getValue().getPriority() > cs.getPriority())
+                updateComboSeq(user, cs);
         }
         return cs;
     }
@@ -276,6 +269,10 @@ public interface ISlashBladeState {
     }
 
     default ComboState resolvCurrentComboState(LivingEntity user){
+        return resolvCurrentComboStateTicks(user).getValue();
+    }
+
+    default Map.Entry<Integer, ComboState> resolvCurrentComboStateTicks(LivingEntity user){
         ComboState current = getComboSeq();
 
         int time = (int)TimeValueHelper.getMSecFromTicks(getElapsedTime(user));
@@ -286,7 +283,9 @@ public interface ISlashBladeState {
             current = current.getNextOfTimeout();
         }
 
-        return current;
+        int ticks = (int)TimeValueHelper.getTicksFromMSec(time);
+
+        return new AbstractMap.SimpleImmutableEntry(ticks, current);
     }
 
     default boolean hasEnergy(){

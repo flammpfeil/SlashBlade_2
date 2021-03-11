@@ -251,25 +251,7 @@ public class ItemSlashBlade extends SwordItem {
                     if( ticks == 20){//state.getFullChargeTicks(player)){
                         Vector3d pos = player.getEyePosition(0).add(player.getLookVec());
                         ((ServerWorld)player.world).spawnParticle(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
-
-                    }else{
-                        ComboState old = state.getComboSeq();
-                        ComboState current = state.resolvCurrentComboState(player);
-
-                        if(current.getQuickChargeEnabled()){
-                            if(old != current){
-                                ticks -= TimeValueHelper.getTicksFromMSec(old.getTimeoutMS());
-                            }
-
-                            int quickChargeTicks = (int)(TimeValueHelper.getTicksFromFrames(current.getEndFrame() - current.getStartFrame()) * (1.0f / current.getSpeed()));
-
-                            if((quickChargeTicks == ticks)){
-                                Vector3d pos = player.getEyePosition(0).add(player.getLookVec());
-                                ((ServerWorld)player.world).spawnParticle(ParticleTypes.ENCHANTED_HIT,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
-                            }
-                        }
                     }
-
                 }
             }
         });
