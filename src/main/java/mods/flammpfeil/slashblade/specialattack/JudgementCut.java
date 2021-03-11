@@ -70,6 +70,12 @@ public class JudgementCut {
         EntityJudgementCut jc = new EntityJudgementCut(SlashBlade.RegistryEvents.JudgementCut, worldIn);
         jc.setPosition(pos.x ,pos.y ,pos.z);
         jc.setShooter(user);
+
+        stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+            jc.setColor(state.getColorCode());
+        });
+
+
         worldIn.addEntity(jc);
 
         worldIn.playSound((PlayerEntity)null, jc.getPosX(), jc.getPosY(), jc.getPosZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));

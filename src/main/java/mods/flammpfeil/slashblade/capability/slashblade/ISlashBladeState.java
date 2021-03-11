@@ -232,7 +232,7 @@ public interface ISlashBladeState {
             return ComboState.NONE;
 
         //Uninterrupted
-        if(current.getValue().getNext(user) == current.getValue())
+        if(current.getValue() != ComboState.NONE && current.getValue().getNext(user) == current.getValue())
             return ComboState.NONE;
 
         int fullChargeTicks = getFullChargeTicks(user);

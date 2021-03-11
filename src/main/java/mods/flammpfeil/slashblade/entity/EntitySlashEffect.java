@@ -1,5 +1,6 @@
 package mods.flammpfeil.slashblade.entity;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.event.FallHandler;
@@ -53,6 +54,8 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     private double damage = 1.0D;
 
     private boolean cycleHit = false;
+
+    private List<Entity> alreadyHits = Lists.newArrayList();
 
 
     public KnockBacks getKnockBack() {
@@ -294,13 +297,15 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
             //no cyclehit
             if (this.ticksExisted % 2 == 0) {
                 //this::onHitEntity ro KnockBackHandler::setCancel
+                List<Entity> hits;
                 if(getShooter() instanceof LivingEntity) {
                     LivingEntity shooter = (LivingEntity) getShooter();
                     float ratio = (float)damage * (getIsCritical() ? 1.1f : 1.0f);
-                    AttackManager.areaAttack(shooter, this.action.action, ratio, this.doCycleHit(),false, true);
+                    hits = AttackManager.areaAttack(shooter, this.action.action, ratio, this.doCycleHit(),false, true, alreadyHits);
                 }else{
-                    AttackManager.areaAttack(this, this.action.action,4.0, this.doCycleHit(),false);
+                    hits = AttackManager.areaAttack(this, this.action.action,4.0, this.doCycleHit(),false, alreadyHits);
                 }
+                alreadyHits.addAll(hits);
             }
         }
 

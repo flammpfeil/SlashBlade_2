@@ -61,7 +61,7 @@ public class Extra {
         e.playSound(SoundEvents.BLOCK_CHAIN_HIT, 1.0F,1.0F);
     }
 
-    public static final ComboState STANDBY_EX = new ComboState("standby_ex", 10,
+    public static final ComboState STANDBY_EX = new ComboState("standby", 10,
             ()->0,()->1,()->1.0f,()->true,()->1000,
             exMotionLoc, (a)-> {
 

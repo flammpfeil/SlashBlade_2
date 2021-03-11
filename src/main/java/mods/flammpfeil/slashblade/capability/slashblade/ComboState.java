@@ -59,7 +59,7 @@ public class ComboState extends RegistryBase<ComboState> {
             .collect(Collectors.toList());
 
 
-    public static final ComboState STANDBY = new ComboState("standby", 10,
+    public static final ComboState STANDBY = new ComboState("standby_old", 10,
             ()->30,()->31,()->1.0f,()->true,()->1000,
             baseMotionLoc, (a)-> {
 

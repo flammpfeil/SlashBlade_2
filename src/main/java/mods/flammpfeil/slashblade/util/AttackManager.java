@@ -1,5 +1,6 @@
 package mods.flammpfeil.slashblade.util;
 
+import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
@@ -90,9 +91,11 @@ public class AttackManager {
         return new Vector3d((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
     }
 
-    static public void areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {
-
-
+    static public List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {
+        return areaAttack(playerIn, beforeHit, ratio, forceHit, resetHit, mute,null);
+    }
+    static public List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute, List<Entity> exclude) {
+        List<Entity> founds = Lists.newArrayList();
         float modifiedRatio = (1.0F + EnchantmentHelper.getSweepingDamageRatio(playerIn) * 0.5f) * ratio;
         AttributeModifier am = new AttributeModifier("SweepingDamageRatio", modifiedRatio, AttributeModifier.Operation.MULTIPLY_BASE);
 
@@ -100,9 +103,12 @@ public class AttackManager {
             try {
                 playerIn.getAttribute(Attributes.ATTACK_DAMAGE).applyNonPersistentModifier(am);
 
-                List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,
+                founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,
                         TargetSelector.getResolvedReach(playerIn),
                         playerIn);
+
+                if(exclude != null)
+                    founds.removeAll(exclude);
 
                 for (Entity entity : founds) {
                     if(entity instanceof LivingEntity)
@@ -119,18 +125,26 @@ public class AttackManager {
         if(!mute)
             playerIn.world.playSound((PlayerEntity)null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.5F, 0.4F / (playerIn.getRNG().nextFloat() * 0.4F + 0.8F));
 
+        return founds;
     }
 
-    static public <E extends Entity & IShootable> void areaAttack(E owner, Consumer<LivingEntity> beforeHit, double reach, boolean forceHit, boolean resetHit) {
+    static public <E extends Entity & IShootable> List<Entity> areaAttack(E owner, Consumer<LivingEntity> beforeHit, double reach, boolean forceHit, boolean resetHit) {
+        return areaAttack(owner, beforeHit, reach, forceHit, resetHit, null);
+    }
+    static public <E extends Entity & IShootable> List<Entity> areaAttack(E owner, Consumer<LivingEntity> beforeHit, double reach, boolean forceHit, boolean resetHit, List<Entity> exclude) {
+        List<Entity> founds = Lists.newArrayList();
 
         AxisAlignedBB bb = owner.getBoundingBox();
         //bb = bb.grow(3.0D, 3D, 3.0D);
 
         if (!owner.world.isRemote()) {
 
-            List<Entity> founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.world,
+            founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.world,
                     reach,
                     owner);
+
+            if(exclude != null)
+                founds.removeAll(exclude);
 
             for (Entity entity : founds) {
 
@@ -141,6 +155,8 @@ public class AttackManager {
                 doAttackWith(DamageSource.causeIndirectMagicDamage(owner, owner.getShooter()), baseAmount,entity, forceHit, resetHit);
             }
         }
+
+        return founds;
     }
 
     static public void doManagedAttack(Consumer<Entity> attack, Entity target, boolean forceHit, boolean resetHit){
