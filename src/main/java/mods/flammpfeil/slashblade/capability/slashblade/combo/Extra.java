@@ -448,10 +448,10 @@ public class Extra {
     public static final ComboState EX_AERIAL_RAVE_B3 = new ComboState("ex_aerial_rave_b3",80,
             ()->1400,()->1437,()->1.0f,()->false,()->0,
             exMotionLoc, ComboState.TimeoutNext.buildFromFrame(13,(a)->Extra.EX_AERIAL_RAVE_B4) , ()-> Extra.EX_AERIAL_RAVE_B3_END)
+            .setClickAction((entityIn)->{
+                Vector3d motion = entityIn.getMotion();
+                entityIn.setMotion(motion.x, 0.6, motion.z);})
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->{
-                        Vector3d motion = entityIn.getMotion();
-                        entityIn.setMotion(motion.x, 0.6, motion.z);})
                     .put((int)TimeValueHelper.getTicksFromFrames(5), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
                     .put((int)TimeValueHelper.getTicksFromFrames(10), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
@@ -539,11 +539,13 @@ public class Extra {
     public static final ComboState EX_UPPERSLASH_JUMP = new ComboState("ex_upperslash_jump",90,
             ()->1700, ()->1713, ()->1.0f, ()->false,()->0,
             exMotionLoc, ComboState.TimeoutNext.buildFromFrame(7,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_JUMP_END)
-            .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(1, (entityIn)->{
-                        Vector3d motion = entityIn.getMotion();
-                        entityIn.setMotion(motion.x, 0.6f, motion.z);})
-                    .build())
+            .setClickAction((entityIn)->{
+                Vector3d motion = entityIn.getMotion();
+                entityIn.setMotion(motion.x, 0.6f, motion.z);
+
+                entityIn.setOnGround(false);
+                entityIn.isAirBorne = true;
+            })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
                     .put(1, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
@@ -634,9 +636,7 @@ public class Extra {
     public static final ComboState EX_AERIAL_CLEAVE_LANDING = new ComboState("ex_aerial_cleave_landing",70,
             ()->1816, ()->1859, ()->1.0f, ()->false,()->0,
             exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_CLEAVE_END)
-            .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  60, Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
-                    .build())
+            .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  60, Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_AERIAL_CLEAVE_END = new ComboState("ex_aerial_cleave_end",70,
             ()->1859, ()->1886, ()->1.0f, ()->false,()->0,
@@ -729,9 +729,9 @@ public class Extra {
     public static final ComboState EX_RISING_STAR = new ComboState("ex_rising_star",80,
             ()->2100,()->2137,()->1.0f,()->false,()->0,
             exMotionLoc, ComboState.TimeoutNext.buildFromFrame(18,(a)->ComboState.NONE) , ()-> Extra.EX_RISING_STAR_END)
+            .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(0), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
-                    .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.cancel))
+                    .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
@@ -749,6 +749,9 @@ public class Extra {
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)-> {
                         entityIn.setMotion(0, 0.6, 0);
+
+                        entityIn.setOnGround(false);
+                        entityIn.isAirBorne = true;
                     }).build())
             .addTickAction((entityIn)->{
                         Vector3d motion = entityIn.getMotion();

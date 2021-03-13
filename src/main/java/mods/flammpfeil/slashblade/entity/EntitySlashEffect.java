@@ -26,6 +26,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
@@ -265,16 +266,10 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
             float progress = this.ticksExisted / (float)lifetime;
 
-            MatrixStack matrixStack = new MatrixStack();
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(-this.rotationYaw -90));
-            matrixStack.rotate(Vector3f.ZP.rotationDegrees(this.rotationPitch));
-            matrixStack.rotate(Vector3f.XP.rotationDegrees(this.getRotationRoll()));
-
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(140 + this.getRotationOffset() -200.0F * progress));
-
-
-
-            normal.transform(matrixStack.getLast().getMatrix());
+            normal.transform(new Quaternion(Vector3f.YP,-this.rotationYaw -90, true));
+            normal.transform(new Quaternion(Vector3f.ZP,this.rotationPitch, true));
+            normal.transform(new Quaternion(Vector3f.XP,this.getRotationRoll(), true));
+            normal.transform(new Quaternion(Vector3f.YP,140 + this.getRotationOffset() -200.0F * progress, true));
 
             Vector3d normal3d = new Vector3d(normal.getX(), normal.getY(), normal.getZ());
 

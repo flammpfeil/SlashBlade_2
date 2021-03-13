@@ -67,7 +67,12 @@ public interface ISlashBladeState {
     long getLastActionTime();
     void setLastActionTime(long lastActionTime);
     default long getElapsedTime(LivingEntity user){
-        return (Math.max(0, user.world.getGameTime() - this.getLastActionTime()));
+        long ticks = (Math.max(0, user.world.getGameTime() - this.getLastActionTime()));
+
+        if(user.world.isRemote)
+            ticks = Math.max(0, ticks + 1);
+
+        return ticks;
     }
 
     boolean onClick();
@@ -267,6 +272,8 @@ public interface ISlashBladeState {
     default void updateComboSeq(LivingEntity entity, ComboState cs){
         this.setComboSeq(cs);
         this.setLastActionTime(entity.world.getGameTime());
+
+        cs.clickAction(entity);
     }
 
     default ComboState resolvCurrentComboState(LivingEntity user){
