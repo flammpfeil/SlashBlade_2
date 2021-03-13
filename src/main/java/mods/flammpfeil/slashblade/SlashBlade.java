@@ -125,6 +125,7 @@ public class SlashBlade
         RefineHandler.getInstance().register();
         KillCounter.getInstance().register();
         RankPointHandler.getInstance().register();
+        AllowFlightOverrwrite.getInstance().register();
 
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");
