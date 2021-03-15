@@ -97,8 +97,6 @@ public class LockOnManager {
     public void onEntityUpdate(TickEvent.RenderTickEvent event) {
         if(event.phase != TickEvent.Phase.START) return;
 
-        //if(Minecraft.getInstance().player != event.player) return;
-
         if(Minecraft.getInstance().player == null) return;
 
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -137,9 +135,6 @@ public class LockOnManager {
             float step = 0.125f * partialTicks;
 
             step *= Math.min(1.0f ,Math.abs(MathHelper.wrapDegrees(oldYaw - entity.rotationYawHead) * 0.5));
-
-            //entity.renderYawOffset = entity.rotationYawHead;
-            //entity.prevRenderYawOffset = entity.renderYawOffset;
 
             entity.rotationPitch = MathHelper.interpolateAngle(step,oldPitch ,entity.rotationPitch);
             entity.rotationYaw = MathHelper.interpolateAngle(step, oldYaw , entity.rotationYaw);
