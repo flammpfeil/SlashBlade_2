@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
+import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.JudgementCut;
 import mods.flammpfeil.slashblade.util.*;
@@ -15,6 +16,7 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -25,16 +27,13 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class Extra {
+public class Extra implements DefaultResources {
 
     @CapabilityInject(IInputState.class)
     public static Capability<IInputState> INPUT_STATE = null;
-
-    public static final ResourceLocation exMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/motion.vmd");
 
     static List<Map.Entry<EnumSet<InputCommand>, Supplier<ComboState>>> ex_standbyMap =
             new HashMap<EnumSet<InputCommand>, Supplier<ComboState>>(){{
@@ -63,7 +62,7 @@ public class Extra {
 
     public static final ComboState STANDBY_EX = new ComboState("standby", 10,
             ()->0,()->1,()->1.0f,()->true,()->1000,
-            exMotionLoc, (a)-> {
+            ExMotionLocation, (a)-> {
 
                     EnumSet<InputCommand> commands =
                             a.getCapability(ComboState.INPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(InputCommand.class));
@@ -80,36 +79,36 @@ public class Extra {
 
     public static final ComboState EX_COMBO_A1 = new ComboState("ex_combo_a1",100,
             ()->1,()->10,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(5, (a)->Extra.EX_COMBO_A2), ()-> Extra.EX_COMBO_A1_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(5, (a)->Extra.EX_COMBO_A2), ()-> Extra.EX_COMBO_A1_END)
             .setClickAction((e)-> AttackManager.doSlash(e,  -10,true))
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A1_END = new ComboState("ex_combo_a1_end",100,
             ()->10,()->21,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_COMBO_A2, ()-> Extra.EX_COMBO_A1_END2)
+            ExMotionLocation, (a)->Extra.EX_COMBO_A2, ()-> Extra.EX_COMBO_A1_END2)
             .setReleaseAction(ComboState::releaseActionQuickCharge);
     public static final ComboState EX_COMBO_A1_END2 = new ComboState("ex_combo_a1_end2",100,
             ()->21,()->41,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE);
 
 
     public static final ComboState EX_COMBO_A2 = new ComboState("ex_combo_a2",100,
             ()->100,()->115,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(5,(a)->Extra.EX_COMBO_A3), ()-> Extra.EX_COMBO_A2_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(5,(a)->Extra.EX_COMBO_A3), ()-> Extra.EX_COMBO_A2_END)
             .setClickAction((e)-> AttackManager.doSlash(e,  180-10,true))
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A2_END = new ComboState("ex_combo_a2_end",100,
             ()->115,()->132,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_COMBO_C, ()-> Extra.EX_COMBO_A2_END2)
+            ExMotionLocation, (a)->Extra.EX_COMBO_C, ()-> Extra.EX_COMBO_A2_END2)
             .setReleaseAction(ComboState::releaseActionQuickCharge);
     public static final ComboState EX_COMBO_A2_END2 = new ComboState("ex_combo_a2_end2",100,
             ()->132,()->151,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE);
 
 
     public static final ComboState EX_COMBO_C = new ComboState("ex_combo_c",100,
             ()->400,()->459,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_C_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_C_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -30))
                     .put(3, (entityIn)->AttackManager.doSlash(entityIn,  -35, true))
@@ -117,14 +116,14 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_C_END = new ComboState("ex_combo_c_end",100,
             ()->459,()->488,()->1.0f,()->false,()->0,
-            exMotionLoc,(a)-> ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation,(a)-> ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
 
     public static final ComboState EX_COMBO_A3 = new ComboState("ex_combo_a3",100,
             ()->200,()->218,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(9,(a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -61))
                     .put(6, (entityIn)->AttackManager.doSlash(entityIn,  180-42))
@@ -132,20 +131,20 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A3_END = new ComboState("ex_combo_a3_end",100,
             ()->218,()->230,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_COMBO_B1, ()-> Extra.EX_COMBO_A3_END2);
+            ExMotionLocation, (a)->Extra.EX_COMBO_B1, ()-> Extra.EX_COMBO_A3_END2);
     public static final ComboState EX_COMBO_A3_END2 = new ComboState("ex_combo_a3_end2",100,
             ()->230,()->281,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_A3_END3);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_A3_END3);
     public static final ComboState EX_COMBO_A3_END3 = new ComboState("ex_combo_a3_end3",100,
             ()->281,()->314,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
 
     public static final ComboState EX_COMBO_A4 = new ComboState("ex_combo_a4",100,
             ()->500,()->576,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(21,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_A4_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(21,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_A4_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(8, (entityIn)->AttackManager.doSlash(entityIn,  45))
                     .put(9, (entityIn)->AttackManager.doSlash(entityIn,  50, true))
@@ -161,14 +160,14 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A4_END = new ComboState("ex_combo_a4_end",100,
             ()->576,()->608,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
 
     public static final ComboState EX_COMBO_A4EX = new ComboState("ex_combo_a4ex",100,
             ()->800,()->839,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(22,(a)-> Extra.EX_COMBO_A5EX) , ()-> Extra.EX_COMBO_A4EX_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(22,(a)-> Extra.EX_COMBO_A5EX) , ()-> Extra.EX_COMBO_A4EX_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(7, (entityIn)->AttackManager.doSlash(entityIn,  70))
                     .put(14, (entityIn)->AttackManager.doSlash(entityIn,  180+75))
@@ -176,16 +175,16 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A4EX_END = new ComboState("ex_combo_a4ex_end",100,
             ()->839,()->877,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_A4EX_END2);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_A4EX_END2);
     public static final ComboState EX_COMBO_A4EX_END2 = new ComboState("ex_combo_a4ex_end2",100,
             ()->877,()->894,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
     public static final ComboState EX_COMBO_A5EX = new ComboState("ex_combo_a5ex",100,
             ()->900,()->1013,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_A5EX_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_A5EX_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(15, (entityIn)->AttackManager.doSlash(entityIn,  35,false,true))
                     .put(17, (entityIn)->AttackManager.doSlash(entityIn,  40,true,true))
@@ -202,7 +201,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_A5EX_END = new ComboState("ex_combo_a5ex_end",100,
             ()->1013,()->1061,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
@@ -210,7 +209,7 @@ public class Extra {
     private final static float rushDamageBase = 0.1f;
     public static final ComboState EX_COMBO_B1 = new ComboState("ex_combo_b1",100,
             ()->700,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc,  ComboState.TimeoutNext.buildFromFrame(13, (a)-> Extra.EX_COMBO_B2) , ()-> Extra.EX_COMBO_B1_END)
+            ExMotionLocation,  ComboState.TimeoutNext.buildFromFrame(13, (a)-> Extra.EX_COMBO_B2) , ()-> Extra.EX_COMBO_B1_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(6, (entityIn)->{
                         AttackManager.doSlash(entityIn,  -30, false, false, 0.25f);
@@ -230,7 +229,7 @@ public class Extra {
 
     public static final ComboState EX_COMBO_B1_END = new ComboState("ex_combo_b1_end",100,
             ()->720,()->743,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_COMBO_B1_END, ()-> Extra.EX_COMBO_B1_END2)
+            ExMotionLocation, (a)->Extra.EX_COMBO_B1_END, ()-> Extra.EX_COMBO_B1_END2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
                     .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
@@ -247,10 +246,10 @@ public class Extra {
 
     public static final ComboState EX_COMBO_B1_END2 = new ComboState("ex_combo_b1_end2",100,
             ()->743,()->764,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_B1_END3);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_B1_END3);
     public static final ComboState EX_COMBO_B1_END3 = new ComboState("ex_combo_b1_end3",100,
             ()->764,()->787,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build());
 
 
@@ -260,7 +259,7 @@ public class Extra {
     
     public static final ComboState EX_COMBO_B2 = new ComboState("ex_combo_b2",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B3)  , ()-> Extra.EX_COMBO_B_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B3)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -273,7 +272,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B3 = new ComboState("ex_combo_b3",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B4)  , ()-> Extra.EX_COMBO_B_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B4)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -286,7 +285,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B4 = new ComboState("ex_combo_b4",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B5)  , ()-> Extra.EX_COMBO_B_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B5)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -299,7 +298,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B5 = new ComboState("ex_combo_b5",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B6)  , ()-> Extra.EX_COMBO_B_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B6)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -312,7 +311,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B6 = new ComboState("ex_combo_b6",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B7)  , ()-> Extra.EX_COMBO_B_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B7)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -325,7 +324,7 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B7 = new ComboState("ex_combo_b7",100,
             ()->710,()->764,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_B7_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_B7_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
@@ -350,13 +349,13 @@ public class Extra {
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B7_END = new ComboState("ex_combo_b7_end",100,
             ()->764,()->787,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
     public static final ComboState EX_COMBO_B_END = new ComboState("ex_combo_b_end",100,
             ()->720,()->743,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_COMBO_B_END, ()-> Extra.EX_COMBO_B_END2)
+            ExMotionLocation, (a)->Extra.EX_COMBO_B_END, ()-> Extra.EX_COMBO_B_END2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
                     .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
@@ -373,10 +372,10 @@ public class Extra {
 
     public static final ComboState EX_COMBO_B_END2 = new ComboState("ex_combo_b_end2",100,
             ()->743,()->764,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_B_END3);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> Extra.EX_COMBO_B_END3);
     public static final ComboState EX_COMBO_B_END3 = new ComboState("ex_combo_b_end3",100,
             ()->764,()->787,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
@@ -386,7 +385,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_RAVE_A1 = new ComboState("ex_aerial_rave_a1",80,
             ()->1100,()->1122,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(5, (a)->Extra.EX_AERIAL_RAVE_A2), ()-> Extra.EX_AERIAL_RAVE_A1_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(5, (a)->Extra.EX_AERIAL_RAVE_A2), ()-> Extra.EX_AERIAL_RAVE_A1_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(3)+0, (entityIn)->AttackManager.doSlash(entityIn,  -20))
                     .build()
@@ -396,7 +395,7 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_A1_END = new ComboState("ex_aerial_rave_a1_end",80,
             ()->1122,()->1132,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -405,7 +404,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_RAVE_A2 = new ComboState("ex_aerial_rave_a2",80,
             ()->1200,()->1210,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(5,(a)->Extra.EX_AERIAL_RAVE_A3), ()-> Extra.EX_AERIAL_RAVE_A2_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(5,(a)->Extra.EX_AERIAL_RAVE_A3), ()-> Extra.EX_AERIAL_RAVE_A2_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(3)+0, (entityIn)->AttackManager.doSlash(entityIn,  180-30))
                     .build())
@@ -414,12 +413,12 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_A2_END = new ComboState("ex_aerial_rave_a2_end",80,
             ()->1210,()->1231,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_AERIAL_RAVE_B3, ()-> Extra.EX_AERIAL_RAVE_A2_END2)
+            ExMotionLocation, (a)->Extra.EX_AERIAL_RAVE_B3, ()-> Extra.EX_AERIAL_RAVE_A2_END2)
             .addTickAction(FallHandler::fallDecrease)
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_A2_END2 = new ComboState("ex_aerial_rave_a2_end2",80,
             ()->1231,()->1241,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -428,7 +427,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_RAVE_A3 = new ComboState("ex_aerial_rave_a3",80,
             ()->1300,()->1328,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(9,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_A3_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_A3_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(4)+0, (entityIn)->AttackManager.doSlash(entityIn,  0,Vector3d.ZERO, false, false, 1.0, KnockBacks.smash))
                     .put((int)TimeValueHelper.getTicksFromFrames(4)+1, (entityIn)->AttackManager.doSlash(entityIn,  -3,Vector3d.ZERO, true, true, 1.0, KnockBacks.smash))
@@ -438,7 +437,7 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_A3_END = new ComboState("ex_aerial_rave_a3_end",80,
             ()->1328,()->1338,()->1.0f,()->false,()->0,
-            exMotionLoc,(a)-> ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation,(a)-> ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -447,7 +446,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_RAVE_B3 = new ComboState("ex_aerial_rave_b3",80,
             ()->1400,()->1437,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(13,(a)->Extra.EX_AERIAL_RAVE_B4) , ()-> Extra.EX_AERIAL_RAVE_B3_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(13,(a)->Extra.EX_AERIAL_RAVE_B4) , ()-> Extra.EX_AERIAL_RAVE_B3_END)
             .setClickAction((entityIn)->{
                 Vector3d motion = entityIn.getMotion();
                 entityIn.setMotion(motion.x, 0.6, motion.z);})
@@ -470,7 +469,7 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_B3_END = new ComboState("ex_aerial_rave_b3_end",80,
             ()->1437,()->1443,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -479,7 +478,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_RAVE_B4 = new ComboState("ex_aerial_rave_b4",80,
             ()->1500,()->1537,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_B4_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_B4_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(10)+0, (entityIn)->AttackManager.doSlash(entityIn,  45,Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
                     .put((int)TimeValueHelper.getTicksFromFrames(10)+1, (entityIn)->AttackManager.doSlash(entityIn,  50,Vector3d.ZERO, true, true, 1.0, KnockBacks.meteor))
@@ -496,7 +495,7 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_AERIAL_RAVE_B4_END = new ComboState("ex_aerial_rave_b4_end",80,
             ()->1537,()->1547,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -508,7 +507,7 @@ public class Extra {
     private static final EnumSet<InputCommand> ex_upperslash_command = EnumSet.of(InputCommand.BACK, InputCommand.R_DOWN);
     public static final ComboState EX_UPPERSLASH = new ComboState("ex_upperslash",90,
             ()->1600, ()->1659, ()->1.0f, ()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(11,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(11,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_END)
             .addHoldAction((player) -> {
                 int elapsed = player.getItemInUseMaxCount();
 
@@ -530,7 +529,7 @@ public class Extra {
             .addHitEffect((t,a)->StunManager.setStun(t, 15));
     public static final ComboState EX_UPPERSLASH_END = new ComboState("ex_upperslash_end",90,
             ()->1659, ()->1693, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
@@ -538,7 +537,7 @@ public class Extra {
 
     public static final ComboState EX_UPPERSLASH_JUMP = new ComboState("ex_upperslash_jump",90,
             ()->1700, ()->1713, ()->1.0f, ()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(7,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_JUMP_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(7,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_JUMP_END)
             .setClickAction((entityIn)->{
                 Vector3d motion = entityIn.getMotion();
                 entityIn.setMotion(motion.x, 0.6f, motion.z);
@@ -558,7 +557,7 @@ public class Extra {
             .setIsAerial();
     public static final ComboState EX_UPPERSLASH_JUMP_END = new ComboState("ex_upperslash_jump_end",90,
             ()->1713, ()->1717, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build()
                     .andThen(FallHandler::fallDecrease));
@@ -567,7 +566,7 @@ public class Extra {
 
     public static final ComboState EX_AERIAL_CLEAVE = new ComboState("ex_aerial_cleave",70,
             ()->1800, ()->1812, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_AERIAL_CLEAVE, ()-> Extra.EX_AERIAL_CLEAVE_LOOP)
+            ExMotionLocation, (a)->Extra.EX_AERIAL_CLEAVE, ()-> Extra.EX_AERIAL_CLEAVE_LOOP)
             .setClickAction((e)->{
                 Vector3d motion = e.getMotion();
                 e.setMotion(motion.x, 0.1, motion.z);
@@ -575,9 +574,7 @@ public class Extra {
             .addTickAction((e)->{
                 e.fallDistance = 1;
 
-                long elapsed = e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                        .map((state)->state.getElapsedTime(e))
-                        .orElseGet(()->0l);
+                long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 2){
                     e.world.playSound((PlayerEntity)null, e.getPosX(), e.getPosY(), e.getPosZ(),
@@ -610,16 +607,14 @@ public class Extra {
     //fall loop 1sec timeout
     public static final ComboState EX_AERIAL_CLEAVE_LOOP = new ComboState("ex_aerial_cleave_loop",70,
             ()->1812, ()->1817, ()->1.0f, ()->true,()->1000,
-            exMotionLoc, (a)->Extra.EX_AERIAL_CLEAVE_LOOP, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->Extra.EX_AERIAL_CLEAVE_LOOP, ()-> ComboState.NONE)
             .addTickAction((e)->{
                 e.fallDistance = 1;
                 
                 Vector3d motion = e.getMotion();
                 e.setMotion(motion.x, motion.y - 3.0, motion.z);
                 
-                long elapsed = e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                        .map((state)->state.getElapsedTime(e))
-                        .orElseGet(()->0l);
+                long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed % 2 == 0)
                     AttackManager.areaAttack(e, KnockBacks.meteor.action,0.1f,true,false,true);
@@ -635,12 +630,12 @@ public class Extra {
             .addHitEffect((t,a)->StunManager.setStun(t, 15));
     public static final ComboState EX_AERIAL_CLEAVE_LANDING = new ComboState("ex_aerial_cleave_landing",70,
             ()->1816, ()->1859, ()->1.0f, ()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(6,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_CLEAVE_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_CLEAVE_END)
             .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  60, Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_AERIAL_CLEAVE_END = new ComboState("ex_aerial_cleave_end",70,
             ()->1859, ()->1886, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
@@ -652,7 +647,7 @@ public class Extra {
 
     public static final ComboState EX_RAPID_SLASH = new ComboState("ex_rapid_slash",70,
             ()->2000, ()->2019, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
+            ExMotionLocation, (a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
             .addHoldAction((e)->{
                 AttributeModifier am = new AttributeModifier("SweepingDamageRatio", -3, AttributeModifier.Operation.ADDITION);
                 ModifiableAttributeInstance mai = e.getAttribute(ForgeMod.REACH_DISTANCE.get());
@@ -665,11 +660,10 @@ public class Extra {
                         if(isRightDown) {
                             e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
                                 if (state.getComboSeq() == Extra.EX_RAPID_SLASH) {
-                                    Entity target = state.getTargetEntity(e.world);
-                                    if (target == t) {
+                                    List<Entity> hits = AttackManager.areaAttack(e, KnockBacks.toss.action,0.01f,true,true,true);
+
+                                    if(!hits.isEmpty())
                                         state.updateComboSeq(e, Extra.EX_RISING_STAR);
-                                        e.setMotion(0, 0, 0);
-                                    }
                                 }
                             });
                         }
@@ -677,9 +671,7 @@ public class Extra {
                 mai.removeModifier(am);
             })
             .addTickAction((e)->{
-                long elapsed = e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                        .map((state)->state.getElapsedTime(e))
-                        .orElseGet(()->0l);
+                long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 0){
                     e.world.playSound((PlayerEntity) null,e.getPosX(), e.getPosY(), e.getPosZ(),
@@ -711,16 +703,17 @@ public class Extra {
                 if(10 < elapsed){
                     UserPoseOverrider.setRot(e, 0, false);
                 }
-            });
+            })
+            .addHitEffect(StunManager::setStun);
     public static final ComboState EX_RAPID_SLASH_QUICK = new ComboState("ex_rapid_slash_quick",70,
             ()->2000, ()->2001, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->Extra.EX_RAPID_SLASH_QUICK, ()-> Extra.EX_RAPID_SLASH);
+            ExMotionLocation, (a)->Extra.EX_RAPID_SLASH_QUICK, ()-> Extra.EX_RAPID_SLASH);
     public static final ComboState EX_RAPID_SLASH_END = new ComboState("ex_rapid_slash_end",70,
             ()->2019, ()->2054, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> Extra.EX_RAPID_SLASH_END2);
+            ExMotionLocation, (a)->ComboState.NONE, ()-> Extra.EX_RAPID_SLASH_END2);
     public static final ComboState EX_RAPID_SLASH_END2 = new ComboState("ex_rapid_slash_end2",70,
             ()->2054, ()->2073, ()->1.0f, ()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
@@ -728,8 +721,13 @@ public class Extra {
 
     public static final ComboState EX_RISING_STAR = new ComboState("ex_rising_star",80,
             ()->2100,()->2137,()->1.0f,()->false,()->0,
-            exMotionLoc, ComboState.TimeoutNext.buildFromFrame(18,(a)->ComboState.NONE) , ()-> Extra.EX_RISING_STAR_END)
-            .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(18,(a)->ComboState.NONE) , ()-> Extra.EX_RISING_STAR_END)
+            .setClickAction((entityIn)->{
+                entityIn.setMotion(0, 0.6, 0);
+                entityIn.setOnGround(false);
+                entityIn.isAirBorne = true;
+                AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss);
+            })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
@@ -746,23 +744,30 @@ public class Extra {
                     .put(5+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
                     .put(5+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
-            .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)-> {
-                        entityIn.setMotion(0, 0.6, 0);
-
-                        entityIn.setOnGround(false);
-                        entityIn.isAirBorne = true;
-                    }).build())
             .addTickAction((entityIn)->{
-                        Vector3d motion = entityIn.getMotion();
-                        entityIn.setMotion(0, motion.y, 0);
+
+                        long elapsed = ComboState.getElapsed(entityIn);
+
+                        if(elapsed < 3){
+                            Vector3d motion = entityIn.getMotion();
+
+                            double yMotion = motion.y;
+                            if(yMotion <= 0) {
+                                yMotion = 0.6;
+
+                                entityIn.setOnGround(false);
+                                entityIn.isAirBorne = true;
+                            }
+
+                            entityIn.setMotion(0, yMotion, 0);
+                        }
                     })
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
             .setIsAerial();
     public static final ComboState EX_RISING_STAR_END = new ComboState("ex_rising_star_end",80,
             ()->2137,()->2147,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)->ComboState.NONE, ()-> ComboState.NONE)
+            ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0,Extra::playQuickSheathSoundAction).build())
             .addTickAction(FallHandler::fallDecrease)
@@ -772,12 +777,10 @@ public class Extra {
 
     public static final ComboState EX_JUDGEMENT_CUT = new ComboState("ex_judgement_cut",50,
             ()->1900,()->1923,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT, ()->Extra.EX_JUDGEMENT_CUT_SLASH)
+            ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT, ()->Extra.EX_JUDGEMENT_CUT_SLASH)
             .addTickAction((e)->{
 
-                long elapsed = e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                        .map((state)->state.getElapsedTime(e))
-                        .orElseGet(()->0l);
+                long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 0){
                     e.playSound(SoundEvents.ITEM_TRIDENT_THROW, 0.80F, 0.625F + 0.1f * e.getRNG().nextFloat());
@@ -840,12 +843,13 @@ public class Extra {
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_JUDGEMENT_CUT_SLASH = new ComboState("ex_judgement_cut_slash",50,
             ()->1923,()->1928,()->0.4f,()->false,()->0,
-            exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH, ()->Extra.EX_JUDGEMENT_CUT_SHEATH)
+            ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH, ()->Extra.EX_JUDGEMENT_CUT_SHEATH)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCut).build())
-            .addTickAction(FallHandler::fallDecrease);
+            .addTickAction(FallHandler::fallDecrease)
+            .addHitEffect(StunManager::setStun);
     public static final ComboState EX_JUDGEMENT_CUT_SHEATH = new ComboState("ex_judgement_cut_sheath",50,
             ()->1928,()->1963,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.NONE, ()->ComboState.NONE)
+            ExMotionLocation, (a)-> ComboState.NONE, ()->ComboState.NONE)
             .addTickAction(FallHandler::fallDecrease)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
@@ -853,31 +857,33 @@ public class Extra {
 
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_AIR = new ComboState("ex_judgement_cut_slash_air",50,
             ()->1923,()->1928,()->0.5f,()->false,()->0,
-            exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_AIR, ()->Extra.EX_JUDGEMENT_CUT_SHEATH_AIR)
+            ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_AIR, ()->Extra.EX_JUDGEMENT_CUT_SHEATH_AIR)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCut).build())
             .addTickAction(FallHandler::fallResist)
-            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
+            .addHitEffect(StunManager::setStun);
     public static final ComboState EX_JUDGEMENT_CUT_SHEATH_AIR = new ComboState("ex_judgement_cut_sheath_air",50,
             ()->1928,()->1963,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.NONE, ()->ComboState.NONE)
-            .addTickAction(FallHandler::fallResist)
+            ExMotionLocation, (a)-> ComboState.NONE, ()->ComboState.NONE)
+            .addTickAction(FallHandler::fallDecrease)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_JUST = new ComboState("ex_judgement_cut_slash_just2",45,
             ()->1923,()->1928,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST2)
+            ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCutJust).build())
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
-            .addTickAction(FallHandler::fallResist);
+            .addTickAction(FallHandler::fallResist)
+            .addHitEffect(StunManager::setStun);
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_JUST2 = new ComboState("ex_judgement_cut_slash_just2",50,
             ()->1923,()->1928,()->0.75f,()->false,()->0,
-            exMotionLoc, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST2, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST_SHEATH)
+            ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST2, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST_SHEATH)
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallResist);
     public static final ComboState EX_JUDGEMENT_CUT_SLASH_JUST_SHEATH = new ComboState("ex_judgement_cut_slash_just_sheath",50,
             ()->1928,()->1963,()->1.0f,()->false,()->0,
-            exMotionLoc, (a)-> ComboState.NONE, ()->ComboState.NONE)
+            ExMotionLocation, (a)-> ComboState.NONE, ()->ComboState.NONE)
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallDecrease)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())

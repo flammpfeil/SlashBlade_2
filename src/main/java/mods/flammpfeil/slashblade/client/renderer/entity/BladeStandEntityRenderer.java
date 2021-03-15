@@ -3,7 +3,7 @@ package mods.flammpfeil.slashblade.client.renderer.entity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.entity.BladeStandEntity;
-import mods.flammpfeil.slashblade.item.SBItems;
+import mods.flammpfeil.slashblade.init.SBItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;

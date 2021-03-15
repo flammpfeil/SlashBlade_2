@@ -22,7 +22,7 @@ import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.item.BladeStandItem;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
-import mods.flammpfeil.slashblade.item.SBItems;
+import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;

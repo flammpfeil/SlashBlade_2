@@ -1,4 +1,4 @@
-package mods.flammpfeil.slashblade.item;
+package mods.flammpfeil.slashblade.init;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import net.minecraft.item.Item;

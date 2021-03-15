@@ -6,9 +6,11 @@ import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -92,23 +94,27 @@ public class LockOnManager {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onEntityUpdate(TickEvent.PlayerTickEvent event) {
+    public void onEntityUpdate(TickEvent.RenderTickEvent event) {
         if(event.phase != TickEvent.Phase.START) return;
 
-        if(Minecraft.getInstance().player != event.player) return;
+        //if(Minecraft.getInstance().player != event.player) return;
 
-        ItemStack stack = event.player.getHeldItemMainhand();
+        if(Minecraft.getInstance().player == null) return;
+
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        ItemStack stack = player.getHeldItemMainhand();
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
 
-            Entity target = s.getTargetEntity(event.player.world);
+            Entity target = s.getTargetEntity(player.world);
 
             if (target == null) return;
             if(!target.isAlive()) return;
 
-            LivingEntity entity = event.player;
+            LivingEntity entity = player;
 
             if(!entity.world.isRemote) return;
             if(!entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input->input.getCommands().contains(InputCommand.SNEAK)).isPresent()) return;
@@ -117,21 +123,34 @@ public class LockOnManager {
             float partialTicks = Minecraft.getInstance().getRenderPartialTicks();
 
             float oldYawHead = entity.rotationYawHead;
+            float oldYawOffset = entity.renderYawOffset;
             float oldPitch = entity.rotationPitch;
             float oldYaw = entity.rotationYaw;
 
-            entity.lookAt(EntityAnchorArgument.Type.EYES, target.getEyePosition(partialTicks));
+            float prevYawHead = entity.prevRotationYawHead;
+            float prevYawOffset = entity.prevRenderYawOffset;
+            float prevYaw = entity.prevRotationYaw;
+            float prevPitch = entity.prevRotationPitch;
 
-            float step = 0.125f;
+            entity.lookAt(EntityAnchorArgument.Type.EYES, target.getPositionVec().add(0,target.getEyeHeight() / 2.0,0));
 
-            step *= Math.min(1.0f ,Math.abs(Math.tan(Math.toRadians(oldYaw - entity.rotationYawHead)) ));
+            float step = 0.125f * partialTicks;
 
-            entity.rotationYawHead = MathHelper.interpolateAngle(step, oldYawHead, entity.rotationYawHead);
-            entity.renderYawOffset = entity.rotationYawHead;
-            entity.prevRenderYawOffset = entity.renderYawOffset;
+            step *= Math.min(1.0f ,Math.abs(MathHelper.wrapDegrees(oldYaw - entity.rotationYawHead) * 0.5));
+
+            //entity.renderYawOffset = entity.rotationYawHead;
+            //entity.prevRenderYawOffset = entity.renderYawOffset;
 
             entity.rotationPitch = MathHelper.interpolateAngle(step,oldPitch ,entity.rotationPitch);
             entity.rotationYaw = MathHelper.interpolateAngle(step, oldYaw , entity.rotationYaw);
+            entity.rotationYawHead = MathHelper.interpolateAngle(step, oldYawHead , entity.rotationYawHead);
+
+            entity.renderYawOffset = oldYawOffset;
+
+            entity.prevRenderYawOffset = prevYawOffset;
+            entity.prevRotationYawHead = prevYawHead;
+            entity.prevRotationYaw = prevYaw;
+            entity.prevRotationPitch = prevPitch;
         });
     }
 

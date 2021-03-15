@@ -52,6 +52,8 @@ public class AttackManager {
     }
     static public void doSlash(LivingEntity playerIn, float roll, int colorCode, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
+        if(playerIn.world.isRemote) return;
+
         Vector3d pos = playerIn.getPositionVec()
                 .add(0.0D, (double)playerIn.getEyeHeight() * 0.75D, 0.0D)
                 .add(playerIn.getLookVec().scale(0.3f));

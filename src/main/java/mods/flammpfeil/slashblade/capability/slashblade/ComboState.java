@@ -1,7 +1,6 @@
 package mods.flammpfeil.slashblade.capability.slashblade;
 
 import com.google.common.collect.*;
-import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
@@ -9,6 +8,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
+import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.JudgementCut;
 import mods.flammpfeil.slashblade.specialattack.SlashArts;
@@ -29,16 +29,14 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-public class ComboState extends RegistryBase<ComboState> {
-    public static final ResourceLocation baseMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/old_motion.vmd");
-    public static final ResourceLocation exMotionLoc = new ResourceLocation(SlashBlade.modid, "combostate/motion.vmd");
+public class ComboState extends RegistryBase<ComboState> implements DefaultResources{
 
     @CapabilityInject(IInputState.class)
     public static Capability<IInputState> INPUT_STATE = null;
 
     public static final ComboState NONE = new ComboState(BaseInstanceName, 1000,
             ()->0, ()->1, ()->1.0f, ()->true,()->0,
-            exMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            ExMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE)
             .addTickAction((e)->UserPoseOverrider.resetRot(e));
 
     static List<Map.Entry<EnumSet<InputCommand>, Supplier<ComboState>>> standbyMap =
@@ -62,7 +60,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState STANDBY = new ComboState("standby_old", 10,
             ()->30,()->31,()->1.0f,()->true,()->1000,
-            baseMotionLoc, (a)-> {
+            BaseMotionLocation, (a)-> {
 
         EnumSet<InputCommand> commands =
             a.getCapability(INPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(InputCommand.class));
@@ -78,30 +76,30 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState COMBO_A1 = new ComboState("combo_a1",100,
             ()->60,()->70,()->1.5f,()->false,()->1000,
-            baseMotionLoc, (a)->ComboState.COMBO_A2, ()-> ComboState.NONE)
+            BaseMotionLocation, (a)->ComboState.COMBO_A2, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun);
 
     public static final ComboState COMBO_A2 = new ComboState("combo_a2",100,
             ()->70,()->80,()->1.5f,()->false,()->1000,
-            baseMotionLoc, (a)-> ComboState.COMBO_A3, ()-> ComboState.NONE)
+            BaseMotionLocation, (a)-> ComboState.COMBO_A3, ()-> ComboState.NONE)
             .setClickAction((e)->AttackManager.areaAttack(e,  KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun);
 
     public static final ComboState COMBO_A3 = new ComboState("combo_a3",100,
             ()->80,()->90,()->1.75f,()->false,()->600,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
+            BaseMotionLocation, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,1.5)));
 
     public static final ComboState COMBO_A3_F = new ComboState("combo_a3_f", 100,
             ()->90,()->120,()->1.5f,()->false,()->2000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE);
 
 
     private static final EnumSet<InputCommand> combo_b1_alt = EnumSet.of(InputCommand.BACK, InputCommand.R_DOWN);
     public static final ComboState COMBO_B1 = new ComboState("combo_b1",90,
             ()->150, ()->160, ()->1.0f, ()->false,()->1000,
-            baseMotionLoc, (a)-> ComboState.COMBO_B2, ()-> ComboState.COMBO_B1_F)
+            BaseMotionLocation, (a)-> ComboState.COMBO_B2, ()-> ComboState.COMBO_B1_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setVertical(ee,0.5)))
             .addHoldAction((player) -> {
                 int elapsed = player.getItemInUseMaxCount();
@@ -123,24 +121,24 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState COMBO_B1_F = new ComboState("combo_b1_f",100,
             ()->165,()-> 185,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE)
             .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
 
     public static final ComboState COMBO_B2 = new ComboState("combo_b2",90,
             ()->200,()-> 215,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F)
+            BaseMotionLocation, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F)
             .addHitEffect(StunManager::setStun)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setVertical(ee,-5)));
     public static final ComboState COMBO_B2_F = new ComboState("combo_b2_f",100,
             ()->215,()-> 240,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE);
 
 
     public static final ComboState COMBO_AA1 = new ComboState("combo_aa1",80,
             ()->245,()-> 270,()->1.0f,()->false,()->500,
-            baseMotionLoc, (a)->ComboState.COMBO_AA2, ()-> ComboState.COMBO_AA1_F)
+            BaseMotionLocation, (a)->ComboState.COMBO_AA2, ()-> ComboState.COMBO_AA1_F)
             .setClickAction((e)->AttackManager.areaAttack(e, KnockBackHandler::setCancel))
             .setIsAerial()
             .addTickAction((playerIn)->{
@@ -159,11 +157,11 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState COMBO_AA1_F = new ComboState("combo_aa1_f",80,
             ()->269,()-> 270,()->20.0f,()->true,()->1000,
-            baseMotionLoc, (a)->ComboState.COMBO_AA2, ()-> ComboState.NONE);
+            BaseMotionLocation, (a)->ComboState.COMBO_AA2, ()-> ComboState.NONE);
 
     public static final ComboState COMBO_AA2 = new ComboState("combo_aa2",80,
             ()->270,()-> 295,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.COMBO_AA2_F)
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.COMBO_AA2_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setSmash(ee,1.5)))
             .setIsAerial()
             .addTickAction((playerIn)-> {
@@ -172,7 +170,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState COMBO_AA2_F = new ComboState("combo_aa2_f",100,
             ()->295,()-> 300,()->1.0f,()->false,()->400,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE)
             .addTickAction((playerIn)-> {
                 FallHandler.fallDecrease(playerIn);
             });
@@ -186,7 +184,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState ARTS_RAPID_SLASH = new ComboState("arts_rapid_slash",70,
             ()->80,()->90,()->1.0f,()->false,()->1000,
-            baseMotionLoc,
+            BaseMotionLocation,
             (a)->ComboState.ARTS_RAPID_SLASH_F, () -> ComboState.ARTS_RAPID_SLASH_F)
             .setClickAction((e)->AttackManager.areaAttack(e, KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun)
@@ -220,11 +218,11 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState ARTS_RAPID_SLASH_F = new ComboState("arts_rapid_slash_f", 70,
             ()->90,()->120,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), ()-> ComboState.NONE);
+            BaseMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE);
 
     public static final ComboState ARTS_RISING_STAR = new ComboState("arts_rising_star",100,
             ()->250,()-> 255,()->0.75f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
+            BaseMotionLocation, (a)->(ComboState.NONE), () -> ComboState.COMBO_A3_F)
             .addHitEffect(StunManager::setStun)
             .setIsAerial()
             .setClickAction((playerIn)->{
@@ -255,7 +253,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState ARTS_HELM_BREAKER = new ComboState("arts_helm_breaker",70,
             ()->200,()-> 215,()->1.0f,()->false,()->1000,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.ARTS_HELM_BREAKER_F)
+            BaseMotionLocation, (a)->(ComboState.NONE), () -> ComboState.ARTS_HELM_BREAKER_F)
             .addHitEffect(StunManager::setStun)
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn, KnockBacks.meteor.action,1.0f,true,false,false);
@@ -291,7 +289,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
     public static final ComboState ARTS_HELM_BREAKER_F = new ComboState("arts_helm_breaker_f",70,
             ()->214,()-> 215,()->20.0f,()->true,()->600,
-            baseMotionLoc, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F);
+            BaseMotionLocation, (a)->(ComboState.NONE), () -> ComboState.COMBO_B2_F);
 
 
     static final EnumSet<InputCommand> jc_cycle_input = EnumSet.of(InputCommand.L_DOWN, InputCommand.R_CLICK);
@@ -303,7 +301,7 @@ public class ComboState extends RegistryBase<ComboState> {
             .build();
     public static final ComboState SLASH_ARTS_JC = new ComboState("slash_arts_jc",50,
             ()->115,()->120,()->0.5f,()->false,()->600,
-            baseMotionLoc, (a)->{
+            BaseMotionLocation, (a)->{
 
         EnumSet<InputCommand> commands =
                 a.getCapability(INPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(InputCommand.class));
@@ -522,9 +520,7 @@ public class ComboState extends RegistryBase<ComboState> {
         @Override
         public ComboState apply(LivingEntity livingEntity) {
 
-            long elapsed = livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                    .map((state)->state.getElapsedTime(livingEntity))
-                    .orElseGet(()->0l);
+            long elapsed = ComboState.getElapsed(livingEntity);
 
             if(timeout <= elapsed){
                 return next.apply(livingEntity);
@@ -565,9 +561,7 @@ public class ComboState extends RegistryBase<ComboState> {
 
         @Override
         public void accept(LivingEntity livingEntity) {
-            long elapsed = livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
-                    .map((state)->state.getElapsedTime(livingEntity))
-                    .orElseGet(()->0l);
+            long elapsed = getElapsed(livingEntity);
 
             if(offset < 0){
                 offset = elapsed;
@@ -580,5 +574,11 @@ public class ComboState extends RegistryBase<ComboState> {
         }
 
         void defaultConsumer(LivingEntity entityIn){}
+    }
+
+    static public long getElapsed(LivingEntity livingEntity){
+        return livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                .map((state)->state.getElapsedTime(livingEntity))
+                .orElseGet(()->0l);
     }
 }

@@ -53,20 +53,22 @@ public class KnockBackHandler {
 
         target.isAirBorne = true;
 
+        Vector3d motion = target.getMotion();
+
         //x = strength multiplier
-        if(factor.x == 0)
+        if(factor.x == 0){
             event.setCanceled(true);
-        else
+
+            motion = motion.mul(0, 1, 0);
+        }else
             event.setStrength((float)(event.getStrength() * factor.x));
 
         //y = vertical factor
 
         if(0 < factor.y){
             target.setOnGround(false);
-            Vector3d motion = target.getMotion();
             event.getEntityLiving().setMotion(motion.x, Math.max(motion.y, factor.y), motion.z);
         }else if(factor.y < 0){
-            Vector3d motion = target.getMotion();
             event.getEntityLiving().setMotion(motion.x, Math.min(motion.y, factor.y), motion.z);
         }
     }
