@@ -20,6 +20,7 @@
 package mods.flammpfeil.slashblade.capability.slashblade;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.SlashArts;
@@ -126,7 +127,8 @@ public class CapabilitySlashBlade
                 instance.getModel()
                         .ifPresent(loc ->  tag.putString("ModelName", loc.toString()));
 
-                tag.putString("ComboRoot", Optional.ofNullable(instance.getComboRoot()).map((c)->c.getName()).orElseGet(()->"standby"));
+                tag.putString("ComboRoot", Optional.ofNullable(instance.getComboRoot()).map((c)->c.getName()).orElseGet(()-> Extra.STANDBY_EX.getName()));
+                tag.putString("ComboRootAir", Optional.ofNullable(instance.getComboRoot()).map((c)->c.getName()).orElseGet(()-> Extra.STANDBY_INAIR.getName()));
 
 
                 return tag;
@@ -206,6 +208,7 @@ public class CapabilitySlashBlade
                     instance.setModel(null);
 
                 instance.setComboRootName(tag.getString("ComboRoot"));
+                instance.setComboRootAirName(tag.getString("ComboRootAir"));
             }
         },
         () -> new SlashBladeState());

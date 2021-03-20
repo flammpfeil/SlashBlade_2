@@ -2,7 +2,9 @@ package mods.flammpfeil.slashblade;
 
 import com.google.common.base.CaseFormat;
 import mods.flammpfeil.slashblade.ability.LockOnManager;
+import mods.flammpfeil.slashblade.ability.SlayerStyleArts;
 import mods.flammpfeil.slashblade.ability.StunManager;
+import mods.flammpfeil.slashblade.ability.SummonedSwordArts;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
@@ -14,7 +16,7 @@ import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
-import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
+import mods.flammpfeil.slashblade.client.renderer.layers.LayerMainBlade;
 import mods.flammpfeil.slashblade.entity.*;
 import mods.flammpfeil.slashblade.event.*;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
@@ -24,6 +26,7 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
+import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -35,9 +38,12 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.stats.IStatFormatter;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -126,6 +132,11 @@ public class SlashBlade
         KillCounter.getInstance().register();
         RankPointHandler.getInstance().register();
         AllowFlightOverrwrite.getInstance().register();
+        BlockPickCanceller.getInstance().register();
+
+        MinecraftForge.EVENT_BUS.addListener(TargetSelector::onInputChange);
+        SummonedSwordArts.getInstance().register();
+        SlayerStyleArts.getInstance().register();
 
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");
@@ -402,6 +413,22 @@ public class SlashBlade
         private static String classToString(Class<? extends Entity> entityClass) {
             return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityClass.getSimpleName()).replace("entity_", "");
         }
+
+
+
+        public static final ResourceLocation SWORD_SUMMONED = registerCustomStat("sword_summoned");
+
+        private static ResourceLocation registerCustomStat(String name) {
+            ResourceLocation resourcelocation = new ResourceLocation(modid, name);
+            Registry.register(Registry.CUSTOM_STAT, name, resourcelocation);
+            Stats.CUSTOM.get(resourcelocation, IStatFormatter.DEFAULT);
+            return resourcelocation;
+        }
+
+        /**
+         * /scoreboard objectives add stat minecraft.custom:slashblade.sword_summoned
+         * /scoreboard objectives setdisplay sidebar stat
+         */
     }
 
     @OnlyIn(Dist.CLIENT)

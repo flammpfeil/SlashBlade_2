@@ -1,5 +1,6 @@
 package mods.flammpfeil.slashblade.util;
 
+//32bit limit
 public enum InputCommand {
     FORWARD,
     BACK,
@@ -13,5 +14,6 @@ public enum InputCommand {
     L_CLICK,
     ON_GROUND,
     ON_AIR,
-    SAVE_TOOLBAR
+    SAVE_TOOLBAR,
+    SPRINT,
 }

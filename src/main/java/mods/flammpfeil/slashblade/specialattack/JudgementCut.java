@@ -37,7 +37,7 @@ public class JudgementCut {
         ItemStack stack = user.getHeldItemMainhand();
         Optional<Vector3d> resultPos = stack.getCapability(ItemSlashBlade.BLADESTATE)
                 .filter(s->s.getTargetEntity(worldIn) != null)
-                .map(s->Optional.of(s.getTargetEntity(worldIn).getEyePosition(0)))
+                .map(s->Optional.of(s.getTargetEntity(worldIn).getEyePosition(1.0f)))
                 .orElseGet(()->Optional.empty());
 
 

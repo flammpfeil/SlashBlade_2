@@ -14,10 +14,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.EndermanEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.IPacket;
@@ -52,7 +50,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
     private static final DataParameter<Integer> FLAGS = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HIT_ENTITY_ID = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
     private static final DataParameter<Float> OFFSET_YAW = EntityDataManager.<Float>createKey(EntityAbstractSummonedSword.class, DataSerializers.FLOAT);
-    private static final DataParameter<Float> OFFSET_PITCH = EntityDataManager.<Float>createKey(EntityAbstractSummonedSword.class, DataSerializers.FLOAT);
+    private static final DataParameter<Float> ROLL = EntityDataManager.<Float>createKey(EntityAbstractSummonedSword.class, DataSerializers.FLOAT);
     private static final DataParameter<Byte> PIERCE = EntityDataManager.createKey(EntityAbstractSummonedSword.class, DataSerializers.BYTE);
     private static final DataParameter<String> MODEL = EntityDataManager.createKey(EntityAbstractSummonedSword.class, DataSerializers.STRING);
     private static final DataParameter<Integer> DELAY = EntityDataManager.<Integer>createKey(EntityAbstractSummonedSword.class, DataSerializers.VARINT);
@@ -67,6 +65,8 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
     public UUID shootingEntity;
 
     private Entity hitEntity = null;
+
+    static final int ON_GROUND_LIFE_TIME = 20*5;
 
     private SoundEvent hitEntitySound = SoundEvents.ITEM_TRIDENT_HIT;
     private SoundEvent hitEntityPlayerSound = SoundEvents.ITEM_TRIDENT_HIT;
@@ -97,7 +97,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         this.dataManager.register(FLAGS, 0);
         this.dataManager.register(HIT_ENTITY_ID, -1);
         this.dataManager.register(OFFSET_YAW, 0f);
-        this.dataManager.register(OFFSET_PITCH, 0f);
+        this.dataManager.register(ROLL, 0f);
         this.dataManager.register(PIERCE, (byte)0);
         this.dataManager.register(MODEL, "");
         this.dataManager.register(DELAY,10);
@@ -254,15 +254,26 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
     public void tick() {
         super.tick();
 
-        boolean disallowedHitBlock = this.isNoClip();
-        Vector3d motionVec = this.getMotion();
-        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
-            float f = MathHelper.sqrt(horizontalMag(motionVec));
-            this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
-            this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, (double)f) * (double)(180F / (float)Math.PI));
-            this.prevRotationYaw = this.rotationYaw;
-            this.prevRotationPitch = this.rotationPitch;
+        if(getHitEntity() != null){
+            Entity hits = getHitEntity();
+
+            if(!hits.isAlive()){
+                this.burst();
+            }else{
+                this.setPosition(hits.getPosX(),hits.getPosY() + hits.getEyeHeight() * 0.5f,hits.getPosZ());
+
+                int delay = getDelay();
+                delay--;
+                setDelay(delay);
+
+                if(!this.world.isRemote && delay < 0)
+                    this.burst();
+            }
+
+            return;
         }
+
+        boolean disallowedHitBlock = this.isNoClip();
 
         BlockPos blockpos = new BlockPos(this.getPosX(), this.getPosY(), this.getPosZ());
         BlockState blockstate = this.world.getBlockState(blockpos);
@@ -283,16 +294,25 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         }
 
         if (this.inGround && !disallowedHitBlock) {
-            //areCollisionShapesEmpty:func_226664_a_
             if (this.inBlockState != blockstate && this.world.hasNoCollisions(this.getBoundingBox().grow(0.06D))) {
-                this.inGround = false;
-                this.setMotion(motionVec.mul((double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F), (double)(this.rand.nextFloat() * 0.2F)));
-                this.ticksInGround = 0;
-                this.ticksInAir = 0;
+                //block breaked
+                this.burst();
             } else if (!this.world.isRemote) {
+                //onBlock
                 this.tryDespawn();
             }
         } else {
+            //process pose
+            Vector3d motionVec = this.getMotion();
+            if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
+                float f = MathHelper.sqrt(horizontalMag(motionVec));
+                this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
+                this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, (double)f) * (double)(180F / (float)Math.PI));
+                this.prevRotationYaw = this.rotationYaw;
+                this.prevRotationPitch = this.rotationPitch;
+            }
+
+            //process inAir
             ++this.ticksInAir;
             Vector3d positionVec = this.getPositionVec();
             Vector3d movedVec = positionVec.add(motionVec);
@@ -302,6 +322,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
             }
 
             while(this.isAlive()) {
+                //todo : replace TargetSelector
                 EntityRayTraceResult entityraytraceresult = this.getRayTrace(positionVec, movedVec);
                 if (entityraytraceresult != null) {
                     raytraceresult = entityraytraceresult;
@@ -391,7 +412,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
 
     protected void tryDespawn() {
         ++this.ticksInGround;
-        if (1200 <= this.ticksInGround) {
+        if (ON_GROUND_LIFE_TIME <= this.ticksInGround) {
             this.burst();
         }
 
@@ -415,7 +436,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         this.setMotion(vec3d);
         Vector3d vec3d1 = this.getPositionVec().subtract(vec3d.normalize().scale((double) 0.05F));
         this.setPosition(vec3d1.x, vec3d1.y, vec3d1.z);
-        this.playSound(this.getHitGroundSound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
+        this.playSound(this.getHitGroundSound(), 1.0F, 2.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
         this.inGround = true;
         this.setIsCritical(false);
         this.setPierce((byte) 0);
@@ -425,8 +446,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
 
     protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
         Entity targetEntity = p_213868_1_.getEntity();
-        float f = (float)this.getMotion().length();
-        int i = MathHelper.ceil(Math.max((double)f * this.damage, 0.0D));
+        int i = MathHelper.ceil(this.getDamage());
         if (this.getPierce() > 0) {
             if (this.alreadyHits == null) {
                 this.alreadyHits = new IntOpenHashSet(5);
@@ -482,12 +502,12 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
             }
 
             this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-            if (this.getPierce() <= 0) {
+            if (this.getPierce() <= 0 && !getHitEntity().isAlive()) {
                 this.burst();
             }
         } else {
             targetEntity.forceFireTicks(fireTime);
-            this.setMotion(this.getMotion().scale(-0.1D));
+            //this.setMotion(this.getMotion().scale(-0.1D));
             this.rotationYaw += 180.0F;
             this.prevRotationYaw += 180.0F;
             this.ticksInAir = 0;
@@ -608,11 +628,9 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         if(hitEntity != this){
             this.dataManager.set(HIT_ENTITY_ID ,hitEntity.getEntityId());
 
-            float offsetYaw = this.rotationYaw - hitEntity.rotationYaw;
-            float offsetPitch = this.rotationPitch - hitEntity.rotationPitch;
+            this.dataManager.set(OFFSET_YAW, this.rand.nextFloat() * 360);
 
-            this.dataManager.set(OFFSET_YAW, offsetYaw);
-            this.dataManager.set(OFFSET_PITCH, offsetPitch);
+            this.setDelay(20 * 5);
         }
     }
 
@@ -630,8 +648,12 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
     public float getOffsetYaw(){
         return this.dataManager.get(OFFSET_YAW);
     }
-    public float getOffsetPitch(){
-        return this.dataManager.get(OFFSET_PITCH);
+
+    public float getRoll(){
+        return this.dataManager.get(ROLL);
+    }
+    public void setRoll(float value){
+        this.dataManager.set(ROLL, value);
     }
 
     public void setDamage(double damageIn) {
@@ -668,5 +690,12 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
     }
     public ResourceLocation getTextureLoc() {
         return textureLoc.orElse(defaultTexture);
+    }
+
+
+    @Override
+    public void applyEntityCollision(Entity entityIn) {
+        //Suppress velocity change due to collision
+        //super.applyEntityCollision(entityIn);
     }
 }

@@ -249,7 +249,7 @@ public class ItemSlashBlade extends SwordItem {
                 if(0 < ticks){
 
                     if( ticks == 20){//state.getFullChargeTicks(player)){
-                        Vector3d pos = player.getEyePosition(0).add(player.getLookVec());
+                        Vector3d pos = player.getEyePosition(1.0f).add(player.getLookVec());
                         ((ServerWorld)player.world).spawnParticle(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
                     }
                 }

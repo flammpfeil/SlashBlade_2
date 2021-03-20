@@ -4,6 +4,8 @@
 
   "attribute.name.generic.reachDistance":"Reach",
 
+  "stat.slashblade.sword_summoned": "Sword Summoned",
+
   "slashblade.tooltip.killcount"  :"KillCount:%1$s",
   "slashblade.tooltip.refine"     :"Refine   :%1$s",
 

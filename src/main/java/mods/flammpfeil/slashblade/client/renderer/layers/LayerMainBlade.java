@@ -1,4 +1,4 @@
-package mods.flammpfeil.slashblade.client.renderer;
+package mods.flammpfeil.slashblade.client.renderer.layers;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import jp.nyatla.nymmd.*;

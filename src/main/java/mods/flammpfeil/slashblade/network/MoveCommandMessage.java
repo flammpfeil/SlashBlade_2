@@ -1,7 +1,9 @@
 package mods.flammpfeil.slashblade.network;
 
 import mods.flammpfeil.slashblade.ability.LockOnManager;
+import mods.flammpfeil.slashblade.ability.SummonedSwordArts;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
+import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.InputCommand;
@@ -49,8 +51,8 @@ public class MoveCommandMessage {
 
                 EnumSet<InputCommand> current = state.getCommands().clone();
 
-                LockOnManager.onInputChange(old, current, sender);
-                TargetSelector.onInputChange(old, current, sender);
+                InputCommandEvent.onInputChange(sender, old, current);
+                //todo: quick turnも実装したい
             });
         });
         ctx.get().setPacketHandled(true);

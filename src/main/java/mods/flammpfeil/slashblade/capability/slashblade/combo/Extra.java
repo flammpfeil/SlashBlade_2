@@ -30,7 +30,9 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class Extra implements DefaultResources {
+import static mods.flammpfeil.slashblade.init.DefaultResources.ExMotionLocation;
+
+public class Extra {
 
     @CapabilityInject(IInputState.class)
     public static Capability<IInputState> INPUT_STATE = null;
@@ -76,6 +78,11 @@ public class Extra implements DefaultResources {
 
                 }, ()-> ComboState.NONE);
 
+
+    public static final ComboState STANDBY_INAIR = new ComboState("standby_inair", 10,
+                ()->0,()->1,()->1.0f,()->true,()->400,
+                ExMotionLocation, (a)-> ComboState.NONE, ()-> ComboState.NONE)
+            .addTickAction(FallHandler::fallDecrease);
 
     public static final ComboState EX_COMBO_A1 = new ComboState("ex_combo_a1",100,
             ()->1,()->10,()->1.0f,()->false,()->0,

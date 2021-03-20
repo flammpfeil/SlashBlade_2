@@ -291,16 +291,22 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
             //no cyclehit
             if (this.ticksExisted % 2 == 0) {
+                boolean forceHit = this.doCycleHit();
+
+                //todo: isCritical = hp direct attack & magic damage & melee damage & armor piercing & event override force hit
+
                 //this::onHitEntity ro KnockBackHandler::setCancel
                 List<Entity> hits;
                 if(getShooter() instanceof LivingEntity) {
                     LivingEntity shooter = (LivingEntity) getShooter();
                     float ratio = (float)damage * (getIsCritical() ? 1.1f : 1.0f);
-                    hits = AttackManager.areaAttack(shooter, this.action.action, ratio, this.doCycleHit(),false, true, alreadyHits);
+                    hits = AttackManager.areaAttack(shooter, this.action.action, ratio, forceHit,false, true, alreadyHits);
                 }else{
-                    hits = AttackManager.areaAttack(this, this.action.action,4.0, this.doCycleHit(),false, alreadyHits);
+                    hits = AttackManager.areaAttack(this, this.action.action,4.0, forceHit,false, alreadyHits);
                 }
-                alreadyHits.addAll(hits);
+
+                if(!this.doCycleHit())
+                    alreadyHits.addAll(hits);
             }
         }
 

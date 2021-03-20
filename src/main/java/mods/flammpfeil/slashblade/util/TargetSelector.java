@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.entity.IShootable;
+import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -37,19 +39,19 @@ public class TargetSelector {
 
     static final String AttackableTag = "RevengeAttacker";
 
+    static boolean isAttackable(Entity revengeTarget, Entity attacker){
+        return revengeTarget != null && attacker != null && (revengeTarget == attacker || revengeTarget.isOnSameTeam(attacker));
+    }
+
     static public final EntityPredicate areaAttack = (new EntityPredicate(){
                 @Override
                 public boolean canTarget(@Nullable LivingEntity attacker, LivingEntity target) {
                     boolean isAttackable = false;
 
-                    if(target.getRevengeTarget() != null){
-                        isAttackable |= target.getRevengeTarget() == attacker;
-                        isAttackable |= target.getRevengeTarget().isOnSameTeam(attacker);
-                    }
-                    if(target instanceof MobEntity && ((MobEntity) target).getAttackTarget() != null){
-                        isAttackable |= ((MobEntity) target).getAttackTarget() == attacker;
-                        isAttackable |= ((MobEntity) target).getAttackTarget().isOnSameTeam(attacker);
-                    }
+                    isAttackable |= isAttackable(target.getRevengeTarget(), attacker);
+
+                    if(!isAttackable && target instanceof MobEntity)
+                        isAttackable |= isAttackable(((MobEntity) target).getAttackTarget(), attacker);
 
                     if(isAttackable)
                         target.addTag(AttackableTag);
@@ -203,7 +205,13 @@ public class TargetSelector {
         return reach;
     }
 
-    public static void onInputChange(EnumSet<InputCommand> old, EnumSet<InputCommand> current, ServerPlayerEntity sender) {
+    @SubscribeEvent
+    public static void onInputChange(InputCommandEvent event) {
+
+        EnumSet<InputCommand> old = event.getOld();
+        EnumSet<InputCommand> current = event.getCurrent();
+        ServerPlayerEntity sender = event.getPlayer();
+
         //SneakHold & Middle Click
         if (!(!old.contains(InputCommand.M_DOWN) && current.contains(InputCommand.M_DOWN) && current.contains(InputCommand.SNEAK))) return;
 
@@ -218,6 +226,8 @@ public class TargetSelector {
                     if (!(tmp instanceof LivingEntity)) return;
 
                     LivingEntity target = (LivingEntity) tmp;
+
+                    if(target.getRevengeTarget() == sender) return;
 
                     target.setRevengeTarget(sender);
 

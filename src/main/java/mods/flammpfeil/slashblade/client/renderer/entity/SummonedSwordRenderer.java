@@ -9,6 +9,7 @@ import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.ResourceLocation;
@@ -36,14 +37,28 @@ public class SummonedSwordRenderer<T extends EntityAbstractSummonedSword> extend
     public void render(T entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw) - 90.0F));
+            Entity hits = entity.getHitEntity();
+            boolean hasHitEntity = hits != null;
+
+            if(hasHitEntity){
+                matrixStack.rotate(Vector3f.YN.rotationDegrees(MathHelper.lerp(partialTicks, hits.prevRotationYaw, hits.rotationYaw) -90));
+                matrixStack.rotate(Vector3f.YN.rotationDegrees(entity.getOffsetYaw()));
+            }else{
+                matrixStack.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw) - 90.0F));
+            }
 
             matrixStack.rotate(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch)));
 
+            matrixStack.rotate(Vector3f.XP.rotationDegrees(entity.getRoll()));
 
             float scale = 0.0075f;
             matrixStack.scale(scale,scale,scale);
             matrixStack.rotate(Vector3f.YP.rotationDegrees(90.0F));
+
+
+            if(hasHitEntity){
+                matrixStack.translate(0,0,-100);
+            }
 
             //matrixStack.blendEquation(GL14.GL_FUNC_REVERSE_SUBTRACT);
             WavefrontObject model = BladeModelManager.getInstance().getModel(entity.getModelLoc());

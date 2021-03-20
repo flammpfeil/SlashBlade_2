@@ -16,7 +16,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.List;
@@ -58,8 +57,8 @@ public class AttackManager {
                 .add(0.0D, (double)playerIn.getEyeHeight() * 0.75D, 0.0D)
                 .add(playerIn.getLookVec().scale(0.3f));
 
-        pos = pos.add(getVectorForRotation( -90.0F, playerIn.getYaw(0)).scale(centerOffset.y))
-                .add(getVectorForRotation( 0, playerIn.getYaw(0) + 90).scale(centerOffset.z))
+        pos = pos.add(VectorHelper.getVectorForRotation( -90.0F, playerIn.getYaw(0)).scale(centerOffset.y))
+                .add(VectorHelper.getVectorForRotation( 0, playerIn.getYaw(0) + 90).scale(centerOffset.z))
                 .add(playerIn.getLookVec().scale(centerOffset.z));
 
         EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, playerIn.world);
@@ -81,16 +80,6 @@ public class AttackManager {
 
         playerIn.world.addEntity(jc);
 
-    }
-
-    static public Vector3d getVectorForRotation(float pitch, float yaw) {
-        float f = pitch * ((float)Math.PI / 180F);
-        float f1 = -yaw * ((float)Math.PI / 180F);
-        float f2 = MathHelper.cos(f1);
-        float f3 = MathHelper.sin(f1);
-        float f4 = MathHelper.cos(f);
-        float f5 = MathHelper.sin(f);
-        return new Vector3d((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
     }
 
     static public List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {

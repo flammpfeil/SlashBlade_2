@@ -29,14 +29,16 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-public class ComboState extends RegistryBase<ComboState> implements DefaultResources{
+import static mods.flammpfeil.slashblade.init.DefaultResources.BaseMotionLocation;
+
+public class ComboState extends RegistryBase<ComboState>{
 
     @CapabilityInject(IInputState.class)
     public static Capability<IInputState> INPUT_STATE = null;
 
     public static final ComboState NONE = new ComboState(BaseInstanceName, 1000,
             ()->0, ()->1, ()->1.0f, ()->true,()->0,
-            ExMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE)
+            DefaultResources.ExMotionLocation, (a)->(ComboState.NONE), ()-> ComboState.NONE)
             .addTickAction((e)->UserPoseOverrider.resetRot(e));
 
     static List<Map.Entry<EnumSet<InputCommand>, Supplier<ComboState>>> standbyMap =

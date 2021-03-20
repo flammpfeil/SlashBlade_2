@@ -40,9 +40,9 @@ public class ArrowReflector {
 
                 Entity target = stack.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getTargetEntity(attacker.world)).orElse(null);
                 if(target != null){
-                    dir = arrow.getPositionVec().subtract(target.getEyePosition(0)).normalize();
+                    dir = arrow.getPositionVec().subtract(target.getEyePosition(1.0f)).normalize();
                 }else{
-                    dir = arrow.getPositionVec().subtract(attacker.getLookVec().scale(10).add(attacker.getEyePosition(0))).normalize();
+                    dir = arrow.getPositionVec().subtract(attacker.getLookVec().scale(10).add(attacker.getEyePosition(1.0f))).normalize();
                 }
 
             }while(false);

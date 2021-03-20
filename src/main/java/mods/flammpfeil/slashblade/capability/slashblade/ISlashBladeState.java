@@ -242,7 +242,7 @@ public interface ISlashBladeState {
             return ComboState.NONE;
 
         int fullChargeTicks = getFullChargeTicks(user);
-        int justReceptionSpan = SlashArts.getJustReceptionSpan(user); //todo:+ justTime Extension
+        int justReceptionSpan = SlashArts.getJustReceptionSpan(user);
         int justChargePeriod = fullChargeTicks + justReceptionSpan;
 
         RangeMap<Integer, SlashArts.ArtsType> charge_accept = ImmutableRangeMap.<Integer, SlashArts.ArtsType>builder()
@@ -305,6 +305,13 @@ public interface ISlashBladeState {
 
     default ComboState getComboRoot(){
         return Optional.ofNullable(ComboState.NONE.valueOf(this.getComboRootName())).orElseGet(()-> Extra.STANDBY_EX);
+    }
+
+    String getComboRootAirName();
+    void setComboRootAirName(String comboRootName);
+
+    default ComboState getComboRootAir(){
+        return Optional.ofNullable(ComboState.NONE.valueOf(this.getComboRootAirName())).orElseGet(()-> Extra.STANDBY_INAIR);
     }
 
     CompoundNBT getShareTag();

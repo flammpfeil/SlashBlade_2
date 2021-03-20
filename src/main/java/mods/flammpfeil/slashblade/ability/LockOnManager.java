@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
+import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
@@ -10,7 +11,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -23,7 +23,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,23 +42,25 @@ public class LockOnManager {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static void onInputChange(EnumSet<InputCommand> old, EnumSet<InputCommand> current, ServerPlayerEntity player) {
-        if(old.contains(InputCommand.SNEAK) == current.contains(InputCommand.SNEAK)) return;
+    @SubscribeEvent
+    public void onInputChange(InputCommandEvent event) {
+        if(event.getOld().contains(InputCommand.SNEAK) == event.getCurrent().contains(InputCommand.SNEAK)) return;
 
+        ServerPlayerEntity player = event.getPlayer();
         //set target
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack stack = event.getPlayer().getHeldItemMainhand();
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
         Entity targetEntity;
 
-        if((old.contains(InputCommand.SNEAK) && !current.contains(InputCommand.SNEAK))){
+        if((event.getOld().contains(InputCommand.SNEAK) && !event.getCurrent().contains(InputCommand.SNEAK))){
             //remove target
             targetEntity = null;
         }else{
             //find target
 
-            Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(0) , player.getLookVec(), 12,12, null);
+            Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(1.0f) , player.getLookVec(), 12,12, null);
             Optional<Entity> foundEntity = result
                     .filter(r->r.getType() == RayTraceResult.Type.ENTITY)
                     .filter(r->{

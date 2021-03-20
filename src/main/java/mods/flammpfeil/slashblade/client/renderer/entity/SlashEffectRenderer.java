@@ -43,8 +43,6 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
     @Override
     public void render(T entity, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
 
-        //todo : packedLightIn = 15;
-
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
             matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw) - 90.0F));

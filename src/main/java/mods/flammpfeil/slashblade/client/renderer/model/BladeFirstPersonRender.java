@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.client.renderer.model;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mods.flammpfeil.slashblade.client.renderer.LayerMainBlade;
+import mods.flammpfeil.slashblade.client.renderer.layers.LayerMainBlade;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.client.Minecraft;

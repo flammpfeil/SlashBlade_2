@@ -80,6 +80,7 @@ public class SlashBladeState implements ISlashBladeState {
     ; //rarityType
 
     protected String comboRootName;
+    protected String comboRootAirName;
 
     //render info
     protected Optional<CarryType> carryType = Optional.empty(); //StandbyRenderType
@@ -422,9 +423,26 @@ public class SlashBladeState implements ISlashBladeState {
         });
     }
 
+    LazyOptional<ComboState> rootComboAir = instantiateRootComboAirHolder();
     @Override
-    public ComboState getComboRoot() {
-        return rootCombo.orElse(Extra.STANDBY_EX);
+    public String getComboRootAirName() {
+        return this.comboRootAirName;
+    }
+
+    @Override
+    public void setComboRootAirName(String comboRootName) {
+        this.comboRootName = comboRootName;
+        this.rootComboAir = instantiateRootComboAirHolder();
+    }
+
+    private LazyOptional<ComboState> instantiateRootComboAirHolder(){
+        return LazyOptional.of(()->{
+            if(ComboState.NONE.valueOf(getComboRootName()) == null){
+                return Extra.STANDBY_EX;
+            }else{
+                return ComboState.NONE.valueOf(getComboRootAirName());
+            }
+        });
     }
 
 
