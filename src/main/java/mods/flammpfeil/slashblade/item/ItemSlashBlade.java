@@ -284,13 +284,11 @@ public class ItemSlashBlade extends SwordItem {
     @Nullable
     @Override
     public CompoundNBT getShareTag(ItemStack stack) {
-
-
-
         return stack.getCapability(ItemSlashBlade.BLADESTATE)
                 .filter(s->s.getShareTag() != null)
                 .map(s->{
                     CompoundNBT tag = s.getShareTag();
+                    tag.putString("translationKey", s.getTranslationKey());
                     if(tag.getBoolean("isBroken") != s.isBroken())
                         tag.putString("isBroken",Boolean.toString(s.isBroken()));
 

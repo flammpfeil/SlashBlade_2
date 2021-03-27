@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.ability;
 
 import com.google.common.collect.Sets;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
@@ -10,6 +11,7 @@ import mods.flammpfeil.slashblade.util.InputCommand;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
@@ -26,6 +28,7 @@ import net.minecraft.world.server.TicketType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -45,7 +48,8 @@ public class SlayerStyleArts {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    final static EnumSet<InputCommand> fowerd_sprint = EnumSet.of(InputCommand.FORWARD, InputCommand.SPRINT);
+    final static EnumSet<InputCommand> fowerd_sprint_sneak = EnumSet.of(InputCommand.FORWARD, InputCommand.SPRINT, InputCommand.SNEAK);
+    final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -55,62 +59,110 @@ public class SlayerStyleArts {
         ServerPlayerEntity sender = event.getPlayer();
         World worldIn = sender.world;
 
-        if(!old.contains(InputCommand.SPRINT) && current.containsAll(fowerd_sprint)){
-            sender.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state->{
-                Entity target = state.getTargetEntity(worldIn);
+        if(!old.contains(InputCommand.SPRINT)){
 
-                if(target == null) return;
+            boolean isHandled = false;
 
-                if(target == sender.getLastAttackedEntity() && sender.ticksExisted < sender.getLastAttackedEntityTime() + 100){
-                    SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
-                }else{
-                    EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
-                        @Override
-                        protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
-                            super.onHitEntity(p_213868_1_);
+            if(current.containsAll(fowerd_sprint_sneak)){
+                //air trick
+                isHandled = sender.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map(state->{
+                    Entity target = state.getTargetEntity(worldIn);
 
-                            if(this.getHitEntity() == sender.getLastAttackedEntity()){
-                                SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
+                    if(target == null) return false;
+
+                    if(target == sender.getLastAttackedEntity() && sender.ticksExisted < sender.getLastAttackedEntityTime() + 100){
+                        SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
+                    }else{
+                        EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
+                            @Override
+                            protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
+                                super.onHitEntity(p_213868_1_);
+
+                                if(this.getHitEntity() == sender.getLastAttackedEntity()){
+                                    SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
+                                }
                             }
-                        }
-                    };
+                        };
 
-                    Vector3d lastPos = sender.getEyePosition(1.0f);
-                    ss.lastTickPosX = lastPos.x;
-                    ss.lastTickPosY = lastPos.y;
-                    ss.lastTickPosZ = lastPos.z;
+                        Vector3d lastPos = sender.getEyePosition(1.0f);
+                        ss.lastTickPosX = lastPos.x;
+                        ss.lastTickPosY = lastPos.y;
+                        ss.lastTickPosZ = lastPos.z;
 
-                    Vector3d targetPos = target.getPositionVec().add(0, target.getHeight() / 2.0, 0).add(sender.getLookVec().scale(-2.0));
-                    ss.setPosition(targetPos.x, targetPos.y, targetPos.z);
+                        Vector3d targetPos = target.getPositionVec().add(0, target.getHeight() / 2.0, 0).add(sender.getLookVec().scale(-2.0));
+                        ss.setPosition(targetPos.x, targetPos.y, targetPos.z);
 
-                    Vector3d dir = sender.getLookVec();
-                    ss.shoot(dir.x, dir.y, dir.z, 0.5f, 0);
+                        Vector3d dir = sender.getLookVec();
+                        ss.shoot(dir.x, dir.y, dir.z, 0.5f, 0);
 
-                    ss.setShooter(sender);
+                        ss.setShooter(sender);
 
-                    ss.setDamage(0.01f);
+                        ss.setDamage(0.01f);
 
-                    ss.setColor(state.getColorCode());
+                        ss.setColor(state.getColorCode());
 
-                    worldIn.addEntity(ss);
-                    sender.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 0.2F, 1.45F);
+                        worldIn.addEntity(ss);
+                        sender.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 0.2F, 1.45F);
+                    }
+
+                    return true;
+                }).orElse(false);
+            }
+
+            if(!isHandled && sender.isOnGround() && current.contains(InputCommand.SPRINT) && current.stream().anyMatch(cc->move.contains(cc))){
+                //quick avoid ground
+
+                int count = sender.getCapability(CapabilityMobEffect.MOB_EFFECT)
+                        .map(ef->ef.doAvoid(sender.world.getGameTime()))
+                        .orElse(0);
+
+                if(0 < count){
+                    Untouchable.setUntouchable(sender, 10);
+
+                    float moveForward = current.contains(InputCommand.FORWARD) == current.contains(InputCommand.BACK) ? 0.0F : (current.contains(InputCommand.FORWARD) ? 1.0F : -1.0F);
+                    float moveStrafe = current.contains(InputCommand.LEFT) == current.contains(InputCommand.RIGHT) ? 0.0F : (current.contains(InputCommand.LEFT) ? 1.0F : -1.0F);
+                    Vector3d input = new Vector3d(moveStrafe,0,moveForward);
+
+                    sender.moveRelative(3.0f, input);
+
+                    Vector3d motion = this.maybeBackOffFromEdge(sender.getMotion(), sender);
+
+                    sender.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5f, 1.2f);
+
+                    sender.move(MoverType.SELF, motion);
+
+                    sender.moveForced(sender.getPositionVec());
+
+                    sender.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                            .ifPresent(state->state.updateComboSeq(sender, state.getComboRootAir()));
                 }
 
-            });
+                isHandled = true;
+            }
+            //slow avoid ground
+            //move double tap
+
+            /**
+             //relativeList : pos -> convertflag -> motion
+             sender.connection.setPlayerLocation(sender.getPosX(), sender.getPosY(), sender.getPosZ()
+             , sender.getYaw(1.0f), sender.getPitch(1.0f)
+             , Sets.newHashSet(SPlayerPositionLookPacket.Flags.X,SPlayerPositionLookPacket.Flags.Z));
+             */
         }
+
     }
 
     private static void doTeleport(Entity entityIn, LivingEntity target) {
         if(!(entityIn.world instanceof ServerWorld)) return;
 
-        if(entityIn instanceof PlayerEntity){
-            PlayerEntity player = ((PlayerEntity)entityIn);
+        if(entityIn instanceof PlayerEntity) {
+            PlayerEntity player = ((PlayerEntity) entityIn);
             player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.75F, 1.25F);
 
-            player.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state->{
-                state.updateComboSeq(player, state.getComboRootAir());
-                //todo: invincible time
-            });
+            player.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                    .ifPresent(state -> state.updateComboSeq(player, state.getComboRootAir()));
+
+            Untouchable.setUntouchable(player, 10);
         }
 
         ServerWorld worldIn = (ServerWorld) entityIn.world;
@@ -123,7 +175,7 @@ public class SlayerStyleArts {
         float yaw = entityIn.rotationYaw;
         float pitch = entityIn.rotationPitch;
 
-        Set<SPlayerPositionLookPacket.Flags> relativeList = Sets.newIdentityHashSet();
+        Set<SPlayerPositionLookPacket.Flags> relativeList = Collections.emptySet();
         BlockPos blockpos = new BlockPos(x, y, z);
         if (!World.isInvalidPosition(blockpos)) {
             return;
@@ -177,4 +229,51 @@ public class SlayerStyleArts {
         }
     }
 
+    protected Vector3d maybeBackOffFromEdge(Vector3d vec, LivingEntity mover) {
+        double d0 = vec.x;
+        double d1 = vec.z;
+        double d2 = 0.05D;
+
+        while(d0 != 0.0D && mover.world.hasNoCollisions(mover, mover.getBoundingBox().offset(d0, (double)(-mover.stepHeight), 0.0D))) {
+            if (d0 < 0.05D && d0 >= -0.05D) {
+                d0 = 0.0D;
+            } else if (d0 > 0.0D) {
+                d0 -= 0.05D;
+            } else {
+                d0 += 0.05D;
+            }
+        }
+
+        while(d1 != 0.0D && mover.world.hasNoCollisions(mover, mover.getBoundingBox().offset(0.0D, (double)(-mover.stepHeight), d1))) {
+            if (d1 < 0.05D && d1 >= -0.05D) {
+                d1 = 0.0D;
+            } else if (d1 > 0.0D) {
+                d1 -= 0.05D;
+            } else {
+                d1 += 0.05D;
+            }
+        }
+
+        while(d0 != 0.0D && d1 != 0.0D && mover.world.hasNoCollisions(mover, mover.getBoundingBox().offset(d0, (double)(-mover.stepHeight), d1))) {
+            if (d0 < 0.05D && d0 >= -0.05D) {
+                d0 = 0.0D;
+            } else if (d0 > 0.0D) {
+                d0 -= 0.05D;
+            } else {
+                d0 += 0.05D;
+            }
+
+            if (d1 < 0.05D && d1 >= -0.05D) {
+                d1 = 0.0D;
+            } else if (d1 > 0.0D) {
+                d1 -= 0.05D;
+            } else {
+                d1 += 0.05D;
+            }
+        }
+
+        vec = new Vector3d(d0, vec.y, d1);
+
+        return vec;
+    }
 }

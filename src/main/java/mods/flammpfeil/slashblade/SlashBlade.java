@@ -1,10 +1,7 @@
 package mods.flammpfeil.slashblade;
 
 import com.google.common.base.CaseFormat;
-import mods.flammpfeil.slashblade.ability.LockOnManager;
-import mods.flammpfeil.slashblade.ability.SlayerStyleArts;
-import mods.flammpfeil.slashblade.ability.StunManager;
-import mods.flammpfeil.slashblade.ability.SummonedSwordArts;
+import mods.flammpfeil.slashblade.ability.*;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
@@ -137,6 +134,7 @@ public class SlashBlade
         MinecraftForge.EVENT_BUS.addListener(TargetSelector::onInputChange);
         SummonedSwordArts.getInstance().register();
         SlayerStyleArts.getInstance().register();
+        Untouchable.getInstance().register();
 
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");

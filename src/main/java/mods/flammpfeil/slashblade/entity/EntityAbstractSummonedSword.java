@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.entity;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.util.CustomDamageSource;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.NBTHelper;
@@ -483,6 +484,9 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         if (targetEntity.attackEntityFrom(damagesource, (float)i)) {
             if (targetEntity instanceof LivingEntity) {
                 LivingEntity targetLivingEntity = (LivingEntity)targetEntity;
+
+                StunManager.setStun(targetLivingEntity);
+
                 if (!this.world.isRemote && this.getPierce() <= 0) {
                     setHitEntity(targetEntity);
                 }

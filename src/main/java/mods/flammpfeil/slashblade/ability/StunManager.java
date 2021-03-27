@@ -16,6 +16,10 @@ import net.minecraftforge.event.entity.living.LivingEvent;
  * Created by Furia on 15/06/20.
  */
 public class StunManager {
+
+    static final int DEFAULT_STUN_TICKS = 10;
+
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onEntityJoinWorldEvent(EntityJoinWorldEvent event){
         if(!(event.getEntity() instanceof CreatureEntity)) return;
@@ -49,7 +53,7 @@ public class StunManager {
         setStun(target);
     }
     public static void setStun(LivingEntity target){
-        setStun(target, 10);
+        setStun(target, DEFAULT_STUN_TICKS);
     }
     public static void setStun(LivingEntity target, long duration){
         if(!(target instanceof CreatureEntity)) return;

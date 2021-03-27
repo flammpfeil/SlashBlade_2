@@ -291,7 +291,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
             //no cyclehit
             if (this.ticksExisted % 2 == 0) {
-                boolean forceHit = this.doCycleHit();
+                boolean forceHit = true;
 
                 //todo: isCritical = hp direct attack & magic damage & melee damage & armor piercing & event override force hit
 
