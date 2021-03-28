@@ -95,7 +95,7 @@ public class ItemSlashBlade extends SwordItem {
 
                 result.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
                         "Reach amplifer",
-                        s.isBroken() ? 0 : 1.0, AttributeModifier.Operation.ADDITION));
+                        s.isBroken() ? 0 : 1.5, AttributeModifier.Operation.ADDITION));
 
             });
         }
@@ -298,20 +298,22 @@ public class ItemSlashBlade extends SwordItem {
                 })
                 .orElseGet(()-> {
 
-                    stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                    CompoundNBT tag = stack.getCapability(ItemSlashBlade.BLADESTATE).map(s->
                         NBTHelper.getNBTCoupler(stack.getOrCreateTag())
                                 .getChild("ShareTag").
                                 put("translationKey", s.getTranslationKey()).
                                 put("isBroken", Boolean.toString(s.isBroken())).
-                                put("isNoScabbard", Boolean.toString(s.isNoScabbard()));
-                    });
+                                put("isNoScabbard", Boolean.toString(s.isNoScabbard())).getRawCompound()
+                    ).orElseGet(()->new CompoundNBT());
 
+                    /*
                     CompoundNBT tag = stack.write(new CompoundNBT()).copy();
 
                     NBTHelper.getNBTCoupler(tag)
                             .getChild("ForgeCaps")
                             .getChild("slashblade:bladestate")
                             .doRawCompound("State", ISlashBladeState::removeActiveState);
+                    */
 
                     stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->s.setShareTag(tag));
 
@@ -321,17 +323,22 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     public static final String ICON_TAG_KEY = "SlashBladeIcon";
-    public static final String CLIENT_CAPS_KEY = "AllCapsData";
+    //public static final String CLIENT_CAPS_KEY = "AllCapsData";
 
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundNBT nbt) {
+
+        super.readShareTag(stack, nbt);
+
         if(nbt == null)
             return;
+
         if(nbt.contains(ICON_TAG_KEY)) {
             stack.deserializeNBT(nbt.getCompound(ICON_TAG_KEY));
             return;
         }
 
+/*
         if(nbt.contains(CLIENT_CAPS_KEY,10)){
             stack.deserializeNBT(nbt.getCompound(CLIENT_CAPS_KEY));
         }else{
@@ -343,6 +350,7 @@ public class ItemSlashBlade extends SwordItem {
             tag.remove(CLIENT_CAPS_KEY);
             stack.setTagInfo(CLIENT_CAPS_KEY, tag);
         });
+        */
     }
 
     //damage ----------------------------------------------------------

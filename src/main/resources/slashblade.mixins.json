@@ -1,0 +1,10 @@
+{
+  "package": "mods.flammpfeil.slashblade.mixin",
+  "mixins": [
+    "MixinPacketBuffer"
+  ],
+  "refmap": "slashblade.refmap.json",
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8"
+}

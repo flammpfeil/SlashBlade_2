@@ -84,7 +84,7 @@ public class SlashBlade
     };
 
     // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public SlashBlade() {
         // Register the setup method for modloading
@@ -137,8 +137,8 @@ public class SlashBlade
         Untouchable.getInstance().register();
 
         // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+        //LOGGER.info("HELLO FROM PREINIT");
+        //LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
     }
 
     @OnlyIn(Dist.CLIENT)

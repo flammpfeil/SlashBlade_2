@@ -3,6 +3,10 @@ package mods.flammpfeil.slashblade.util;
 import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
+import mods.flammpfeil.slashblade.ability.TNTExtinguisher;
+import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -94,9 +98,7 @@ public class AttackManager {
             try {
                 playerIn.getAttribute(Attributes.ATTACK_DAMAGE).applyNonPersistentModifier(am);
 
-                founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,
-                        TargetSelector.getResolvedReach(playerIn),
-                        playerIn);
+                founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.world,playerIn);
 
                 if(exclude != null)
                     founds.removeAll(exclude);
@@ -170,9 +172,27 @@ public class AttackManager {
         if (attacker instanceof PlayerEntity) {
             doManagedAttack((t)->{
                 attacker.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
-                    state.setOnClick(true);
-                    ((PlayerEntity) attacker).attackTargetEntityWithCurrentItem(t);
-                    state.setOnClick(false);
+
+                    IConcentrationRank.ConcentrationRanks rankBonus = attacker.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                            .map(rp->rp.getRank(attacker.getEntityWorld().getGameTime())).orElse(IConcentrationRank.ConcentrationRanks.NONE);
+
+                    float modifiedRatio = rankBonus.level / 2.0f;
+                    if(attacker instanceof PlayerEntity && IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level){
+                        int level = ((PlayerEntity) attacker).experienceLevel;
+                        modifiedRatio = Math.max(modifiedRatio, Math.min(level, state.getRefine()));
+                    }
+
+                    AttributeModifier am = new AttributeModifier("RankDamageBonus", modifiedRatio, AttributeModifier.Operation.ADDITION);
+                    try {
+                        state.setOnClick(true);
+                        attacker.getAttribute(Attributes.ATTACK_DAMAGE).applyNonPersistentModifier(am);
+
+                        ((PlayerEntity) attacker).attackTargetEntityWithCurrentItem(t);
+
+                    }finally {
+                        attacker.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(am);
+                        state.setOnClick(false);
+                    }
                 });
             },target, forceHit, resetHit);
         }else{
@@ -181,5 +201,6 @@ public class AttackManager {
         }
 
         ArrowReflector.doReflect(target, attacker);
+        TNTExtinguisher.doExtinguishing(target,attacker);
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -97,9 +98,11 @@ public class TargetSelector {
         }
     }
 
-    static public List<Entity> getReflectableEntitiesWithinAABB(World world, double reach, LivingEntity attacker) {
-        AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
+    static public List<Entity> getReflectableEntitiesWithinAABB(LivingEntity attacker) {
+        double reach = TargetSelector.getResolvedReach(attacker);
 
+        AxisAlignedBB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookVec(), reach);
+        World world = attacker.world;
         return Stream.of(
                 world.getEntitiesWithinAABB(ProjectileEntity.class, aabb).stream()
                         .filter(e-> ((e.func_234616_v_()/*getThrower()*/ == null || e.func_234616_v_()/*getThrower()*/ != attacker) && (e instanceof IShootable ? ((IShootable)e).getShooter() != attacker : true))))
@@ -114,17 +117,30 @@ public class TargetSelector {
                 .collect(Collectors.toList());
     }
 
-    static public  List<Entity> getTargettableEntitiesWithinAABB(World world, double reach, LivingEntity attacker) {
+    static public List<Entity> getExtinguishableEntitiesWithinAABB(LivingEntity attacker) {
+        double reach = TargetSelector.getResolvedReach(attacker);
+
+        AxisAlignedBB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookVec(), reach);
+        World world = attacker.world;
+        return world.getEntitiesWithinAABB(TNTEntity.class, aabb).stream()
+                .filter(e-> (e.getDistanceSq(attacker) < (reach * reach)))
+                .collect(Collectors.toList());
+    }
+
+    static public  List<Entity> getTargettableEntitiesWithinAABB(World world, LivingEntity attacker) {
+        double reach = TargetSelector.getResolvedReach(attacker);
+
         List<Entity> list1 = Lists.newArrayList();
 
-        AxisAlignedBB aabb = getResolvedAxisAligned(attacker, attacker.getLookVec(), reach);
+        AxisAlignedBB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookVec(), reach);
 
         list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
                 .flatMap(d -> Arrays.stream(d.getDragonParts()))
                 .filter(e-> (e.getDistanceSq(attacker) < (reach * reach)))
                 .collect(Collectors.toList()));
 
-        list1.addAll(getReflectableEntitiesWithinAABB(world,reach,attacker));
+        list1.addAll(getReflectableEntitiesWithinAABB(attacker));
+        list1.addAll(getExtinguishableEntitiesWithinAABB(attacker));
 
         EntityPredicate predicate = getAreaAttackPredicate(reach);
 
@@ -180,10 +196,8 @@ public class TargetSelector {
                 .collect(Collectors.toList());
     }
 
-    static public AxisAlignedBB getResolvedAxisAligned(LivingEntity user, Vector3d dir, double reach){
+    static public AxisAlignedBB getResolvedAxisAligned(AxisAlignedBB bb, Vector3d dir, double reach){
         final double padding = 1.0;
-
-        AxisAlignedBB bb = user.getBoundingBox();
 
         if(dir == Vector3d.ZERO){
             bb = bb.grow(reach * 2);
