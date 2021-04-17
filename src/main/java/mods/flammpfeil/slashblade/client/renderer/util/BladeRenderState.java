@@ -176,4 +176,20 @@ public class BladeRenderState extends RenderState{
                 .build(false);
         return RenderType.makeType("slashblade_blend_luminous", WavefrontObject.POSITION_TEX_LMAP_COL_NORMAL, GL11.GL_TRIANGLES, 256, true, false, state);
     }
+
+
+
+    public static RenderType getPlacePreviewBlendLuminous(ResourceLocation p_228638_0_) {
+        RenderType.State state = RenderType.State.getBuilder()
+                .texture(new RenderState.TextureState(p_228638_0_, true, false))
+                .transparency(LIGHTNING_ADDITIVE_TRANSPARENCY)
+                .diffuseLighting(RenderState.DIFFUSE_LIGHTING_DISABLED)
+                .alpha(DEFAULT_ALPHA)
+                .lightmap(RenderState.LIGHTMAP_ENABLED)
+                //.overlay(OVERLAY_ENABLED)
+                .shadeModel(SHADE_ENABLED)
+                .writeMask(COLOR_WRITE)
+                .build(false);
+        return RenderType.makeType("placepreview_blend_luminous", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, 256, true, false, state);
+    }
 }
