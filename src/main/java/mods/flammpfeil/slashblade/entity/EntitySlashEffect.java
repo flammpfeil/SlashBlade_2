@@ -176,6 +176,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
         Critical,
         NoClip,
         Mute,
+        Indirect,
     }
 
     EnumSet<FlagsState> flags = EnumSet.noneOf(FlagsState.class);
@@ -204,6 +205,17 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
                 this.intFlags = newValue;
             }
         }
+    }
+
+    public void setIndirect(boolean value) {
+        if(value)
+            setFlags(FlagsState.Indirect);
+        else
+            removeFlags(FlagsState.Indirect);
+    }
+    public boolean getIndirect() {
+        refreshFlags();
+        return flags.contains(FlagsState.Indirect);
     }
 
     public void setMute(boolean value) {
@@ -297,7 +309,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
                 //this::onHitEntity ro KnockBackHandler::setCancel
                 List<Entity> hits;
-                if(getShooter() instanceof LivingEntity) {
+                if(!getIndirect() && getShooter() instanceof LivingEntity) {
                     LivingEntity shooter = (LivingEntity) getShooter();
                     float ratio = (float)damage * (getIsCritical() ? 1.1f : 1.0f);
                     hits = AttackManager.areaAttack(shooter, this.action.action, ratio, forceHit,false, true, alreadyHits);

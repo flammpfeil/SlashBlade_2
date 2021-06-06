@@ -30,32 +30,32 @@ public class AttackManager {
         areaAttack(playerIn, beforeHit, 1.0f, true, true, false);
     }
 
-    static public void doSlash(LivingEntity playerIn, float roll) {
-        doSlash(playerIn,roll, false);
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll) {
+        return doSlash(playerIn,roll, false);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, boolean mute) {
-        doSlash(playerIn,roll, mute, false);
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, boolean mute) {
+        return doSlash(playerIn,roll, mute, false);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical) {
-        doSlash(playerIn,roll,  mute, critical, 1.0);
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical) {
+        return doSlash(playerIn,roll,  mute, critical, 1.0);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical, double damage) {
-        doSlash(playerIn,roll, Vector3d.ZERO, mute, critical, damage);
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, boolean mute, boolean critical, double damage) {
+        return doSlash(playerIn,roll, Vector3d.ZERO, mute, critical, damage);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage) {
-        doSlash(playerIn,roll, centerOffset, mute, critical, damage, KnockBacks.cancel);
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage) {
+        return doSlash(playerIn,roll, centerOffset, mute, critical, damage, KnockBacks.cancel);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
         int colorCode = playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
                 .map(state->state.getColorCode())
                 .orElseGet(()->0xFFFFFF);
 
-        doSlash(playerIn,roll,colorCode, centerOffset, mute, critical, damage, knockback);
+        return doSlash(playerIn,roll,colorCode, centerOffset, mute, critical, damage, knockback);
     }
-    static public void doSlash(LivingEntity playerIn, float roll, int colorCode, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
+    static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, int colorCode, Vector3d centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
-        if(playerIn.world.isRemote) return;
+        if(playerIn.world.isRemote) return null;
 
         Vector3d pos = playerIn.getPositionVec()
                 .add(0.0D, (double)playerIn.getEyeHeight() * 0.75D, 0.0D)
@@ -84,6 +84,7 @@ public class AttackManager {
 
         playerIn.world.addEntity(jc);
 
+        return jc;
     }
 
     static public List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, float ratio, boolean forceHit, boolean resetHit , boolean mute) {

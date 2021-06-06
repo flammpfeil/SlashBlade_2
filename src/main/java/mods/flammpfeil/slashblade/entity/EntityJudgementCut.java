@@ -239,6 +239,8 @@ public class EntityJudgementCut extends ProjectileEntity implements IShootable {
 
                 jc.setKnockBack(KnockBacks.cancel);
 
+                jc.setIndirect(true);
+
                 this.world.addEntity(jc);
             }
         }
