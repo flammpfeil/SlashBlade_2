@@ -28,6 +28,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -294,7 +295,7 @@ public class ItemSlashBlade extends SwordItem {
 
                     stack.setTagInfo("ShareTag", tag);
 
-                    return tag;
+                    return stack.getTag();
                 })
                 .orElseGet(()-> {
 
@@ -317,7 +318,7 @@ public class ItemSlashBlade extends SwordItem {
 
                     stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->s.setShareTag(tag));
 
-                    return tag;
+                    return stack.getTag();
                 });
 
     }
@@ -476,6 +477,11 @@ public class ItemSlashBlade extends SwordItem {
 
     @Override
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+
+        if(ItemTags.STONE_TOOL_MATERIALS.contains(repair.getItem())){
+            return true;
+        }
+
         /*
         Tag<Item> tags = ItemTags.getCollection().get(new ResourceLocation("slashblade","proudsouls"));
 
