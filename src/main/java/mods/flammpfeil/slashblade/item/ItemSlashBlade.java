@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.BladeItemEntity;
+import mods.flammpfeil.slashblade.event.BladeMaterialTooltips;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
@@ -172,7 +173,7 @@ public class ItemSlashBlade extends SwordItem {
             ItemStack soul = new ItemStack(SBItems.proudsoul);
 
             CompoundNBT blade = stack.write(new CompoundNBT());
-            soul.setTagInfo("BladeData", blade);
+            soul.setTagInfo(BladeMaterialTooltips.BLADE_DATA, blade);
 
             stack.getCapability(BLADESTATE).ifPresent(s->{
                 s.getTexture().ifPresent(r->soul.setTagInfo("Texture", StringNBT.valueOf(r.toString())));

@@ -25,7 +25,6 @@ import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
@@ -155,6 +154,7 @@ public class SlashBlade
         SneakingMotionCanceller.getInstance().register();
         UserPoseOverrider.getInstance().register();
         LockonCircleRender.getInstance().register();
+        BladeComponentTooltips.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
 
         RankRenderer.getInstance().register();

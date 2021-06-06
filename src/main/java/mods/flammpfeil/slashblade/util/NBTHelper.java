@@ -87,7 +87,9 @@ public class NBTHelper {
             if(this.instance.contains(key, 10))
                 return this.instance.getCompound(key);
             else{
-                return new CompoundNBT();
+                CompoundNBT nbt = new CompoundNBT();
+                this.instance.put(key , nbt);
+                return nbt;
             }
         }
 
