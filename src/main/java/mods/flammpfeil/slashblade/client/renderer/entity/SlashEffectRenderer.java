@@ -72,6 +72,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             float baseScale = 1.2f;
             matrixStackIn.scale(baseScale,baseScale,baseScale);
 
+            float yscale = 0.03f;
             float scale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.035f);
 
             int color = entity.getColor() & 0xFFFFFF;
@@ -84,7 +85,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             //black alpha inside
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
                 float windscale = entity.getBaseSize() * MathHelper.lerp(progress, 0.035f,0.03f);
-                matrixStackIn.scale(windscale, windscale, windscale);
+                matrixStackIn.scale(windscale, yscale, windscale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);
                 Face.setUvOperator(1, 1, 0, -0.8f + progress * 0.3f);
                 BladeRenderState.setCol(0x222222 | alpha);
@@ -93,7 +94,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
 
             //color alpha base
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
-                matrixStackIn.scale(scale, scale, scale);
+                matrixStackIn.scale(scale, yscale, scale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);
                 Face.setUvOperator(1,1,0, -0.35f + progress * -0.15f);
                 BladeRenderState.setCol(color | alpha);
@@ -103,7 +104,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             //white add outside
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
                 float windscale = entity.getBaseSize() * MathHelper.lerp(progress, 0.03f,0.0375f);
-                matrixStackIn.scale(windscale, windscale, windscale);
+                matrixStackIn.scale(windscale, yscale, windscale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);
                 Face.setUvOperator(1, 1, 0, -0.5f + progress * -0.2f);
                 BladeRenderState.setCol(0x404040 | alpha);
@@ -112,7 +113,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
 
             //color add base
             try (MSAutoCloser msacb = MSAutoCloser.pushMatrix(matrixStackIn)) {
-                matrixStackIn.scale(scale, scale, scale);
+                matrixStackIn.scale(scale, yscale, scale);
                 Face.setAlphaOverride(Face.alphaOverrideYZZ);
                 Face.setUvOperator(1, 1, 0, -0.35f + progress * -0.15f);
                 BladeRenderState.setCol(color | alpha);

@@ -329,7 +329,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     protected void tryDespawn() {
         if(!this.world.isRemote){
             if (getLifetime() < this.ticksExisted)
-                super.remove();
+                this.remove();
         }
     }
 

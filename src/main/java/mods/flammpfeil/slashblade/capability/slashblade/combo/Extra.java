@@ -4,6 +4,7 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
+import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.init.DefaultResources;
@@ -14,14 +15,18 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.particles.BlockParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -55,7 +60,7 @@ public class Extra {
                         () -> EX_AERIAL_RAVE_A1);
             }}.entrySet().stream()
                     .collect(Collectors.toList());
-    
+
     //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
 
     public static void playQuickSheathSoundAction(LivingEntity e) {
@@ -263,7 +268,7 @@ public class Extra {
     public static Vector3d genRushOffset(LivingEntity entityIn){
         return new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0).scale(2.0);
     }
-    
+
     public static final ComboState EX_COMBO_B2 = new ComboState("ex_combo_b2",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B3)  , ()-> Extra.EX_COMBO_B_END)
@@ -617,10 +622,10 @@ public class Extra {
             ExMotionLocation, (a)->Extra.EX_AERIAL_CLEAVE_LOOP, ()-> ComboState.NONE)
             .addTickAction((e)->{
                 e.fallDistance = 1;
-                
+
                 Vector3d motion = e.getMotion();
                 e.setMotion(motion.x, motion.y - 3.0, motion.z);
-                
+
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed % 2 == 0)
@@ -648,7 +653,7 @@ public class Extra {
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .setReleaseAction(ComboState::releaseActionQuickCharge);
 
-    
+
     //-------------------------------------------------------
 
 
@@ -900,5 +905,82 @@ public class Extra {
      * VOID_SLASH
      */
 
-    
+    public static final ComboState EX_VOID_SLASH = new ComboState("ex_void_slash",45,
+            ()->2200,()->2277,()->1.0f,()->false,()->0,
+            ExMotionLocation, (a)-> Extra.EX_VOID_SLASH, ()->Extra.EX_VOID_SLASH_SHEATH)
+            .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(28, (living)->{
+                if(living.world.isRemote){
+                    Vector3d pos = living.getPositionVec()
+                            .add(0.0D, (double)living.getEyeHeight() * 0.75D, 0.0D)
+                            .add(living.getLookVec().scale(0.3f));
+
+                    EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, living.world){
+                        @Override
+                        protected void tryDespawn() {
+                            if(this.getShooter() != null){
+                                long timeout = this.getShooter().getPersistentData().getLong(ItemSlashBlade.BREAK_ACTION_TIMEOUT);
+                                if(timeout <= this.world.getGameTime() || timeout == 0){
+                                    this.world.playSound((PlayerEntity)null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 0.80F, 0.625F + 0.1f * this.rand.nextFloat());
+
+                                    this.remove();
+                                }
+                            }
+                            super.tryDespawn();
+                        }
+                    };
+                    jc.setPosition(pos.x ,pos.y, pos.z);
+                    jc.setShooter(living);
+
+                    jc.setRotationRoll(0);
+                    jc.rotationYaw = living.rotationYaw;
+                    jc.rotationPitch = 0;
+
+                    int colorCode = living.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                            .map(state->state.getColorCode())
+                            .orElseGet(()->0xFFFFFF);
+                    jc.setColor(colorCode);
+
+                    jc.setMute(true);
+                    jc.setIsCritical(true);
+
+                    jc.setDamage(living.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2.0);
+
+                    jc.setKnockBack(KnockBacks.cancel);
+
+                    jc.setBaseSize(20);
+
+                    jc.setLifetime(20*5);
+
+                    living.world.addEntity(jc);
+                }
+            }).build())
+            .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                    .put(28+0, (entityIn)->UserPoseOverrider.setRot(entityIn, -36, true))
+                    .put(28+1, (entityIn)->UserPoseOverrider.setRot(entityIn, -36, true))
+                    .put(28+2, (entityIn)->UserPoseOverrider.setRot(entityIn, -36, true))
+                    .put(28+3, (entityIn)->UserPoseOverrider.setRot(entityIn, -36, true))
+                    .put(28+4, (entityIn)->UserPoseOverrider.setRot(entityIn, -36, true))
+                    .put(28+5, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, true))
+                    .put(79+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+1, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+2, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+3, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+5, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+6, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+7, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+8, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+9, (entityIn)->UserPoseOverrider.setRot(entityIn, 18, true))
+                    .put(79+10, (entityIn)->UserPoseOverrider.setRot(entityIn, 0, true))
+                    .build())
+            .addTickAction(FallHandler::fallResist)
+            .addHitEffect(StunManager::setStun);
+    public static final ComboState EX_VOID_SLASH_SHEATH = new ComboState("ex_void_slash_sheath",50,
+            ()->2278,()->2299,()->1.0f,()->false,()->0,
+            ExMotionLocation, (a)-> ComboState.NONE, ()->ComboState.NONE)
+            .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
+            .addTickAction(FallHandler::fallDecrease)
+            .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build())
+            .setReleaseAction(ComboState::releaseActionQuickCharge);
+
 }

@@ -269,6 +269,23 @@ public interface ISlashBladeState {
         return cs;
     }
 
+    default ComboState doBrokenAction(LivingEntity user){
+        Map.Entry<Integer, ComboState> current = resolvCurrentComboStateTicks(user);
+
+        //Uninterrupted
+        if(current.getValue() != ComboState.NONE && current.getValue().getNext(user) == current.getValue())
+            return ComboState.NONE;
+
+        SlashArts.ArtsType type = SlashArts.ArtsType.Broken;
+
+        ComboState cs = this.getSlashArts().doArts(type, user);
+        if(current.getValue() != cs && cs != ComboState.NONE){
+            if(current.getValue().getPriority() > cs.getPriority())
+                updateComboSeq(user, cs);
+        }
+        return cs;
+    }
+
     default void updateComboSeq(LivingEntity entity, ComboState cs){
         this.setComboSeq(cs);
         this.setLastActionTime(entity.world.getGameTime());

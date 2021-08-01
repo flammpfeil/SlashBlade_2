@@ -166,6 +166,8 @@ public class ItemSlashBlade extends SwordItem {
         return stateHolder.isPresent();
     }
 
+    static public final String BREAK_ACTION_TIMEOUT = "BreakActionTimeout";
+
     private Consumer<LivingEntity> getOnBroken(ItemStack stack){
         return (user)->{
             user.sendBreakAnimation(user.getActiveHand());
@@ -181,7 +183,29 @@ public class ItemSlashBlade extends SwordItem {
             });
 
             ItemEntity itementity = new ItemEntity(user.world, user.getPosX(), user.getPosY() , user.getPosZ(), soul);
-            BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.world);
+            BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.world){
+
+                static final String isReleased = "isReleased";
+                @Override
+                public boolean onLivingFall(float distance, float damageMultiplier) {
+
+                    CompoundNBT tag = this.getPersistentData();
+
+                    if(!tag.getBoolean(isReleased)){
+                        this.getPersistentData().putBoolean(isReleased, true);
+
+                        if(this.world instanceof ServerWorld){
+                            Entity thrower = ((ServerWorld)this.world).getEntityByUuid(this.getThrowerId());
+
+                            if (thrower != null) {
+                                thrower.getPersistentData().remove(BREAK_ACTION_TIMEOUT);
+                            }
+                        }
+                    }
+
+                    return super.onLivingFall(distance, damageMultiplier);
+                }
+            };
 
             e.copyDataFromOld(itementity);
             e.init();
@@ -192,8 +216,18 @@ public class ItemSlashBlade extends SwordItem {
 
             e.setAir(-1);
 
+            e.setThrowerId(user.getUniqueID());
+
             user.world.addEntity(e);
 
+            user.getPersistentData().putLong(BREAK_ACTION_TIMEOUT, user.world.getGameTime() + 20*5);
+
+            stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state->{
+                if(0 < state.getRefine()){
+                    state.setRefine(state.getRefine() - 1);
+                    state.doBrokenAction(user);
+                }
+            });
         };
     }
 

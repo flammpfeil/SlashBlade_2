@@ -37,7 +37,7 @@ public class BladeMaterialTooltips {
 
         ItemStack stack = event.getItemStack();
 
-        if(stack.getTag().contains(BLADE_DATA)){
+        if(stack.hasTag() && stack.getTag().contains(BLADE_DATA)){
             CompoundNBT bladeData = stack.getTag().getCompound(BLADE_DATA);
 
             String translationKey = NBTHelper.getNBTCoupler(bladeData)
