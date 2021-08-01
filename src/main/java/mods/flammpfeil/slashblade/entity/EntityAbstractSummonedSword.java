@@ -506,7 +506,7 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
             }
 
             this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
-            if (this.getPierce() <= 0 && !getHitEntity().isAlive()) {
+            if (this.getPierce() <= 0 && (getHitEntity() == null || !getHitEntity().isAlive())) {
                 this.burst();
             }
         } else {
