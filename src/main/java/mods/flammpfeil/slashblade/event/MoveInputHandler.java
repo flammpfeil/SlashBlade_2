@@ -5,10 +5,7 @@ import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.network.MoveCommandMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
-import mods.flammpfeil.slashblade.util.EnumSetConverter;
-import mods.flammpfeil.slashblade.util.InputCommand;
-import mods.flammpfeil.slashblade.util.JSONUtil;
-import mods.flammpfeil.slashblade.util.NBTHelper;
+import mods.flammpfeil.slashblade.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -97,70 +94,78 @@ public class MoveInputHandler {
             player.getPersistentData().putLong("SB.MCS.B",currentTime);
         */
 
-        if(old.contains(InputCommand.SAVE_TOOLBAR) && !commands.contains(InputCommand.SAVE_TOOLBAR)){
+        boolean doCopy = player.isCreative();
+
+        if(doCopy && old.contains(InputCommand.SAVE_TOOLBAR) && !commands.contains(InputCommand.SAVE_TOOLBAR)){
             ItemStack stack = player.getHeldItemMainhand();
 
             JsonObject ret = new JsonObject();
-            ret.addProperty("item", stack.getItem().getRegistryName().toString());
-            if (stack.getCount() != 1)
-                ret.addProperty("count", stack.getCount());
 
-            CompoundNBT tag = new CompoundNBT();
-            stack.write(tag);
+            String str = "";
+            if(KeyModifier.SHIFT.isActive(KeyConflictContext.UNIVERSAL)){
+                str = AdvancementBuilder.getAdvancementJsonStr(stack);
+            }else{
 
-            CompoundNBT nbt = stack.getOrCreateTag().copy();
-            if(tag.contains("ForgeCaps"))
-                nbt.put("ForgeCaps", tag.get("ForgeCaps"));
+                ret.addProperty("item", stack.getItem().getRegistryName().toString());
+                if (stack.getCount() != 1)
+                    ret.addProperty("count", stack.getCount());
 
-            if(KeyModifier.ALT.isActive(KeyConflictContext.UNIVERSAL)){
-                //add anvilcrafting recipe template
-                AnvilCraftingRecipe acr = new AnvilCraftingRecipe();
+                CompoundNBT tag = new CompoundNBT();
+                stack.write(tag);
 
-                ItemStack result = player.getHeldItemOffhand();
-                acr.setResult(result);
+                CompoundNBT nbt = stack.getOrCreateTag().copy();
+                if(tag.contains("ForgeCaps"))
+                    nbt.put("ForgeCaps", tag.get("ForgeCaps"));
 
-                nbt.put("RequiredBlade",acr.writeNBT());
-            }
+                if(KeyModifier.ALT.isActive(KeyConflictContext.UNIVERSAL)){
+                    //add anvilcrafting recipe template
+                    AnvilCraftingRecipe acr = new AnvilCraftingRecipe();
 
-            if(KeyModifier.CONTROL.isActive(KeyConflictContext.UNIVERSAL)){
-                //add anvilcrafting recipe template
-                ItemStack result = player.getHeldItemMainhand();
+                    ItemStack result = player.getHeldItemOffhand();
+                    acr.setResult(result);
 
-                CompoundNBT iconNbt = result.write(new CompoundNBT());
-
-                ret.addProperty("iconStr_nbt",iconNbt.toString());
-
-
-                JsonObject criteriaitem = new JsonObject();
-                criteriaitem.addProperty("item", result.getItem().getRegistryName().toString());
-
-                CompoundNBT checktarget = new CompoundNBT();
-                {
-                    NBTHelper.NBTCoupler nbtc = NBTHelper.getNBTCoupler(checktarget)
-                            .getChild("ForgeCaps")
-                            .getChild("slashblade:bladestate")
-                            .getChild("State");
-
-                    result.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
-                        if(s.isBroken())
-                            nbtc.put("isBroken",s.isBroken());
-                        if(s.getTranslationKey() != null || !s.getTranslationKey().isEmpty())
-                            nbtc.put("translationKey",s.getTranslationKey());
-                    });
+                    nbt.put("RequiredBlade",acr.writeNBT());
                 }
-                criteriaitem.addProperty("nbt",checktarget.toString());
-                ret.add("CriteriaItem", criteriaitem);
+
+                if(KeyModifier.CONTROL.isActive(KeyConflictContext.UNIVERSAL)){
+                    //add anvilcrafting recipe template
+                    ItemStack result = player.getHeldItemMainhand();
+
+                    CompoundNBT iconNbt = result.write(new CompoundNBT());
+
+                    ret.addProperty("iconStr_nbt",iconNbt.toString());
+
+
+                    JsonObject criteriaitem = new JsonObject();
+                    criteriaitem.addProperty("item", result.getItem().getRegistryName().toString());
+
+                    CompoundNBT checktarget = new CompoundNBT();
+                    {
+                        NBTHelper.NBTCoupler nbtc = NBTHelper.getNBTCoupler(checktarget)
+                                .getChild("ForgeCaps")
+                                .getChild("slashblade:bladestate")
+                                .getChild("State");
+
+                        result.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                            if(s.isBroken())
+                                nbtc.put("isBroken",s.isBroken());
+                            if(s.getTranslationKey() != null || !s.getTranslationKey().isEmpty())
+                                nbtc.put("translationKey",s.getTranslationKey());
+                        });
+                    }
+                    criteriaitem.addProperty("nbt",checktarget.toString());
+                    ret.add("CriteriaItem", criteriaitem);
+                }
+
+                JsonElement element = null;
+                element = (new JsonParser()).parse(JSONUtil.NBTtoJsonString(nbt));
+
+                if (stack.getTag() != null && element != null)
+                    ret.add("nbt", element);
+
+                Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+                GSON.toJson(ret);
             }
-
-            JsonElement element = null;
-            element = (new JsonParser()).parse(JSONUtil.NBTtoJsonString(nbt));
-
-            if (stack.getTag() != null && element != null)
-                ret.add("nbt", element);
-
-            Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-
-            String str = GSON.toJson(ret);
 
             Minecraft.getInstance().keyboardListener.setClipboardString(str);
         }

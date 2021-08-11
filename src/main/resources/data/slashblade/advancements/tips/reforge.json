@@ -7,7 +7,8 @@
       "translate": "adv.slashblade.reforge.desc"
     },
     "icon": {
-      "item": "minecraft:anvil"
+      "item": "minecraft:anvil",
+      "nbt": "{Crafting:\"slashblade:anvilcrafting/reforge\"}"
     },
     "frame": "task"
   },

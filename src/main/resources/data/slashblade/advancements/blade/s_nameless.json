@@ -7,7 +7,8 @@
       "translate": "item.slashblade.slashblade.desc"
     },
     "icon": {
-      "item": "slashblade:slashblade"
+      "item": "slashblade:slashblade",
+      "nbt": "{SlashBladeIcon:{tag:{Crafting:\"slashblade:simple_slashblade\"}}}"
     },
     "frame": "task",
     "hidden": true

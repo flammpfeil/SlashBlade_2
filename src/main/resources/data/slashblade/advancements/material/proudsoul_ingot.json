@@ -7,7 +7,8 @@
       "translate": "adv.slashblade.proudsoul_ingot"
     },
     "icon": {
-      "item": "slashblade:proudsoul_ingot"
+      "item": "slashblade:proudsoul_ingot",
+      "nbt": "{Crafting:\"slashblade:material/ingot\"}"
     },
     "frame": "task"
   },

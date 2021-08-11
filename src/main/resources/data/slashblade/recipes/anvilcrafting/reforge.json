@@ -1,0 +1,96 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "type": "forge:nbt",
+    "item": "slashblade:slashblade",
+    "nbt": "{SlashBladeIcon:{ForgeCaps:{\"slashblade:bladestate\":{Energy:0,State:{isSealed:1b,isNoScabbard:0b,translationKey:\"item.slashblade.simple.white\",isDestructable:0b,HasShield:0b,SummonedSwordColor:-3355647,lastActionTime:0L,_onClick:0b,fallDecreaseRate:0.0f,currentCombo:\"arts_rapid_slash\",killCount:0,isCharged:0b,RepairCounter:0,Damage:1.0f,rarityType:0b,ShareTag:{translationKey:\"item.slashblade.simple.white\",isBroken:\"true\"},ComboRoot:\"standby\",adjustXYZ:[0.0d,0.0d,0.0d],lastPosHash:\"\",RangeAttackType:\"none\",isDefaultBewitched:0b,AttackAmplifier:0.0f,TargetEntity:0,SpecialAttackType:\"none\",TextureName:\"slashblade:model/white.png\",SummonedSwordColorInverse:0b,isBroken:1b,baseAttackModifier:2.0f,StandbyRenderType:0b}}},id:\"slashblade:slashblade\",Count:1b,tag:{Damage:0}}}"
+  },
+  "addition": {
+    "type": "forge:nbt",
+    "item": "minecraft:chest",
+    "nbt": {
+      "RequiredBlade": {
+        "broken": 1,
+        "result": {
+          "ForgeCaps": {
+            "slashblade:bladestate": {
+              "Energy": 0,
+              "State": {
+                "isSealed": 0,
+                "isNoScabbard": 0,
+                "translationKey": "item.slashblade.simple.iron",
+                "isDestructable": 0,
+                "SummonedSwordColor": -13421569,
+                "currentCombo": "arts_rapid_slash",
+                "RepairCounter": 0,
+                "Damage": 0.0,
+                "rarityType": 1,
+                "ShareTag": {},
+                "ComboRoot": "standby",
+                "lastPosHash": "",
+                "RangeAttackType": "none",
+                "isDefaultBewitched": 0,
+                "SpecialAttackType": "none",
+                "TextureName": "slashblade:model/blade.png",
+                "ModelName": "slashblade:model/named/yamato.obj",
+                "baseAttackModifier": 4.0,
+                "StandbyRenderType": 0
+              }
+            }
+          },
+          "id": "slashblade:slashblade",
+          "Count": 1,
+          "tag": {
+            "Damage": 0
+          }
+        },
+        "level": 10,
+        "killCount": 0,
+        "refine": 0,
+        "noScabbard": 0,
+        "translationKey": "item.slashblade.simple.white"
+      },
+      "BlockEntityTag": {
+        "Items": [
+          {
+            "Slot": 4,
+            "id": "minecraft:blaze_rod",
+            "Count": 1
+          },
+          {
+            "Slot": 5,
+            "id": "slashblade:proudsoul_sphere",
+            "Count": 1
+          },
+          {
+            "Slot": 12,
+            "id": "minecraft:lapis_block",
+            "Count": 1
+          },
+          {
+            "Slot": 14,
+            "id": "minecraft:coal_block",
+            "Count": 1
+          },
+          {
+            "Slot": 21,
+            "id": "minecraft:string",
+            "Count": 1
+          },
+          {
+            "Slot": 22,
+            "id": "minecraft:gold_ingot",
+            "Count": 1
+          }
+        ]
+      },
+      "display": {
+        "Name": "{\"translate\":\"item.slashblade.simple.iron.material\"}"
+      }
+    }
+  },
+  "result": {
+    "item": "slashblade:slashblade",
+    "nbt": "{SlashBladeIcon:{ForgeCaps:{\"slashblade:bladestate\":{Energy:0,State:{isSealed:1b,isNoScabbard:0b,translationKey:\"item.slashblade.simple.iron\",isDestructable:0b,HasShield:0b,SummonedSwordColor:-3355647,lastActionTime:0L,_onClick:0b,fallDecreaseRate:0.0f,currentCombo:\"arts_rapid_slash\",killCount:0,isCharged:0b,RepairCounter:0,Damage:0.0f,rarityType:0b,ShareTag:{translationKey:\"item.slashblade.simple.iron\",isBroken:\"false\"},ComboRoot:\"standby\",adjustXYZ:[0.0d,0.0d,0.0d],lastPosHash:\"\",RangeAttackType:\"none\",isDefaultBewitched:0b,AttackAmplifier:0.0f,TargetEntity:0,SpecialAttackType:\"none\",ModelName:\"slashblade:model/named/yamato.obj\",TextureName:\"slashblade:model/blade.png\",SummonedSwordColorInverse:0b,isBroken:0b,baseAttackModifier:2.0f,StandbyRenderType:0b}}},id:\"slashblade:slashblade\",Count:1b,tag:{Damage:0}}}"
+  }
+}

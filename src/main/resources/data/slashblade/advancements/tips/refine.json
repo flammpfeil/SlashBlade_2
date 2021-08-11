@@ -7,9 +7,10 @@
       "translate": "adv.slashblade.refine.desc"
     },
     "icon": {
-      "item": "minecraft:anvil"
+      "item": "minecraft:anvil",
+      "nbt": "{Crafting:\"slashblade:anvilcrafting/refine\"}"
     },
-    "frame": "task"
+    "frame": "challenge"
   },
   "parent": "slashblade:tips/reforge",
   "criteria": {

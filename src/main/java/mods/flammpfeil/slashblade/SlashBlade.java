@@ -16,6 +16,7 @@ import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
 import mods.flammpfeil.slashblade.client.renderer.layers.LayerMainBlade;
 import mods.flammpfeil.slashblade.entity.*;
 import mods.flammpfeil.slashblade.event.*;
+import mods.flammpfeil.slashblade.event.client.AdvancementsRecipeRenderer;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.item.BladeStandItem;
@@ -156,6 +157,8 @@ public class SlashBlade
         LockonCircleRender.getInstance().register();
         BladeComponentTooltips.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
+        AdvancementsRecipeRenderer.getInstance().register();
+
 
         RankRenderer.getInstance().register();
 

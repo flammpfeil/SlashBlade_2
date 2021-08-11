@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "type": "forge:nbt",
+    "item": "slashblade:slashblade",
+    "nbt": "{isDummy:true}"
+  },
+  "addition": {
+    "tag": "slashblade:proudsouls"
+  },
+  "result": {
+    "item": "slashblade:slashblade",
+    "nbt": "{SlashBladeIcon:{ForgeCaps:{\"slashblade:bladestate\":{Energy:0,State:{isSealed:1b,isNoScabbard:0b,isDestructable:0b,HasShield:0b,SummonedSwordColor:-3355647,lastActionTime:0L,_onClick:0b,fallDecreaseRate:0.0f,currentCombo:\"arts_rapid_slash\",killCount:0,isCharged:0b,RepairCounter:1,Damage:0.0f,rarityType:0b,ComboRoot:\"standby\",adjustXYZ:[0.0d,0.0d,0.0d],lastPosHash:\"\",RangeAttackType:\"none\",isDefaultBewitched:0b,AttackAmplifier:0.0f,TargetEntity:0,SpecialAttackType:\"none\",SummonedSwordColorInverse:0b,isBroken:0b,StandbyRenderType:0b}}},id:\"slashblade:slashblade\",Count:1b,tag:{Damage:0}}}"
+  }
+}

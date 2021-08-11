@@ -7,7 +7,8 @@
       "translate": "adv.slashblade.proudsoul_sphere"
     },
     "icon": {
-      "item": "slashblade:proudsoul_sphere"
+      "item": "slashblade:proudsoul_sphere",
+      "nbt": "{Crafting:\"slashblade:material/sphere_smelting\"}"
     },
     "frame": "task"
   },
