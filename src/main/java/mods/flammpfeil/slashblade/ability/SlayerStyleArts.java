@@ -71,15 +71,19 @@ public class SlayerStyleArts {
                     if(target == null) return false;
 
                     if(target == sender.getLastAttackedEntity() && sender.ticksExisted < sender.getLastAttackedEntityTime() + 100){
-                        SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
+                        LivingEntity hitEntity = sender.getLastAttackedEntity();
+                        if(hitEntity != null){
+                            SlayerStyleArts.doTeleport(sender, hitEntity);
+                        }
                     }else{
                         EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
                             @Override
                             protected void onHitEntity(EntityRayTraceResult p_213868_1_) {
                                 super.onHitEntity(p_213868_1_);
 
-                                if(this.getHitEntity() == sender.getLastAttackedEntity()){
-                                    SlayerStyleArts.doTeleport(sender, sender.getLastAttackedEntity());
+                                LivingEntity target = sender.getLastAttackedEntity();
+                                if(target != null && this.getHitEntity() == target){
+                                    SlayerStyleArts.doTeleport(sender, target);
                                 }
                             }
                         };
@@ -103,6 +107,8 @@ public class SlayerStyleArts {
 
                         worldIn.addEntity(ss);
                         sender.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 0.2F, 1.45F);
+
+                        ss.doForceHitEntity(target);
                     }
 
                     return true;

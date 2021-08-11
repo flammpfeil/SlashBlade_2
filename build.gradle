@@ -19,7 +19,7 @@ apply plugin: 'maven-publish'
 // Mixin
 apply plugin: 'org.spongepowered.mixin'
 
-version = '0.0.7'
+version = '0.0.12'
 group = 'mods.flammpfeil.slashblade' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'SlashBlade-1.16'
 
