@@ -55,7 +55,16 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+
     static public ItemStack target = null;
+
+    static public GhostRecipe gr = new GhostRecipe();
+
+    static public ResourceLocation currentRecipe = null;
+
+    static RecipeView currentView = null;
+    static Map<IRecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
+
 
     static final IRecipeType dummy_anvilType = IRecipeType.register("sb_forgeing");
     static class DummyAnvilRecipe implements IRecipe<IInventory> {
@@ -152,13 +161,6 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
             return new DummySmithingRecipe((SmithingRecipe)original);
         }
     }
-
-    static public GhostRecipe gr = new GhostRecipe();
-
-    static public ResourceLocation currentRecipe = null;
-
-    static RecipeView currentView = null;
-    static Map<IRecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
 
     static public class RecipeView{
         final IRecipeType recipeType;
@@ -277,6 +279,23 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         }
     }
 
+    static void clearGhostRecipe(){
+        target = null;
+        gr.clear();
+        currentRecipe = null;
+        currentView = null;
+    }
+
+    static void setGhostRecipe(ItemStack icon){
+        if(icon != null){
+            if (icon.hasTag() && icon.getTag().contains("Crafting")) {
+                getInstance().setGhostRecipe(new ResourceLocation(icon.getTag().getString("Crafting")));
+            }
+        }
+
+        target = icon;
+    }
+
     void setGhostRecipe(ResourceLocation loc){
 
         if(!Objects.equals(loc, currentRecipe)){
@@ -315,23 +334,26 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
     }
 
     void drawGhostRecipe(MatrixStack matrixStack, int xCorner, int yCorner, int zOffset, float partialTicks){
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0,0,zOffset);
+        try{
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0,0,zOffset);
 
-        ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
+            ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
 
-        float tmp = ir.zLevel;
-        ir.zLevel = zOffset - 125;
+            float tmp = ir.zLevel;
+            ir.zLevel = zOffset - 125;
 
-        int padding = 5;
-        ir.renderItemAndEffectIntoGuiWithoutEntity(gr.getRecipe().getIcon(), xCorner + padding, yCorner + padding);
+            int padding = 5;
+            ir.renderItemAndEffectIntoGuiWithoutEntity(gr.getRecipe().getIcon(), xCorner + padding, yCorner + padding);
 
-        boolean wideOutputSlot = currentView.isWideOutputSlot;
+            boolean wideOutputSlot = currentView.isWideOutputSlot;
 
-        gr.func_238922_a_(matrixStack, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
-        ir.zLevel = tmp;
+            gr.func_238922_a_(matrixStack, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
+            ir.zLevel = tmp;
 
-        RenderSystem.popMatrix();
+        }finally {
+            RenderSystem.popMatrix();
+        }
     }
 
     void drawTooltip(MatrixStack matrixStack, int xCorner, int yCorner, int zOffset, int mouseX, int mouseY , Screen gui){
@@ -364,23 +386,12 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
     @SubscribeEvent
     public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post event){
         if(!(event.getGui() instanceof AdvancementsScreen)) return;
+        if(AdvancementsRecipeRenderer.currentRecipe == null) return;
 
         AdvancementsScreen gui = (AdvancementsScreen) event.getGui();
 
-        if(AdvancementsRecipeRenderer.target != null) try {
+        try {
             event.getMatrixStack().push();
-
-            ResourceLocation rrl = null;
-
-            if (target.hasTag() && target.getTag().contains("Crafting")) {
-                rrl = new ResourceLocation(target.getTag().getString("Crafting"));
-            }
-
-            setGhostRecipe(rrl);
-
-            if (currentRecipe == null)
-                return;
-
 
             MatrixStack matrixStack = event.getMatrixStack();
 
@@ -426,9 +437,7 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if(button == 1){
-                AdvancementsRecipeRenderer.target = null;
-                AdvancementsRecipeRenderer.currentRecipe = null;
-                AdvancementsRecipeRenderer.gr.clear();
+                clearGhostRecipe();
                 return false;
             }
 
@@ -455,7 +464,6 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
 
                         DisplayInfo info = advancemententrygui.displayInfo;
 
-
                         found = info.getIcon();
 
                         break;
@@ -463,7 +471,8 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
                 }
             }
 
-            AdvancementsRecipeRenderer.target = found;
+            setGhostRecipe(found);
+
             return false;
         }
     }
