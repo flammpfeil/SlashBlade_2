@@ -89,5 +89,7 @@
   "adv.slashblade.bladestand.desc":"A place to rest your blades.",
 
   "adv.slashblade.imitation_broken":"It is fake.",
-  "adv.slashblade.imitation_broken.desc":"That’s the way of fake."
+  "adv.slashblade.imitation_broken.desc":"That’s the way of fake.",
+  
+  "entity.slashblade.blade_stand_entity":"Blade Stand" 
 }
