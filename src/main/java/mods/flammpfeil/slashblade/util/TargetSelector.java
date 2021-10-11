@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -20,6 +21,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
@@ -134,10 +136,6 @@ public class TargetSelector {
 
         AxisAlignedBB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookVec(), reach);
 
-        list1.addAll(world.getEntitiesWithinAABB(EnderDragonEntity.class, aabb.grow(5)).stream()
-                .flatMap(d -> Arrays.stream(d.getDragonParts()))
-                .filter(e-> (e.getDistanceSq(attacker) < (reach * reach)))
-                .collect(Collectors.toList()));
 
         list1.addAll(getReflectableEntitiesWithinAABB(attacker));
         list1.addAll(getExtinguishableEntitiesWithinAABB(attacker));
@@ -145,7 +143,16 @@ public class TargetSelector {
         EntityPredicate predicate = getAreaAttackPredicate(reach);
 
         list1.addAll(world.getEntitiesWithinAABB(LivingEntity.class, aabb, (Predicate<LivingEntity>)null).stream()
-                .filter(t->predicate.canTarget(attacker,t))
+                .flatMap(e-> (e.getParts() != null && 0 < e.getParts().length) ? Stream.of(e.getParts()) : Stream.of(e))
+                .filter(t-> {
+                    boolean result = false;
+                    if(t instanceof LivingEntity){
+                        result = predicate.canTarget(attacker, (LivingEntity) t);
+                    }else if(t instanceof PartEntity && ((PartEntity) t).getParent() instanceof LivingEntity){
+                        result = predicate.canTarget(attacker, (LivingEntity) ((PartEntity) t).getParent()) && t.getDistanceSq(attacker) < (reach * reach);
+                    }
+                    return result;
+                })
                 .collect(Collectors.toList()));
 
         return list1;

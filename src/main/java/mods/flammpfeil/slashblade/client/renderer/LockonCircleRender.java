@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -61,17 +62,19 @@ public class LockonCircleRender {
 
             if(tmpTarget == null) return;
             if(!tmpTarget.isAlive()) return;
-            if(!tmpTarget.isLiving()) return;
 
-            LivingEntity target = (LivingEntity)tmpTarget;
-            float health = 1.0f - target.getHealth() / target.getMaxHealth();
+            float health = 1.0f;
+            if(tmpTarget.isLiving()){
+                LivingEntity target = (LivingEntity)tmpTarget;
+                health = 1.0f - target.getHealth() / target.getMaxHealth();
+            }
 
             float partialTicks = event.getPartialTicks();
 
             ActiveRenderInfo ari = Minecraft.getInstance().gameRenderer.getActiveRenderInfo();
 
-            Vector3d pos = target.getEyePosition(partialTicks)
-                    .subtract(0, target.getEyeHeight() / 2.0, 0)
+            Vector3d pos = tmpTarget.getEyePosition(partialTicks)
+                    .subtract(0, tmpTarget.getEyeHeight() / 2.0, 0)
                     .subtract(ari.getProjectedView());
 
 

@@ -491,16 +491,17 @@ public class EntityAbstractSummonedSword extends ProjectileEntity implements ISh
         }
 
         if (targetEntity.attackEntityFrom(damagesource, (float)i)) {
-            if (targetEntity instanceof LivingEntity) {
-                LivingEntity targetLivingEntity = (LivingEntity)targetEntity;
+            Entity hits = targetEntity;
+            if(targetEntity instanceof PartEntity){
+                hits = ((PartEntity) targetEntity).getParent();
+            }
+
+            if (hits instanceof LivingEntity) {
+                LivingEntity targetLivingEntity = (LivingEntity)hits;
 
                 StunManager.setStun(targetLivingEntity);
 
                 if (!this.world.isRemote && this.getPierce() <= 0) {
-                    Entity hits = targetEntity;
-                    if(targetEntity instanceof PartEntity){
-                        hits = ((PartEntity) targetEntity).getParent();
-                    }
                     setHitEntity(hits);
                 }
 

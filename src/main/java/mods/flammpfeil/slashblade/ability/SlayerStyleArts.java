@@ -66,7 +66,15 @@ public class SlayerStyleArts {
             if(current.containsAll(fowerd_sprint_sneak)){
                 //air trick
                 isHandled = sender.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map(state->{
-                    Entity target = state.getTargetEntity(worldIn);
+                    Entity tmpTarget = state.getTargetEntity(worldIn);
+
+                    Entity target;
+
+                    if(tmpTarget.getParts() != null && 0 < tmpTarget.getParts().length){
+                        target = tmpTarget.getParts()[0];
+                    }else{
+                        target = tmpTarget;
+                    }
 
                     if(target == null) return false;
 
@@ -86,6 +94,15 @@ public class SlayerStyleArts {
                                     SlayerStyleArts.doTeleport(sender, target);
                                 }
                             }
+
+                            @Override
+                            public void tick() {
+                                if(this.getPersistentData().getBoolean("doForceHit")) {
+                                    this.doForceHitEntity(target);
+                                    this.getPersistentData().remove("doForceHit");
+                                }
+                                super.tick();
+                            }
                         };
 
                         Vector3d lastPos = sender.getEyePosition(1.0f);
@@ -97,7 +114,7 @@ public class SlayerStyleArts {
                         ss.setPosition(targetPos.x, targetPos.y, targetPos.z);
 
                         Vector3d dir = sender.getLookVec();
-                        ss.shoot(dir.x, dir.y, dir.z, 0.5f, 0);
+                        ss.shoot(dir.x, dir.y, dir.z, 1.0f, 0);
 
                         ss.setShooter(sender);
 
@@ -105,10 +122,12 @@ public class SlayerStyleArts {
 
                         ss.setColor(state.getColorCode());
 
+                        ss.getPersistentData().putBoolean("doForceHit",true);
+
                         worldIn.addEntity(ss);
                         sender.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 0.2F, 1.45F);
 
-                        ss.doForceHitEntity(target);
+                        //ss.doForceHitEntity(target);
                     }
 
                     return true;

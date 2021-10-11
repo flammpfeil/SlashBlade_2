@@ -19,6 +19,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -60,14 +61,19 @@ public class LockOnManager {
         }else{
             //find target
 
-            Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(1.0f) , player.getLookVec(), 12,12, null);
+            Optional<RayTraceResult> result = RayTraceHelper.rayTrace(player.world, player, player.getEyePosition(1.0f) , player.getLookVec(), 30,30, null);
             Optional<Entity> foundEntity = result
                     .filter(r->r.getType() == RayTraceResult.Type.ENTITY)
                     .filter(r->{
                         EntityRayTraceResult er = (EntityRayTraceResult)r;
                         Entity target = ((EntityRayTraceResult) r).getEntity();
 
+                        if(target instanceof PartEntity){
+                            target = ((PartEntity) target).getParent();
+                        }
+
                         boolean isMatch = true;
+
                         if(target instanceof LivingEntity)
                             isMatch = TargetSelector.lockon_focus.canTarget(player, (LivingEntity)target);
 
@@ -84,7 +90,10 @@ public class LockOnManager {
                 foundEntity = entities.stream().map(s->(Entity)s).min(Comparator.comparingDouble(e -> e.getDistanceSq(player)));
             }
 
-            targetEntity = foundEntity.orElse(null);
+            targetEntity = foundEntity
+                    .map(e-> (e instanceof PartEntity) ? ((PartEntity) e).getParent() : e)
+                    .orElse(null);
+
         }
 
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
