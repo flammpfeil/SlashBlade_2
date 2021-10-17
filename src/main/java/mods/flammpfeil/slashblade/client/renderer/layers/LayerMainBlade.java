@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.client.renderer.layers;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import jp.nyatla.nymmd.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
@@ -13,30 +13,28 @@ import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectUtils;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import net.minecraftforge.common.util.LazyOptional;
-import org.lwjgl.opengl.GL11;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
-public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> extends LayerRenderer<T, M> {
+public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
-    public LayerMainBlade(IEntityRenderer<T, M> entityRendererIn) {
+    public LayerMainBlade(RenderLayerParent<T, M> entityRendererIn) {
         super(entityRendererIn);
     }
 
@@ -72,10 +70,10 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
     private float modifiedSpeed(float baseSpeed, LivingEntity entity) {
         float modif = 6.0f;
-        if (EffectUtils.hasMiningSpeedup(entity)) {
-            modif = 6 - (1 + EffectUtils.getMiningSpeedup(entity));
-        } else if(entity.isPotionActive(Effects.MINING_FATIGUE)) {
-            modif = 6 + (1 + entity.getActivePotionEffect(Effects.MINING_FATIGUE).getAmplifier()) * 2;
+        if (MobEffectUtil.hasDigSpeed(entity)) {
+            modif = 6 - (1 + MobEffectUtil.getDigSpeedAmplification(entity));
+        } else if(entity.hasEffect(MobEffects.DIG_SLOWDOWN)) {
+            modif = 6 + (1 + entity.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier()) * 2;
         }
 
         modif /= 6.0f;
@@ -84,13 +82,15 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 
         float motionYOffset = 1.5f;
         double motionScale = 1.5 / 12.0;
         double modelScaleBase = 0.0078125F; //0.5^7
 
-        ItemStack stack = entity.getHeldItem(Hand.MAIN_HAND);
+        ItemStack stack = entity.getItemInHand(InteractionHand.MAIN_HAND);
+
+        if(stack.isEmpty()) return;
 
         LazyOptional<ISlashBladeState> state = stack.getCapability(CapabilitySlashBlade.BLADESTATE);
         state.ifPresent(s -> {
@@ -99,7 +99,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
             {
                 ComboState combo = s.getComboSeq();
                 //tick to msec
-                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.world.getGameTime() - s.getLastActionTime()) + partialTicks);
+                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.level.getGameTime() - s.getLastActionTime()) + partialTicks);
 
                 while(combo != ComboState.NONE && combo.getTimeoutMS() < time){
                     time -= combo.getTimeoutMS();
@@ -153,7 +153,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
 
                     //transpoze mmd to mc
-                    matrixStack.rotate(Vector3f.ZP.rotationDegrees(180));
+                    matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
 
 
                     ResourceLocation textureLocation = s.getTexture().orElseGet(() -> BladeModelManager.resourceDefaultTexture);
@@ -172,8 +172,8 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             mat.transpose();
 
                             matrixStack.scale(-1, 1, 1);
-                            MatrixStack.Entry entry = matrixStack.getLast();
-                            entry.getMatrix().mul(mat);
+                            PoseStack.Pose entry = matrixStack.last();
+                            entry.pose().multiply(mat);
                             matrixStack.scale(-1, 1, 1);
                         }
 
@@ -204,8 +204,8 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             mat.transpose();
 
                             matrixStack.scale(-1, 1, 1);
-                            MatrixStack.Entry entry = matrixStack.getLast();
-                            entry.getMatrix().mul(mat);
+                            PoseStack.Pose entry = matrixStack.last();
+                            entry.pose().multiply(mat);
                             matrixStack.scale(-1, 1, 1);
                         }
 

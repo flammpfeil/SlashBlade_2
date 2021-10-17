@@ -1,16 +1,19 @@
 package mods.flammpfeil.slashblade.client.renderer.model.obj;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.LazyValue;
-import net.minecraft.util.math.vector.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.LazyLoadedValue;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.awt.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
+
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
+import net.minecraft.world.phys.Vec3;
 
 public class Face
 {
@@ -24,7 +27,7 @@ public class Face
     }
 
     public static final BiFunction<Vector4f,Integer,Integer> alphaNoOverride = (v,a)->a;
-    public static final BiFunction<Vector4f,Integer,Integer> alphaOverrideYZZ = (v,a)->v.getY() == 0 ? 0 : a;
+    public static final BiFunction<Vector4f,Integer,Integer> alphaOverrideYZZ = (v,a)->v.y() == 0 ? 0 : a;
     public static BiFunction<Vector4f,Integer,Integer> alphaOverride = alphaNoOverride;
 
     public static void setAlphaOverride(BiFunction<Vector4f, Integer, Integer> alphaOverride) {
@@ -52,10 +55,10 @@ public class Face
         Face.col = Color.white;
     }
 
-    private static final LazyValue<Matrix4f> defaultTransform = new LazyValue(()->{Matrix4f m = new Matrix4f(); m.setIdentity(); return m;});
+    private static final LazyLoadedValue<Matrix4f> defaultTransform = new LazyLoadedValue(()->{Matrix4f m = new Matrix4f(); m.setIdentity(); return m;});
 
-    public static MatrixStack matrix = null;
-    public static void setMatrix(MatrixStack ms){
+    public static PoseStack matrix = null;
+    public static void setMatrix(PoseStack ms){
         matrix = ms;
     }
     public static void resetMatrix(){
@@ -68,13 +71,13 @@ public class Face
     public TextureCoordinate[] textureCoordinates;
 
     @OnlyIn(Dist.CLIENT)
-    public void addFaceForRender(IVertexBuilder tessellator)
+    public void addFaceForRender(VertexConsumer tessellator)
     {
         addFaceForRender(tessellator, 0.0005F);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void addFaceForRender(IVertexBuilder tessellator, float textureOffset)
+    public void addFaceForRender(VertexConsumer tessellator, float textureOffset)
     {
         if (faceNormal == null)
         {
@@ -88,8 +91,8 @@ public class Face
         {
             for (int i = 0; i < textureCoordinates.length; ++i)
             {
-                averageU += textureCoordinates[i].u * uvOperator.getX() + uvOperator.getZ();
-                averageV += textureCoordinates[i].v * uvOperator.getY() + uvOperator.getW();
+                averageU += textureCoordinates[i].u * uvOperator.x() + uvOperator.z();
+                averageV += textureCoordinates[i].v * uvOperator.y() + uvOperator.w();
             }
 
             averageU = averageU / textureCoordinates.length;
@@ -98,30 +101,31 @@ public class Face
 
         float offsetU, offsetV;
 
-        IVertexBuilder wr = tessellator;
+        VertexConsumer wr = tessellator;
 
 
         Matrix4f transform;
         if(matrix != null){
-            MatrixStack.Entry me = matrix.getLast();
-            transform = me.getMatrix();
+            PoseStack.Pose me = matrix.last();
+            transform = me.pose();
         }else{
-            transform = defaultTransform.getValue();
+            transform = defaultTransform.get();
         }
 
         for (int i = 0; i < vertices.length; ++i)
         {
-            Vector4f vector4f = new Vector4f(vertices[i].x, vertices[i].y, vertices[i].z, 1.0F);
-            vector4f.transform(transform);
-            wr.pos(vector4f.getX(),vector4f.getY(),vector4f.getZ());
+            wr.vertex(transform, vertices[i].x, vertices[i].y, vertices[i].z);
+
+            wr.color(col.getRed(), col.getGreen(), col.getBlue(),
+                    alphaOverride.apply(new Vector4f(vertices[i].x, vertices[i].y, vertices[i].z, 1.0F), col.getAlpha()));
 
             if ((textureCoordinates != null) && (textureCoordinates.length > 0))
             {
                 offsetU = textureOffset;
                 offsetV = textureOffset;
 
-                float textureU = textureCoordinates[i].u * uvOperator.getX() + uvOperator.getZ();
-                float textureV = textureCoordinates[i].v * uvOperator.getY() + uvOperator.getW();
+                float textureU = textureCoordinates[i].u * uvOperator.x() + uvOperator.z();
+                float textureV = textureCoordinates[i].v * uvOperator.y() + uvOperator.w();
 
                 if (textureU > averageU)
                 {
@@ -132,23 +136,19 @@ public class Face
                     offsetV = -offsetV;
                 }
 
-
-                wr.tex(textureU + offsetU, textureV + offsetV);
+                wr.uv(textureU + offsetU, textureV + offsetV);
             }else{
-                wr.tex(0, 0);
+                wr.uv(0, 0);
             }
 
-            wr.lightmap(lightmap);
-
-            wr.color(col.getRed(), col.getGreen(), col.getBlue(),
-                    alphaOverride.apply(new Vector4f(vertices[i].x, vertices[i].y, vertices[i].z, 1.0F), col.getAlpha()));
+            wr.uv2(lightmap);
 
             Vector3f vector3f;
             if(isSmoothShade && vertexNormals != null) {
 
                 Vertex normal = vertexNormals[i];
 
-                Vector3d nol = new Vector3d(normal.x, normal.y, normal.z);
+                Vec3 nol = new Vec3(normal.x, normal.y, normal.z);
                 //nol.rotatePitch(180);
                 vector3f = new Vector3f((float)nol.x, (float)nol.y, (float)nol.z);
             }else{
@@ -156,7 +156,7 @@ public class Face
             }
             vector3f.transform(new Matrix3f(transform));;
             vector3f.normalize();
-            wr.normal(vector3f.getX(), vector3f.getY(), vector3f.getZ());
+            wr.normal(vector3f.x(), vector3f.y(), vector3f.z());
 
             wr.endVertex();
         }
@@ -164,11 +164,11 @@ public class Face
 
     public Vertex calculateFaceNormal()
     {
-        Vector3d v1 = new Vector3d(vertices[1].x - vertices[0].x, vertices[1].y - vertices[0].y, vertices[1].z - vertices[0].z);
-        Vector3d v2 = new Vector3d(vertices[2].x - vertices[0].x, vertices[2].y - vertices[0].y, vertices[2].z - vertices[0].z);
-        Vector3d normalVector = null;
+        Vec3 v1 = new Vec3(vertices[1].x - vertices[0].x, vertices[1].y - vertices[0].y, vertices[1].z - vertices[0].z);
+        Vec3 v2 = new Vec3(vertices[2].x - vertices[0].x, vertices[2].y - vertices[0].y, vertices[2].z - vertices[0].z);
+        Vec3 normalVector = null;
 
-        normalVector = v1.crossProduct(v2).normalize();
+        normalVector = v1.cross(v2).normalize();
 
         return new Vertex((float) normalVector.x, (float) normalVector.y, (float) normalVector.z);
     }

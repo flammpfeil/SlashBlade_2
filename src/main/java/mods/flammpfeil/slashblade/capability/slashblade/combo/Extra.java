@@ -11,25 +11,21 @@ import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.JudgementCut;
 import mods.flammpfeil.slashblade.util.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -39,8 +35,7 @@ import static mods.flammpfeil.slashblade.init.DefaultResources.ExMotionLocation;
 
 public class Extra {
 
-    @CapabilityInject(IInputState.class)
-    public static Capability<IInputState> INPUT_STATE = null;
+    public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 
     static List<Map.Entry<EnumSet<InputCommand>, Supplier<ComboState>>> ex_standbyMap =
             new HashMap<EnumSet<InputCommand>, Supplier<ComboState>>(){{
@@ -64,7 +59,7 @@ public class Extra {
     //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
 
     public static void playQuickSheathSoundAction(LivingEntity e) {
-        e.playSound(SoundEvents.BLOCK_CHAIN_HIT, 1.0F,1.0F);
+        e.playSound(SoundEvents.CHAIN_HIT, 1.0F,1.0F);
     }
 
     public static final ComboState STANDBY_EX = new ComboState("standby", 10,
@@ -135,7 +130,7 @@ public class Extra {
 
     public static final ComboState EX_COMBO_A3 = new ComboState("ex_combo_a3",100,
             ()->200,()->218,()->1.0f,()->false,()->0,
-            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)-> a.hasEffect(MobEffects.DAMAGE_BOOST) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -61))
                     .put(6, (entityIn)->AttackManager.doSlash(entityIn,  180-42))
@@ -227,14 +222,14 @@ public class Extra {
                         AttackManager.doSlash(entityIn,  -30, false, false, 0.25f);
                         AttackManager.doSlash(entityIn,  180-35, true, false, 0.25f);
                     })
-                    .put(7+0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(7+1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(7+2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(7+3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(7+4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(7+5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(7+6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(7+7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(7+0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(7+1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(7+2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(7+3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(7+4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(7+5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(7+6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(7+7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
 
                     .build())
             .addHitEffect(StunManager::setStun);
@@ -243,8 +238,8 @@ public class Extra {
             ()->720,()->743,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->Extra.EX_COMBO_B1_END, ()-> Extra.EX_COMBO_B1_END2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
-                    .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
@@ -265,90 +260,90 @@ public class Extra {
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0,Extra::playQuickSheathSoundAction).build());
 
 
-    public static Vector3d genRushOffset(LivingEntity entityIn){
-        return new Vector3d(entityIn.getRNG().nextFloat()-0.5f,entityIn.getRNG().nextFloat()-0.5f,0).scale(2.0);
+    public static Vec3 genRushOffset(LivingEntity entityIn){
+        return new Vec3(entityIn.getRandom().nextFloat()-0.5f,entityIn.getRandom().nextFloat()-0.5f,0).scale(2.0);
     }
 
     public static final ComboState EX_COMBO_B2 = new ComboState("ex_combo_b2",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B3)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B3 = new ComboState("ex_combo_b3",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B4)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B4 = new ComboState("ex_combo_b4",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B5)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B5 = new ComboState("ex_combo_b5",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B6)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B6 = new ComboState("ex_combo_b6",100,
             ()->710,()->720,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6, (a)-> Extra.EX_COMBO_B7)  , ()-> Extra.EX_COMBO_B_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
                     .build())
             .addHitEffect(StunManager::setStun);
     public static final ComboState EX_COMBO_B7 = new ComboState("ex_combo_b7",100,
             ()->710,()->764,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(33,(a)->ComboState.NONE), ()-> Extra.EX_COMBO_B7_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
-                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
-                    .put(7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRNG().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(0, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(1, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(3, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(4, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(5, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
+                    .put(6, (entityIn)->AttackManager.doSlash(entityIn,  -90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), false, false, rushDamageBase))
+                    .put(7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
 
-                    .put(12, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
-                    .put(13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .put(12, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(13, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(12 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
@@ -369,8 +364,8 @@ public class Extra {
             ()->720,()->743,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->Extra.EX_COMBO_B_END, ()-> Extra.EX_COMBO_B_END2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), false, true,1.0))
-                    .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vector3d(entityIn.getRNG().nextFloat()-0.5f,0.8f,0), true, false,1.0))
+                    .put(12 -3, (entityIn)->AttackManager.doSlash(entityIn,  0, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), false, true,1.0))
+                    .put(13 -3, (entityIn)->AttackManager.doSlash(entityIn,  5, new Vec3(entityIn.getRandom().nextFloat()-0.5f,0.8f,0), true, false,1.0))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(12-3 +0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
@@ -441,8 +436,8 @@ public class Extra {
             ()->1300,()->1328,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_A3_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(4)+0, (entityIn)->AttackManager.doSlash(entityIn,  0,Vector3d.ZERO, false, false, 1.0, KnockBacks.smash))
-                    .put((int)TimeValueHelper.getTicksFromFrames(4)+1, (entityIn)->AttackManager.doSlash(entityIn,  -3,Vector3d.ZERO, true, true, 1.0, KnockBacks.smash))
+                    .put((int)TimeValueHelper.getTicksFromFrames(4)+0, (entityIn)->AttackManager.doSlash(entityIn,  0,Vec3.ZERO, false, false, 1.0, KnockBacks.smash))
+                    .put((int)TimeValueHelper.getTicksFromFrames(4)+1, (entityIn)->AttackManager.doSlash(entityIn,  -3,Vec3.ZERO, true, true, 1.0, KnockBacks.smash))
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
@@ -460,11 +455,11 @@ public class Extra {
             ()->1400,()->1437,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(13,(a)->Extra.EX_AERIAL_RAVE_B4) , ()-> Extra.EX_AERIAL_RAVE_B3_END)
             .setClickAction((entityIn)->{
-                Vector3d motion = entityIn.getMotion();
-                entityIn.setMotion(motion.x, 0.6, motion.z);})
+                Vec3 motion = entityIn.getDeltaMovement();
+                entityIn.setDeltaMovement(motion.x, 0.6, motion.z);})
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(5), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
-                    .put((int)TimeValueHelper.getTicksFromFrames(10), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
+                    .put((int)TimeValueHelper.getTicksFromFrames(5), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vec3.ZERO, false, false, 1.0, KnockBacks.toss))
+                    .put((int)TimeValueHelper.getTicksFromFrames(10), (entityIn)->AttackManager.doSlash(entityIn,  180+57,Vec3.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, -90, true))
@@ -492,8 +487,8 @@ public class Extra {
             ()->1500,()->1537,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(15,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_RAVE_B4_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(10)+0, (entityIn)->AttackManager.doSlash(entityIn,  45,Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
-                    .put((int)TimeValueHelper.getTicksFromFrames(10)+1, (entityIn)->AttackManager.doSlash(entityIn,  50,Vector3d.ZERO, true, true, 1.0, KnockBacks.meteor))
+                    .put((int)TimeValueHelper.getTicksFromFrames(10)+0, (entityIn)->AttackManager.doSlash(entityIn,  45,Vec3.ZERO, false, false, 1.0, KnockBacks.meteor))
+                    .put((int)TimeValueHelper.getTicksFromFrames(10)+1, (entityIn)->AttackManager.doSlash(entityIn,  50,Vec3.ZERO, true, true, 1.0, KnockBacks.meteor))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(5+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
@@ -521,7 +516,7 @@ public class Extra {
             ()->1600, ()->1659, ()->1.0f, ()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(11,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_END)
             .addHoldAction((player) -> {
-                int elapsed = player.getItemInUseMaxCount();
+                int elapsed = player.getTicksUsingItem();
 
                 int fireTime = (int)TimeValueHelper.getTicksFromFrames(9);
                 if(fireTime != elapsed) return;
@@ -531,12 +526,12 @@ public class Extra {
 
                 if (!commands.containsAll(ex_upperslash_command)) return;
 
-                player.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                player.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                     state.updateComboSeq(player, Extra.EX_UPPERSLASH_JUMP);
                 });
             })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(7), (entityIn)->AttackManager.doSlash(entityIn,  -80,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
+                    .put((int)TimeValueHelper.getTicksFromFrames(7), (entityIn)->AttackManager.doSlash(entityIn,  -80,Vec3.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
             .addHitEffect((t,a)->StunManager.setStun(t, 15));
     public static final ComboState EX_UPPERSLASH_END = new ComboState("ex_upperslash_end",90,
@@ -551,11 +546,11 @@ public class Extra {
             ()->1700, ()->1713, ()->1.0f, ()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(7,(a)->ComboState.NONE), ()-> Extra.EX_UPPERSLASH_JUMP_END)
             .setClickAction((entityIn)->{
-                Vector3d motion = entityIn.getMotion();
-                entityIn.setMotion(motion.x, 0.6f, motion.z);
+                Vec3 motion = entityIn.getDeltaMovement();
+                entityIn.setDeltaMovement(motion.x, 0.6f, motion.z);
 
                 entityIn.setOnGround(false);
-                entityIn.isAirBorne = true;
+                entityIn.hasImpulse = true;
             })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))
@@ -580,8 +575,8 @@ public class Extra {
             ()->1800, ()->1812, ()->1.0f, ()->false,()->0,
             ExMotionLocation, (a)->Extra.EX_AERIAL_CLEAVE, ()-> Extra.EX_AERIAL_CLEAVE_LOOP)
             .setClickAction((e)->{
-                Vector3d motion = e.getMotion();
-                e.setMotion(motion.x, 0.1, motion.z);
+                Vec3 motion = e.getDeltaMovement();
+                e.setDeltaMovement(motion.x, 0.1, motion.z);
             })
             .addTickAction((e)->{
                 e.fallDistance = 1;
@@ -589,21 +584,21 @@ public class Extra {
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 2){
-                    e.world.playSound((PlayerEntity)null, e.getPosX(), e.getPosY(), e.getPosZ(),
-                            SoundEvents.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.PLAYERS, 0.75F, 1.0F);
+                    e.level.playSound((Player)null, e.getX(), e.getY(), e.getZ(),
+                            SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.75F, 1.0F);
                 }
 
                 if(2 < elapsed) {
-                    Vector3d motion = e.getMotion();
-                    e.setMotion(motion.x, motion.y - 3.0, motion.z);
+                    Vec3 motion = e.getDeltaMovement();
+                    e.setDeltaMovement(motion.x, motion.y - 3.0, motion.z);
                 }
 
                 if(elapsed % 2 == 0)
                     AttackManager.areaAttack(e, KnockBacks.meteor.action,0.1f,true,false,true);
 
                 if(e.isOnGround()){
-                    AttackManager.doSlash(e,  55,Vector3d.ZERO, true, true, 1.0, KnockBacks.meteor);
-                    e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    AttackManager.doSlash(e,  55,Vec3.ZERO, true, true, 1.0, KnockBacks.meteor);
+                    e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         state.updateComboSeq(e,Extra.EX_AERIAL_CLEAVE_LANDING);
                         FallHandler.spawnLandingParticle(e, 20);
                     });
@@ -623,8 +618,8 @@ public class Extra {
             .addTickAction((e)->{
                 e.fallDistance = 1;
 
-                Vector3d motion = e.getMotion();
-                e.setMotion(motion.x, motion.y - 3.0, motion.z);
+                Vec3 motion = e.getDeltaMovement();
+                e.setDeltaMovement(motion.x, motion.y - 3.0, motion.z);
 
                 long elapsed = ComboState.getElapsed(e);
 
@@ -632,8 +627,8 @@ public class Extra {
                     AttackManager.areaAttack(e, KnockBacks.meteor.action,0.1f,true,false,true);
 
                 if(e.isOnGround()){
-                    AttackManager.doSlash(e,  55, Vector3d.ZERO, true, true, 1.0, KnockBacks.meteor);
-                    e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    AttackManager.doSlash(e,  55, Vec3.ZERO, true, true, 1.0, KnockBacks.meteor);
+                    e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         state.updateComboSeq(e,Extra.EX_AERIAL_CLEAVE_LANDING);
                         FallHandler.spawnLandingParticle(e, 20);
                     });
@@ -643,7 +638,7 @@ public class Extra {
     public static final ComboState EX_AERIAL_CLEAVE_LANDING = new ComboState("ex_aerial_cleave_landing",70,
             ()->1816, ()->1859, ()->1.0f, ()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(6,(a)->ComboState.NONE), ()-> Extra.EX_AERIAL_CLEAVE_END)
-            .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  60, Vector3d.ZERO, false, false, 1.0, KnockBacks.meteor))
+            .setClickAction((entityIn)->AttackManager.doSlash(entityIn,  60, Vec3.ZERO, false, false, 1.0, KnockBacks.meteor))
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
     public static final ComboState EX_AERIAL_CLEAVE_END = new ComboState("ex_aerial_cleave_end",70,
             ()->1859, ()->1886, ()->1.0f, ()->false,()->0,
@@ -659,18 +654,18 @@ public class Extra {
 
     public static final ComboState EX_RAPID_SLASH = new ComboState("ex_rapid_slash",70,
             ()->2000, ()->2019, ()->1.0f, ()->false,()->0,
-            ExMotionLocation, (a)-> a.isPotionActive(Effects.STRENGTH) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
+            ExMotionLocation, (a)-> a.hasEffect(MobEffects.DAMAGE_BOOST) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
             .addHoldAction((e)->{
                 AttributeModifier am = new AttributeModifier("SweepingDamageRatio", -3, AttributeModifier.Operation.ADDITION);
-                ModifiableAttributeInstance mai = e.getAttribute(ForgeMod.REACH_DISTANCE.get());
-                mai.applyNonPersistentModifier(am);
+                AttributeInstance mai = e.getAttribute(ForgeMod.REACH_DISTANCE.get());
+                mai.addTransientModifier(am);
                 AttackManager.areaAttack(e, (t)->{
                         boolean isRightDown = e.getCapability(INPUT_STATE)
                                 .map((state)->state.getCommands().contains(InputCommand.R_DOWN))
                                 .orElse(false);
 
                         if(isRightDown) {
-                            e.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+                            e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
                                 if (state.getComboSeq() == Extra.EX_RAPID_SLASH) {
                                     List<Entity> hits = AttackManager.areaAttack(e, KnockBacks.toss.action,0.01f,true,true,true);
 
@@ -686,21 +681,21 @@ public class Extra {
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 0){
-                    e.world.playSound((PlayerEntity) null,e.getPosX(), e.getPosY(), e.getPosZ(),
-                            SoundEvents.ITEM_ARMOR_EQUIP_IRON,
-                            SoundCategory.PLAYERS,1.0F,1.0F);
+                    e.level.playSound((Player) null,e.getX(), e.getY(), e.getZ(),
+                            SoundEvents.ARMOR_EQUIP_IRON,
+                            SoundSource.PLAYERS,1.0F,1.0F);
                 }
 
                 if(elapsed <= 3 && e.isOnGround())
-                    e.moveRelative( e.isInWater() ? 0.35f : 0.8f , new Vector3d(0, 0, 1));
+                    e.moveRelative( e.isInWater() ? 0.35f : 0.8f , new Vec3(0, 0, 1));
 
                 if(2 <= elapsed && elapsed < 6){
-                    float roll = -45 + 90 * e.getRNG().nextFloat();
+                    float roll = -45 + 90 * e.getRandom().nextFloat();
 
                     if(elapsed % 2 == 0)
                         roll += 180;
 
-                    boolean critical = e.isPotionActive(Effects.STRENGTH);
+                    boolean critical = e.hasEffect(MobEffects.DAMAGE_BOOST);
 
                     AttackManager.doSlash(e,  roll, genRushOffset(e), false, critical, rushDamageBase);
                 }
@@ -735,13 +730,13 @@ public class Extra {
             ()->2100,()->2137,()->1.0f,()->false,()->0,
             ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(18,(a)->ComboState.NONE) , ()-> Extra.EX_RISING_STAR_END)
             .setClickAction((entityIn)->{
-                entityIn.setMotion(0, 0.6, 0);
+                entityIn.setDeltaMovement(0, 0.6, 0);
                 entityIn.setOnGround(false);
-                entityIn.isAirBorne = true;
-                AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss);
+                entityIn.hasImpulse = true;
+                AttackManager.doSlash(entityIn,  -57,Vec3.ZERO, false, false, 1.0, KnockBacks.toss);
             })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                    .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vector3d.ZERO, false, false, 1.0, KnockBacks.toss))
+                    .put((int)TimeValueHelper.getTicksFromFrames(9), (entityIn)->AttackManager.doSlash(entityIn,  -57,Vec3.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0+0, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
@@ -761,17 +756,17 @@ public class Extra {
                         long elapsed = ComboState.getElapsed(entityIn);
 
                         if(elapsed < 3){
-                            Vector3d motion = entityIn.getMotion();
+                            Vec3 motion = entityIn.getDeltaMovement();
 
                             double yMotion = motion.y;
                             if(yMotion <= 0) {
                                 yMotion = 0.6;
 
                                 entityIn.setOnGround(false);
-                                entityIn.isAirBorne = true;
+                                entityIn.hasImpulse = true;
                             }
 
-                            entityIn.setMotion(0, yMotion, 0);
+                            entityIn.setDeltaMovement(0, yMotion, 0);
                         }
                     })
             .addTickAction(FallHandler::fallDecrease)
@@ -795,18 +790,18 @@ public class Extra {
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 0){
-                    e.playSound(SoundEvents.ITEM_TRIDENT_THROW, 0.80F, 0.625F + 0.1f * e.getRNG().nextFloat());
+                    e.playSound(SoundEvents.TRIDENT_THROW, 0.80F, 0.625F + 0.1f * e.getRandom().nextFloat());
                 }
 
                 if(elapsed <= 3) {
-                    e.moveRelative(-0.3f, new Vector3d(0, 0, 1));
-                    Vector3d vec = e.getMotion();
+                    e.moveRelative(-0.3f, new Vec3(0, 0, 1));
+                    Vec3 vec = e.getDeltaMovement();
                     {
                         double d0 = vec.x;
                         double d1 = vec.z;
                         double d2 = 0.05D;
 
-                        while (d0 != 0.0D && e.world.hasNoCollisions(e, e.getBoundingBox().offset(d0, (double) (-e.stepHeight), 0.0D))) {
+                        while (d0 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep), 0.0D))) {
                             if (d0 < 0.05D && d0 >= -0.05D) {
                                 d0 = 0.0D;
                             } else if (d0 > 0.0D) {
@@ -816,7 +811,7 @@ public class Extra {
                             }
                         }
 
-                        while (d1 != 0.0D && e.world.hasNoCollisions(e, e.getBoundingBox().offset(0.0D, (double) (-e.stepHeight), d1))) {
+                        while (d1 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(0.0D, (double) (-e.maxUpStep), d1))) {
                             if (d1 < 0.05D && d1 >= -0.05D) {
                                 d1 = 0.0D;
                             } else if (d1 > 0.0D) {
@@ -826,7 +821,7 @@ public class Extra {
                             }
                         }
 
-                        while (d0 != 0.0D && d1 != 0.0D && e.world.hasNoCollisions(e, e.getBoundingBox().offset(d0, (double) (-e.stepHeight), d1))) {
+                        while (d0 != 0.0D && d1 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep), d1))) {
                             if (d0 < 0.05D && d0 >= -0.05D) {
                                 d0 = 0.0D;
                             } else if (d0 > 0.0D) {
@@ -844,12 +839,12 @@ public class Extra {
                             }
                         }
 
-                        vec = new Vector3d(d0, vec.y, d1);
+                        vec = new Vec3(d0, vec.y, d1);
                     }
 
                     e.move(MoverType.SELF, vec);
                 }
-                e.setMotion(e.getMotion().mul(0,1,0));
+                e.setDeltaMovement(e.getDeltaMovement().multiply(0,1,0));
             })
             .addTickAction(FallHandler::fallDecrease)
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn));
@@ -909,33 +904,33 @@ public class Extra {
             ()->2200,()->2277,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)-> Extra.EX_VOID_SLASH, ()->Extra.EX_VOID_SLASH_SHEATH)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(28, (living)->{
-                if(living.world.isRemote){
-                    Vector3d pos = living.getPositionVec()
+                if(living.level.isClientSide){
+                    Vec3 pos = living.position()
                             .add(0.0D, (double)living.getEyeHeight() * 0.75D, 0.0D)
-                            .add(living.getLookVec().scale(0.3f));
+                            .add(living.getLookAngle().scale(0.3f));
 
-                    EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, living.world){
+                    EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, living.level){
                         @Override
                         protected void tryDespawn() {
                             if(this.getShooter() != null){
                                 long timeout = this.getShooter().getPersistentData().getLong(ItemSlashBlade.BREAK_ACTION_TIMEOUT);
-                                if(timeout <= this.world.getGameTime() || timeout == 0){
-                                    this.world.playSound((PlayerEntity)null, this.getPosX(), this.getPosY(), this.getPosZ(), SoundEvents.BLOCK_GLASS_BREAK, SoundCategory.PLAYERS, 0.80F, 0.625F + 0.1f * this.rand.nextFloat());
+                                if(timeout <= this.level.getGameTime() || timeout == 0){
+                                    this.level.playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.80F, 0.625F + 0.1f * this.random.nextFloat());
 
-                                    this.remove();
+                                    this.remove(RemovalReason.DISCARDED);
                                 }
                             }
                             super.tryDespawn();
                         }
                     };
-                    jc.setPosition(pos.x ,pos.y, pos.z);
-                    jc.setShooter(living);
+                    jc.setPos(pos.x ,pos.y, pos.z);
+                    jc.setOwner(living);
 
                     jc.setRotationRoll(0);
-                    jc.rotationYaw = living.rotationYaw;
-                    jc.rotationPitch = 0;
+                    jc.setYRot(living.getYRot());
+                    jc.setXRot(0);
 
-                    int colorCode = living.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                    int colorCode = living.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
                             .map(state->state.getColorCode())
                             .orElseGet(()->0xFFFFFF);
                     jc.setColor(colorCode);
@@ -951,7 +946,7 @@ public class Extra {
 
                     jc.setLifetime(20*5);
 
-                    living.world.addEntity(jc);
+                    living.level.addFreshEntity(jc);
                 }
             }).build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()

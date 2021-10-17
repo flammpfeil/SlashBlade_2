@@ -37,10 +37,6 @@
  */
 package jp.nyatla.nymmd.types;
 
-import net.minecraft.client.renderer.GLAllocation;
-
-import java.nio.DoubleBuffer;
-
 public class MmdMatrix
 {
 	//////
@@ -431,7 +427,8 @@ public class MmdMatrix
 		return new MmdVector3((float)a, (float)b, (float)c);
 	}
 
-	private static final DoubleBuffer matrixBuffer = GLAllocation.createDirectByteBuffer(16 << 4).asDoubleBuffer();
+	/*
+	private static final DoubleBuffer matrixBuffer = MemoryTracker.createByteBuffer(16 << 4).asDoubleBuffer();
 	public DoubleBuffer getMatrixBuffer(){
 		double buf[] = new double[16];
 		this.getValue(buf);
@@ -440,4 +437,5 @@ public class MmdMatrix
 		matrixBuffer.position(0);
 		return matrixBuffer;
 	}
+	*/
 }

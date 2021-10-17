@@ -8,11 +8,11 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.TargetSelector;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.EnumSet;
 import java.util.function.Supplier;
@@ -23,22 +23,22 @@ public class MoveCommandMessage {
 
     public MoveCommandMessage(){}
 
-    static public MoveCommandMessage decode(PacketBuffer buf) {
+    static public MoveCommandMessage decode(FriendlyByteBuf buf) {
         MoveCommandMessage msg = new MoveCommandMessage();
         msg.command = buf.readInt();
         return msg;
     }
 
-    static public void encode(MoveCommandMessage msg, PacketBuffer buf) {
+    static public void encode(MoveCommandMessage msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.command);
     }
 
     static public void handle(MoveCommandMessage msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             // Work that needs to be threadsafe (most work)
-            ServerPlayerEntity sender = ctx.get().getSender(); // the client that sent this packet
+            ServerPlayer sender = ctx.get().getSender(); // the client that sent this packet
             // do stuff
-            ItemStack stack = sender.getHeldItem(Hand.MAIN_HAND);
+            ItemStack stack = sender.getItemInHand(InteractionHand.MAIN_HAND);
             if (stack.isEmpty()) return;
             if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
@@ -47,7 +47,7 @@ public class MoveCommandMessage {
 
                 state.getCommands().clear();
                 state.getCommands().addAll(
-                        EnumSetConverter.convertToEnumSet(InputCommand.class, InputCommand.values(),msg.command));
+                        EnumSetConverter.convertToEnumSet(InputCommand.class, msg.command));
 
                 EnumSet<InputCommand> current = state.getCommands().clone();
 

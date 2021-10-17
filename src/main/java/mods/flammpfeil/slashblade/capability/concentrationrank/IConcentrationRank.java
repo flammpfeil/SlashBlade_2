@@ -7,15 +7,12 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.network.RankSyncMessage;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public interface IConcentrationRank {
@@ -108,7 +105,7 @@ public interface IConcentrationRank {
     }
 
     default void addRankPoint(LivingEntity user, long point){
-        long time = user.world.getGameTime();
+        long time = user.level.getGameTime();
 
         ConcentrationRanks oldRank = getRank(time);
 
@@ -118,21 +115,21 @@ public interface IConcentrationRank {
         if(oldRank.level < getRank(time).level)
             this.setLastRankRise(time);
 
-        if(user instanceof ServerPlayerEntity && !user.world.isRemote){
-            if(((ServerPlayerEntity)user).connection == null) return;
+        if(user instanceof ServerPlayer && !user.level.isClientSide){
+            if(((ServerPlayer)user).connection == null) return;
 
             RankSyncMessage msg = new RankSyncMessage();
             msg.rawPoint = this.getRawRankPoint();
-            NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(()->(ServerPlayerEntity)user), msg);
+            NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(()->(ServerPlayer)user), msg);
         }
     }
 
     default void addRankPoint(DamageSource src){
-        if (!(src.getTrueSource() instanceof LivingEntity)) return;
+        if (!(src.getEntity() instanceof LivingEntity)) return;
 
-        LivingEntity user = (LivingEntity) src.getTrueSource();
+        LivingEntity user = (LivingEntity) src.getEntity();
 
-        ItemStack stack = user.getHeldItemMainhand();
+        ItemStack stack = user.getMainHandItem();
 
         Optional<ComboState> combo = stack
                 .getCapability(ItemSlashBlade.BLADESTATE)

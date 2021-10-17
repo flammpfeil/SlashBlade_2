@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.capability.inputstate;
 
 import mods.flammpfeil.slashblade.util.InputCommand;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.EnumSet;
 

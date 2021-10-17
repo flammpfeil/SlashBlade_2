@@ -1,10 +1,10 @@
 package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.util.NBTHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -24,7 +24,7 @@ public class KnockBackHandler {
     static public void setFactor(LivingEntity target, double horizontalFactor, double verticalFactor, double addFallDistance){
         NBTHelper.putVector3d(target.getPersistentData(),
                 NBT_KEY,
-                new Vector3d(horizontalFactor,verticalFactor,addFallDistance));
+                new Vec3(horizontalFactor,verticalFactor,addFallDistance));
     }
 
     @SubscribeEvent
@@ -32,12 +32,12 @@ public class KnockBackHandler {
         LivingEntity target = event.getEntityLiving();
 
 
-        CompoundNBT nbt = target.getPersistentData();
+        CompoundTag nbt = target.getPersistentData();
 
         if(!nbt.contains(NBT_KEY))
             return;
 
-        Vector3d factor = NBTHelper.getVector3d(nbt, NBT_KEY);
+        Vec3 factor = NBTHelper.getVector3d(nbt, NBT_KEY);
         nbt.remove(NBT_KEY);
 
 
@@ -48,18 +48,18 @@ public class KnockBackHandler {
         target.fallDistance += factor.z;
 
         //movement factor is resistable
-        if ((target.getRNG().nextDouble() < target.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue()))
+        if ((target.getRandom().nextDouble() < target.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getValue()))
             return;
 
-        target.isAirBorne = true;
+        target.hasImpulse = true;
 
-        Vector3d motion = target.getMotion();
+        Vec3 motion = target.getDeltaMovement();
 
         //x = strength multiplier
         if(factor.x == 0){
             event.setCanceled(true);
 
-            motion = motion.mul(0, 1, 0);
+            motion = motion.multiply(0, 1, 0);
         }else
             event.setStrength((float)(event.getStrength() * factor.x));
 
@@ -67,9 +67,9 @@ public class KnockBackHandler {
 
         if(0 < factor.y){
             target.setOnGround(false);
-            event.getEntityLiving().setMotion(motion.x, Math.max(motion.y, factor.y), motion.z);
+            event.getEntityLiving().setDeltaMovement(motion.x, Math.max(motion.y, factor.y), motion.z);
         }else if(factor.y < 0){
-            event.getEntityLiving().setMotion(motion.x, Math.min(motion.y, factor.y), motion.z);
+            event.getEntityLiving().setDeltaMovement(motion.x, Math.min(motion.y, factor.y), motion.z);
         }
     }
 }

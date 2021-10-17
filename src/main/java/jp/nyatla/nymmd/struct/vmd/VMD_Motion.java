@@ -39,7 +39,9 @@ package jp.nyatla.nymmd.struct.vmd;
 
 
 import jp.nyatla.nymmd.MmdException;
-import jp.nyatla.nymmd.struct.*;
+import jp.nyatla.nymmd.struct.DataReader;
+import jp.nyatla.nymmd.struct.StructReader;
+import jp.nyatla.nymmd.struct.StructType;
 import jp.nyatla.nymmd.types.MmdVector3;
 import jp.nyatla.nymmd.types.MmdVector4;
 public class VMD_Motion implements StructType

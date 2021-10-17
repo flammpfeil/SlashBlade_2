@@ -2,31 +2,32 @@ package mods.flammpfeil.slashblade.event.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.block.Blocks;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.advancements.AdvancementEntryGui;
-import net.minecraft.client.gui.advancements.AdvancementTabGui;
-import net.minecraft.client.gui.advancements.AdvancementsScreen;
-import net.minecraft.client.gui.recipebook.GhostRecipe;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.*;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.advancements.AdvancementWidget;
+import net.minecraft.client.gui.screens.advancements.AdvancementTab;
+import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
+import net.minecraft.client.gui.screens.recipebook.GhostRecipe;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -35,7 +36,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
 
-public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
+import net.minecraft.recipebook.PlaceRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.UpgradeRecipe;
+
+public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     private static final ResourceLocation GUI_TEXTURE_CRAFTING_TABLE = new ResourceLocation("textures/gui/container/crafting_table.png");
     private static final ResourceLocation GUI_TEXTURE_FURNACE = new ResourceLocation("textures/gui/container/furnace.png");
@@ -63,49 +71,49 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
     static public ResourceLocation currentRecipe = null;
 
     static RecipeView currentView = null;
-    static Map<IRecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
+    static Map<RecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
 
 
-    static final IRecipeType dummy_anvilType = IRecipeType.register("sb_forgeing");
-    static class DummyAnvilRecipe implements IRecipe<IInventory> {
-        protected SmithingRecipe original;
+    static final RecipeType dummy_anvilType = RecipeType.register("sb_forgeing");
+    static class DummyAnvilRecipe implements Recipe<Container> {
+        protected UpgradeRecipe original;
         private final ItemStack result;
         private final ResourceLocation recipeId;
 
         NonNullList<Ingredient> nonnulllist = NonNullList.withSize(2, Ingredient.EMPTY);
 
-        public DummyAnvilRecipe(SmithingRecipe recipe) {
+        public DummyAnvilRecipe(UpgradeRecipe recipe) {
             original = recipe;
 
-            PacketBuffer pb = new PacketBuffer(Unpooled.buffer());
-            SmithingRecipe.Serializer ss = new SmithingRecipe.Serializer();
-            ss.write(pb,original);
+            FriendlyByteBuf pb = new FriendlyByteBuf(Unpooled.buffer());
+            UpgradeRecipe.Serializer ss = new UpgradeRecipe.Serializer();
+            ss.toNetwork(pb,original);
 
-            nonnulllist.set(0, Ingredient.read(pb));
-            nonnulllist.set(1, Ingredient.read(pb));
+            nonnulllist.set(0, Ingredient.fromNetwork(pb));
+            nonnulllist.set(1, Ingredient.fromNetwork(pb));
 
-            result = pb.readItemStack();
+            result = pb.readItem();
 
             this.recipeId = original.getId();
         }
 
         @Override
-        public boolean matches(IInventory inv, World worldIn) {
+        public boolean matches(Container inv, Level worldIn) {
             return false;
         }
 
         @Override
-        public ItemStack getCraftingResult(IInventory inv) {
+        public ItemStack assemble(Container inv) {
             return result.copy();
         }
 
         @Override
-        public boolean canFit(int width, int height) {
+        public boolean canCraftInDimensions(int width, int height) {
             return false;
         }
 
         @Override
-        public ItemStack getRecipeOutput() {
+        public ItemStack getResultItem() {
             return result;
         }
 
@@ -115,7 +123,7 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         }
 
         @Override
-        public ItemStack getIcon() {
+        public ItemStack getToastSymbol() {
             return new ItemStack(Blocks.ANVIL);
         }
 
@@ -125,67 +133,67 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         }
 
         @Override
-        public IRecipeSerializer<?> getSerializer() {
+        public RecipeSerializer<?> getSerializer() {
             return null;
         }
 
         @Override
-        public IRecipeType<?> getType() {
+        public RecipeType<?> getType() {
             return dummy_anvilType;
         }
     }
     static class DummySmithingRecipe extends DummyAnvilRecipe{
-        public DummySmithingRecipe(SmithingRecipe recipe) {
+        public DummySmithingRecipe(UpgradeRecipe recipe) {
             super(recipe);
         }
 
         @Override
-        public ItemStack getIcon() {
-            return original.getIcon();
+        public ItemStack getToastSymbol() {
+            return original.getToastSymbol();
         }
 
         @Override
-        public IRecipeType<?> getType() {
+        public RecipeType<?> getType() {
             return original.getType();
         }
     }
 
-    static IRecipe overrideDummyRecipe(IRecipe original){
+    static Recipe overrideDummyRecipe(Recipe original){
 
-        if(!(original instanceof SmithingRecipe))
+        if(!(original instanceof UpgradeRecipe))
             return original;
 
         if(original.getId().getPath().startsWith("anvilcrafting")){
-            return new DummyAnvilRecipe((SmithingRecipe)original);
+            return new DummyAnvilRecipe((UpgradeRecipe)original);
         }else{
-            return new DummySmithingRecipe((SmithingRecipe)original);
+            return new DummySmithingRecipe((UpgradeRecipe)original);
         }
     }
 
     static public class RecipeView{
-        final IRecipeType recipeType;
+        final RecipeType recipeType;
         final ResourceLocation background;
-        List<Vector3i> slots = Lists.newArrayList();
+        List<Vec3i> slots = Lists.newArrayList();
         final boolean isWideOutputSlot;
 
-        public RecipeView(IRecipeType recipeType, ResourceLocation background, List<Vector3i> slots) {
+        public RecipeView(RecipeType recipeType, ResourceLocation background, List<Vec3i> slots) {
             this(recipeType, background, slots, true);
         }
-        public RecipeView(IRecipeType recipeType, ResourceLocation background, List<Vector3i> slots, boolean isWideOutputSlot) {
+        public RecipeView(RecipeType recipeType, ResourceLocation background, List<Vec3i> slots, boolean isWideOutputSlot) {
             this.recipeType = recipeType;
             this.background = background;
             this.slots = slots;
             this.isWideOutputSlot = isWideOutputSlot;
         }
     }
-    static Map<IRecipeType, RecipeView> createRecipeViewMap(){
-        Map<IRecipeType, RecipeView> map = Maps.newHashMap();
+    static Map<RecipeType, RecipeView> createRecipeViewMap(){
+        Map<RecipeType, RecipeView> map = Maps.newHashMap();
 
         {
-            List<Vector3i> list = Lists.newArrayList();
+            List<Vec3i> list = Lists.newArrayList();
 
             //output
-            list.add(new Vector3i(124, 35, 0));
+            list.add(new Vec3i(124, 35, 0));
 
             //grid
             int SlotMargin = 18;
@@ -197,40 +205,40 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
 
             for(int i = 0; i < RecipeGridX; ++i) {
                 for(int j = 0; j < RecipeGridY; ++j) {
-                    list.add(new Vector3i(LeftMargin + j * SlotMargin, TopMargin + i * SlotMargin, 0));
+                    list.add(new Vec3i(LeftMargin + j * SlotMargin, TopMargin + i * SlotMargin, 0));
                 }
             }
 
-            IRecipeType key = IRecipeType.CRAFTING;
+            RecipeType key = RecipeType.CRAFTING;
             map.put(key, new RecipeView(key,
                     GUI_TEXTURE_CRAFTING_TABLE,
                     list));
         }
 
         {
-            List<Vector3i> list = Lists.newArrayList();
+            List<Vec3i> list = Lists.newArrayList();
 
             //output
-            list.add(new Vector3i(116, 35,0));
+            list.add(new Vec3i(116, 35,0));
             //input
-            list.add(new Vector3i( 56, 17,0));
+            list.add(new Vec3i( 56, 17,0));
             //fuel
-            list.add(new Vector3i( 56, 53,0));
+            list.add(new Vec3i( 56, 53,0));
 
             {
-                IRecipeType key = IRecipeType.SMELTING;
+                RecipeType key = RecipeType.SMELTING;
                 map.put(key, new RecipeView(key,
                         GUI_TEXTURE_FURNACE,
                         list));
             }
             {
-                IRecipeType key = IRecipeType.BLASTING;
+                RecipeType key = RecipeType.BLASTING;
                 map.put(key, new RecipeView(key,
                         GUI_TEXTURE_BLAST_FURNACE,
                         list));
             }
             {
-                IRecipeType key = IRecipeType.SMOKING;
+                RecipeType key = RecipeType.SMOKING;
                 map.put(key, new RecipeView(key,
                         GUI_TEXTURE_SMOKER,
                         list));
@@ -238,25 +246,25 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         }
 
         {
-            List<Vector3i> list = Lists.newArrayList();
+            List<Vec3i> list = Lists.newArrayList();
 
             //output
-            list.add(new Vector3i(134, 47,0));
+            list.add(new Vec3i(134, 47,0));
 
             //input
-            list.add(new Vector3i( 27, 47,0));
+            list.add(new Vec3i( 27, 47,0));
             //material
-            list.add(new Vector3i( 76, 47,0));
+            list.add(new Vec3i( 76, 47,0));
 
             {
-                IRecipeType key = IRecipeType.SMITHING;
+                RecipeType key = RecipeType.SMITHING;
                 map.put(key, new RecipeView(key,
                         GUI_TEXTURE_SMITHING,
                         list, false));
             }
 
             {
-                IRecipeType key = dummy_anvilType;
+                RecipeType key = dummy_anvilType;
                 map.put(key, new RecipeView(key,
                         GUI_TEXTURE_ANVIL,
                         list, false));
@@ -268,12 +276,12 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
 
 
     @Override
-    public void setSlotContents(Iterator<Ingredient> ingredients, int slotIn, int maxAmount, int y, int x) {
+    public void addItemToSlot(Iterator<Ingredient> ingredients, int slotIn, int maxAmount, int y, int x) {
         Ingredient ingredient = ingredients.next();
-        if (!ingredient.hasNoMatchingItems()) {
+        if (!ingredient.isEmpty()) {
             if(slotIn < currentView.slots.size()){
 
-                Vector3i slot = currentView.slots.get(slotIn);
+                Vec3i slot = currentView.slots.get(slotIn);
                 gr.addIngredient(ingredient, slot.getX(), slot.getY());
             }
         }
@@ -301,11 +309,11 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         if(!Objects.equals(loc, currentRecipe)){
             currentRecipe = loc;
 
-            Optional<? extends IRecipe<?>> recipe = Minecraft.getInstance().world.getRecipeManager().getRecipe(loc);
+            Optional<? extends Recipe<?>> recipe = Minecraft.getInstance().level.getRecipeManager().byKey(loc);
             if(recipe.isPresent()){
                 gr.clear();
 
-                IRecipe<?> iRecipe = recipe.get();
+                Recipe<?> iRecipe = recipe.get();
                 iRecipe = overrideDummyRecipe(iRecipe);
 
                 gr.setRecipe(iRecipe);
@@ -314,8 +322,8 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
 
                 if(currentView != null && 0 < currentView.slots.size()){
                     final int outputslotIndex = 0;
-                    Vector3i outputSlot = currentView.slots.get(outputslotIndex);
-                    gr.addIngredient(Ingredient.fromStacks(iRecipe.getRecipeOutput()), outputSlot.getX(), outputSlot.getY());
+                    Vec3i outputSlot = currentView.slots.get(outputslotIndex);
+                    gr.addIngredient(Ingredient.of(iRecipe.getResultItem()), outputSlot.getX(), outputSlot.getY());
 
                     this.placeRecipe(3,3, outputslotIndex, iRecipe,  iRecipe.getIngredients().iterator(), 1);
                 }
@@ -326,37 +334,37 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
     }
 
 
-    void drawBackGround(MatrixStack matrixStack, int xCorner, int yCorner, int zOffset, int xSize, int ySize, int yClip){
-        Minecraft.getInstance().getTextureManager().bindTexture(currentView.background);
+    void drawBackGround(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, int xSize, int ySize, int yClip){
+        RenderSystem.setShaderTexture(0, currentView.background);
         int bPadding = 5;
-        AbstractGui.blit(matrixStack, xCorner, yCorner,zOffset, 0, 0, xSize, yClip-bPadding,256, 256);
-        AbstractGui.blit(matrixStack, xCorner, yCorner + yClip - bPadding,zOffset, 0, ySize-bPadding, xSize, bPadding,256, 256);
+        GuiComponent.blit(matrixStack, xCorner, yCorner,zOffset, 0, 0, xSize, yClip-bPadding,256, 256);
+        GuiComponent.blit(matrixStack, xCorner, yCorner + yClip - bPadding,zOffset, 0, ySize-bPadding, xSize, bPadding,256, 256);
     }
 
-    void drawGhostRecipe(MatrixStack matrixStack, int xCorner, int yCorner, int zOffset, float partialTicks){
+    void drawGhostRecipe(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, float partialTicks){
         try{
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0,0,zOffset);
+            matrixStack.pushPose();
+            matrixStack.translate(0,0,zOffset);
 
             ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
 
-            float tmp = ir.zLevel;
-            ir.zLevel = zOffset - 125;
+            float tmp = ir.blitOffset;
+            ir.blitOffset = zOffset - 125;
 
             int padding = 5;
-            ir.renderItemAndEffectIntoGuiWithoutEntity(gr.getRecipe().getIcon(), xCorner + padding, yCorner + padding);
+            ir.renderAndDecorateFakeItem(gr.getRecipe().getToastSymbol(), xCorner + padding, yCorner + padding);
 
             boolean wideOutputSlot = currentView.isWideOutputSlot;
 
-            gr.func_238922_a_(matrixStack, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
-            ir.zLevel = tmp;
+            gr.render(matrixStack, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
+            ir.blitOffset = tmp;
 
         }finally {
-            RenderSystem.popMatrix();
+            matrixStack.popPose();
         }
     }
 
-    void drawTooltip(MatrixStack matrixStack, int xCorner, int yCorner, int zOffset, int mouseX, int mouseY , Screen gui){
+    void drawTooltip(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, int mouseX, int mouseY , Screen gui){
 
         ItemStack itemStack = null;
 
@@ -372,12 +380,9 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         }
 
         if(itemStack != null){
-
-            FontRenderer font = Optional.ofNullable(itemStack.getItem().getFontRenderer(itemStack)).orElseGet(()->Minecraft.getInstance().fontRenderer);
-
-            net.minecraftforge.fml.client.gui.GuiUtils.preItemToolTip(itemStack);
-            gui.renderWrappedToolTip(matrixStack, gui.getTooltipFromItem(itemStack), mouseX, mouseY, font);
-            net.minecraftforge.fml.client.gui.GuiUtils.postItemToolTip();
+            if (itemStack != null && Minecraft.getInstance().screen != null) {
+                Minecraft.getInstance().screen.renderComponentTooltip(matrixStack, Minecraft.getInstance().screen.getTooltipFromItem(itemStack), mouseX, mouseY);
+            }
         }
     }
 
@@ -391,9 +396,9 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
         AdvancementsScreen gui = (AdvancementsScreen) event.getGui();
 
         try {
-            event.getMatrixStack().push();
+            event.getMatrixStack().pushPose();
 
-            MatrixStack matrixStack = event.getMatrixStack();
+            PoseStack matrixStack = event.getMatrixStack();
 
             int zOffset = 425;
             int zStep = 75;
@@ -414,7 +419,7 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
             drawTooltip(matrixStack, xCorner, yCorner, zOffset, event.getMouseX(), event.getMouseY(), gui);
 
         }finally{
-            event.getMatrixStack().pop();
+            event.getMatrixStack().popPose();
         }
     }
 
@@ -425,10 +430,10 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
 
         AdvancementsScreen gui = (AdvancementsScreen) event.getGui();
 
-        ((List<IGuiEventListener>)gui.getEventListeners()).add(new AdvancementsExGuiEventListener(gui));
+        ((List<GuiEventListener>)gui.children()).add(new AdvancementsExGuiEventListener(gui));
     }
 
-    public static class AdvancementsExGuiEventListener implements IGuiEventListener {
+    public static class AdvancementsExGuiEventListener implements GuiEventListener {
         AdvancementsScreen screen;
         public AdvancementsExGuiEventListener(AdvancementsScreen screen){
             this.screen = screen;
@@ -447,22 +452,22 @@ public class AdvancementsRecipeRenderer implements IRecipePlacer<Ingredient> {
             ItemStack found = null;
 
 
-            AdvancementTabGui selectedTab = screen.selectedTab;
+            AdvancementTab selectedTab = screen.selectedTab;
 
             int mouseXX = (int)(mouseX - offsetX - 9);
             int mouseYY = (int)(mouseY - offsetY - 18);
 
             double scrollX = selectedTab.scrollX;
             double scrollY = selectedTab.scrollY;
-            Map<Advancement, AdvancementEntryGui> guis = selectedTab.guis;
+            Map<Advancement, AdvancementWidget> guis = selectedTab.widgets;
 
-            int i = MathHelper.floor(scrollX);
-            int j = MathHelper.floor(scrollY);
+            int i = Mth.floor(scrollX);
+            int j = Mth.floor(scrollY);
             if (mouseXX > 0 && mouseXX < 234 && mouseYY > 0 && mouseYY < 113) {
-                for(AdvancementEntryGui advancemententrygui : guis.values()) {
+                for(AdvancementWidget advancemententrygui : guis.values()) {
                     if (advancemententrygui.isMouseOver(i, j, mouseXX, mouseYY)) {
 
-                        DisplayInfo info = advancemententrygui.displayInfo;
+                        DisplayInfo info = advancemententrygui.display;
 
                         found = info.getIcon();
 

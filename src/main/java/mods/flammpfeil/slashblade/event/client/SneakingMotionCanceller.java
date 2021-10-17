@@ -1,15 +1,12 @@
 package mods.flammpfeil.slashblade.event.client;
 
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class SneakingMotionCanceller {
     private static final class SingletonHolder {
@@ -25,17 +22,17 @@ public class SneakingMotionCanceller {
 
     @SubscribeEvent
     public void onRenderPlayerEventPre(RenderPlayerEvent.Pre event){
-        ItemStack stack = event.getPlayer().getHeldItemMainhand();
+        ItemStack stack = event.getPlayer().getMainHandItem();
 
         if(stack.isEmpty()) return;
         if(!(stack.getItem() instanceof ItemSlashBlade)) return;
 
-        if(!event.getRenderer().getEntityModel().isSneak) return;
+        if(!event.getRenderer().getModel().crouching) return;
 
-        event.getRenderer().getEntityModel().isSneak = false;
+        event.getRenderer().getModel().crouching = false;
 
-        Vector3d offset = event.getRenderer()
-                .getRenderOffset((AbstractClientPlayerEntity) event.getPlayer(), event.getPartialRenderTick())
+        Vec3 offset = event.getRenderer()
+                .getRenderOffset((AbstractClientPlayer) event.getPlayer(), event.getPartialRenderTick())
                 .scale(-1);
 
         event.getMatrixStack().translate(offset.x, offset.y, offset.z);

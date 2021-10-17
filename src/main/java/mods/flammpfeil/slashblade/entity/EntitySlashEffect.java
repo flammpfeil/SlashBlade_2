@@ -1,53 +1,50 @@
 package mods.flammpfeil.slashblade.entity;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.NBTHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.FMLPlayMessages;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
-public class EntitySlashEffect extends ProjectileEntity implements IShootable {
-    private static final DataParameter<Integer> COLOR = EntityDataManager.<Integer>createKey(EntitySlashEffect.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> FLAGS = EntityDataManager.<Integer>createKey(EntitySlashEffect.class, DataSerializers.VARINT);
-    private static final DataParameter<Float> ROTATION_OFFSET = EntityDataManager.<Float>createKey(EntitySlashEffect.class, DataSerializers.FLOAT);
-    private static final DataParameter<Float> ROTATION_ROLL = EntityDataManager.<Float>createKey(EntitySlashEffect.class, DataSerializers.FLOAT);
-    private static final DataParameter<Float> BASESIZE = EntityDataManager.<Float>createKey(EntitySlashEffect.class, DataSerializers.FLOAT);
+public class EntitySlashEffect extends Projectile implements IShootable {
+    private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> ROTATION_OFFSET = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ROTATION_ROLL = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> BASESIZE = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
 
     private int lifetime = 10;
     private KnockBacks action = KnockBacks.cancel;
@@ -82,32 +79,32 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
     public UUID shootingEntity;
 
-    private SoundEvent livingEntitySound = SoundEvents.ENTITY_WITHER_HURT;
+    private SoundEvent livingEntitySound = SoundEvents.WITHER_HURT;
     protected SoundEvent getHitEntitySound() {
         return this.livingEntitySound;
     }
-    public EntitySlashEffect(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
+    public EntitySlashEffect(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
         this.setNoGravity(true);
         //this.setGlowing(true);
     }
 
-    public static EntitySlashEffect createInstance(FMLPlayMessages.SpawnEntity packet, World worldIn){
+    public static EntitySlashEffect createInstance(FMLPlayMessages.SpawnEntity packet, Level worldIn){
         return new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, worldIn);
     }
 
     @Override
-    protected void registerData() {
-        this.dataManager.register(COLOR, 0x3333FF);
-        this.dataManager.register(FLAGS, 0);
+    protected void defineSynchedData() {
+        this.entityData.define(COLOR, 0x3333FF);
+        this.entityData.define(FLAGS, 0);
 
-        this.dataManager.register(ROTATION_OFFSET, 0.0f);
-        this.dataManager.register(ROTATION_ROLL, 0.0f);
-        this.dataManager.register(BASESIZE, 1.0f);
+        this.entityData.define(ROTATION_OFFSET, 0.0f);
+        this.entityData.define(ROTATION_ROLL, 0.0f);
+        this.entityData.define(BASESIZE, 1.0f);
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag compound) {
 
         NBTHelper.getNBTCoupler(compound)
                 .put("RotationOffset", this.getRotationOffset())
@@ -123,7 +120,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag compound) {
         NBTHelper.getNBTCoupler(compound)
                 .get("RotationOffset", this::setRotationOffset)
                 .get("RotationRoll", this::setRotationRoll)
@@ -138,38 +135,38 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        this.setMotion(0,0,0);
+        this.setDeltaMovement(0,0,0);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public boolean isInRangeToRenderDist(double distance) {
-        double d0 = this.getBoundingBox().getAverageEdgeLength() * 10.0D;
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        double d0 = this.getBoundingBox().getSize() * 10.0D;
         if (Double.isNaN(d0)) {
             d0 = 1.0D;
         }
 
-        d0 = d0 * 64.0D * getRenderDistanceWeight();
+        d0 = d0 * 64.0D * getViewScale();
         return distance < d0 * d0;
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
-        this.setPosition(x, y, z);
-        this.setRotation(yaw, pitch);
+    public void lerpTo(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
+        this.setPos(x, y, z);
+        this.setRot(yaw, pitch);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void setVelocity(double x, double y, double z) {
-        this.setMotion(0, 0, 0);
+    public void lerpMotion(double x, double y, double z) {
+        this.setDeltaMovement(0, 0, 0);
     }
 
     enum FlagsState {
@@ -192,16 +189,16 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
 
     private void refreshFlags(){
-        if(this.world.isRemote){
-            int newValue = this.dataManager.get(FLAGS).intValue();
+        if(this.level.isClientSide){
+            int newValue = this.entityData.get(FLAGS).intValue();
             if(intFlags != newValue){
                 intFlags = newValue;
-                EnumSetConverter.convertToEnumSet(flags, FlagsState.values(), intFlags);
+                flags = EnumSetConverter.convertToEnumSet(FlagsState.class, intFlags);
             }
         }else{
             int newValue = EnumSetConverter.convertToInt(this.flags);
             if(this.intFlags != newValue) {
-                this.dataManager.set(FLAGS, newValue);
+                this.entityData.set(FLAGS, newValue);
                 this.intFlags = newValue;
             }
         }
@@ -241,7 +238,7 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
     
     public void setNoClip(boolean value) {
-        this.noClip = value;
+        this.noPhysics = value;
         if(value)
             setFlags(FlagsState.NoClip);
         else
@@ -249,8 +246,8 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
     //disallowedHitBlock
     public boolean isNoClip() {
-        if (!this.world.isRemote) {
-            return this.noClip;
+        if (!this.level.isClientSide) {
+            return this.noPhysics;
         } else {
             refreshFlags();
             return flags.contains(FlagsState.NoClip);
@@ -261,48 +258,48 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     public void tick() {
         super.tick();
 
-        if (ticksExisted == 2){
+        if (tickCount == 2){
 
             if (!getMute())
-                this.playSound(SoundEvents.ITEM_TRIDENT_THROW, 0.80F, 0.625F + 0.1f * this.rand.nextFloat());
+                this.playSound(SoundEvents.TRIDENT_THROW, 0.80F, 0.625F + 0.1f * this.random.nextFloat());
             else
-                this.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 0.4F / (this.rand.nextFloat() * 0.4F + 0.8F));
+                this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 0.5F, 0.4F / (this.random.nextFloat() * 0.4F + 0.8F));
 
             if(getIsCritical())
-                this.playSound(getHitEntitySound(), 0.2F, 0.4F + 0.25f * this.rand.nextFloat());
+                this.playSound(getHitEntitySound(), 0.2F, 0.4F + 0.25f * this.random.nextFloat());
         }
 
-        if(getShooter() != null && !getShooter().isWet() && ticksExisted < (getLifetime() * 0.75)){
-            Vector3d start = this.getPositionVec();
+        if(getShooter() != null && !getShooter().isInWaterOrRain() && tickCount < (getLifetime() * 0.75)){
+            Vec3 start = this.position();
             Vector4f normal = new Vector4f(1,0,0,1);
 
-            float progress = this.ticksExisted / (float)lifetime;
+            float progress = this.tickCount / (float)lifetime;
 
-            normal.transform(new Quaternion(Vector3f.YP,-this.rotationYaw -90, true));
-            normal.transform(new Quaternion(Vector3f.ZP,this.rotationPitch, true));
+            normal.transform(new Quaternion(Vector3f.YP,-this.getYRot() -90, true));
+            normal.transform(new Quaternion(Vector3f.ZP,this.getXRot(), true));
             normal.transform(new Quaternion(Vector3f.XP,this.getRotationRoll(), true));
             normal.transform(new Quaternion(Vector3f.YP,140 + this.getRotationOffset() -200.0F * progress, true));
 
-            Vector3d normal3d = new Vector3d(normal.getX(), normal.getY(), normal.getZ());
+            Vec3 normal3d = new Vec3(normal.x(), normal.y(), normal.z());
 
-            BlockRayTraceResult rayResult = this.getEntityWorld().rayTraceBlocks(
-                    new RayTraceContext(
+            BlockHitResult rayResult = this.getCommandSenderWorld().clip(
+                    new ClipContext(
                             start.add(normal3d.scale(1.5)),
                             start.add(normal3d.scale(3)),
-                            RayTraceContext.BlockMode.COLLIDER,
-                            RayTraceContext.FluidMode.ANY,
+                            ClipContext.Block.COLLIDER,
+                            ClipContext.Fluid.ANY,
                             null));
 
-            if(rayResult.getType() == RayTraceResult.Type.BLOCK){
-                FallHandler.spawnLandingParticle(this, rayResult.getHitVec(), normal3d , 3);
+            if(rayResult.getType() == HitResult.Type.BLOCK){
+                FallHandler.spawnLandingParticle(this, rayResult.getLocation(), normal3d , 3);
             }
         }
 
         if(this.getShooter() != null) {
-            AxisAlignedBB bb = this.getBoundingBox();
+            AABB bb = this.getBoundingBox();
 
             //no cyclehit
-            if (this.ticksExisted % 2 == 0) {
+            if (this.tickCount % 2 == 0) {
                 boolean forceHit = true;
 
                 //todo: isCritical = hp direct attack & magic damage & melee damage & armor piercing & event override force hit
@@ -327,17 +324,17 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
 
     protected void tryDespawn() {
-        if(!this.world.isRemote){
-            if (getLifetime() < this.ticksExisted)
-                this.remove();
+        if(!this.level.isClientSide){
+            if (getLifetime() < this.tickCount)
+                this.remove(RemovalReason.DISCARDED);
         }
     }
 
     public int getColor(){
-        return this.getDataManager().get(COLOR);
+        return this.getEntityData().get(COLOR);
     }
     public void setColor(int value){
-        this.getDataManager().set(COLOR,value);
+        this.getEntityData().set(COLOR,value);
     }
 
     public int getLifetime(){
@@ -348,39 +345,44 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
     }
 
     public float getRotationOffset(){
-        return this.getDataManager().get(ROTATION_OFFSET);
+        return this.getEntityData().get(ROTATION_OFFSET);
     }
     public void setRotationOffset(float value){
-        this.getDataManager().set(ROTATION_OFFSET, value);
+        this.getEntityData().set(ROTATION_OFFSET, value);
     }
     public float getRotationRoll(){
-        return this.getDataManager().get(ROTATION_ROLL);
+        return this.getEntityData().get(ROTATION_ROLL);
     }
     public void setRotationRoll(float value){
-        this.getDataManager().set(ROTATION_ROLL, value);
+        this.getEntityData().set(ROTATION_ROLL, value);
     }public float getBaseSize(){
-        return this.getDataManager().get(BASESIZE);
+        return this.getEntityData().get(BASESIZE);
     }
     public void setBaseSize(float value){
-        this.getDataManager().set(BASESIZE, value);
+        this.getEntityData().set(BASESIZE, value);
     }
 
     @Nullable
     @Override
     public Entity getShooter() {
-        return this.shootingEntity != null && this.world instanceof ServerWorld ? ((ServerWorld)this.world).getEntityByUuid(this.shootingEntity) : null;
+        return this.shootingEntity != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.shootingEntity) : null;
     }
 
     @Override
     public void setShooter(Entity shooter) {
-        this.shootingEntity = (shooter != null) ? shooter.getUniqueID() : null;
+        setOwner(shooter);
     }
 
-    public List<EffectInstance> getPotionEffects(){
-        List<EffectInstance> effects = PotionUtils.getEffectsFromTag(this.getPersistentData());
+    @Override
+    public void setOwner(Entity shooter) {
+        this.shootingEntity = (shooter != null) ? shooter.getUUID() : null;
+    }
+
+    public List<MobEffectInstance> getPotionEffects(){
+        List<MobEffectInstance> effects = PotionUtils.getAllEffects(this.getPersistentData());
 
         if(effects.isEmpty())
-            effects.add(new EffectInstance(Effects.POISON, 1, 1));
+            effects.add(new MobEffectInstance(MobEffects.POISON, 1, 1));
 
         return effects;
     }
@@ -396,9 +398,9 @@ public class EntitySlashEffect extends ProjectileEntity implements IShootable {
 
 
     @Nullable
-    public EntityRayTraceResult getRayTrace(Vector3d p_213866_1_, Vector3d p_213866_2_) {
-        return ProjectileHelper.rayTraceEntities(this.world, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expand(this.getMotion()).grow(1.0D), (p_213871_1_) -> {
-            return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.canBeCollidedWith() && (p_213871_1_ != this.getShooter());
+    public EntityHitResult getRayTrace(Vec3 p_213866_1_, Vec3 p_213866_2_) {
+        return ProjectileUtil.getEntityHitResult(this.level, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), (p_213871_1_) -> {
+            return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.isPickable() && (p_213871_1_ != this.getShooter());
         });
     }
 }

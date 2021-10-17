@@ -1,11 +1,10 @@
 package mods.flammpfeil.slashblade.event.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -20,8 +19,8 @@ public class RenderOverrideEvent extends Event {
     String target;
     ResourceLocation texture;
 
-    MatrixStack matrixStack;
-    IRenderTypeBuffer buffer;
+    PoseStack matrixStack;
+    MultiBufferSource buffer;
 
     WavefrontObject originalModel;
     String originalTarget;
@@ -67,15 +66,15 @@ public class RenderOverrideEvent extends Event {
         this.target = target;
     }
 
-    public MatrixStack getMatrixStack() {
+    public PoseStack getMatrixStack() {
         return matrixStack;
     }
 
-    public IRenderTypeBuffer getBuffer() {
+    public MultiBufferSource getBuffer() {
         return buffer;
     }
 
-    public RenderOverrideEvent(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, MatrixStack  matrixStack, IRenderTypeBuffer buffer){
+    public RenderOverrideEvent(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, PoseStack  matrixStack, MultiBufferSource buffer){
         this.stack = stack;
         this.originalModel = this.model = model;
         this.originalTarget = this.target = target;
@@ -86,7 +85,7 @@ public class RenderOverrideEvent extends Event {
     }
 
 
-    public static RenderOverrideEvent onRenderOverride(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, MatrixStack  matrixStack, IRenderTypeBuffer buffer)
+    public static RenderOverrideEvent onRenderOverride(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, PoseStack  matrixStack, MultiBufferSource buffer)
     {
         RenderOverrideEvent event = new RenderOverrideEvent(stack, model, target, texture, matrixStack, buffer);
         MinecraftForge.EVENT_BUS.post(event);

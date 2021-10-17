@@ -2,8 +2,8 @@ package mods.flammpfeil.slashblade.util;
 
 import com.google.gson.*;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 public class AdvancementBuilder {
     static public String getAdvancementJsonStr(ItemStack inItemStack){
@@ -38,7 +38,7 @@ public class AdvancementBuilder {
 
                     iconItem.getOrCreateTag().putString("Crafting", recipeid);
 
-                    CompoundNBT iconNbt = iconItem.write(new CompoundNBT());
+                    CompoundTag iconNbt = iconItem.save(new CompoundTag());
                     icon.addProperty("nbt", "{SlashBladeIcon:" + iconNbt.toString() + "}");
                 }
 

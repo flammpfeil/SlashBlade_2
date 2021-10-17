@@ -21,10 +21,14 @@ package mods.flammpfeil.slashblade.capability.slashblade;
 
 import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
-import net.minecraft.item.Rarity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import mods.flammpfeil.slashblade.util.EnumSetConverter;
+import mods.flammpfeil.slashblade.util.NBTHelper;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -38,7 +42,7 @@ import java.util.UUID;
  * Derived from the Redstone Flux power system designed by King Lemming and originally utilized in Thermal Expansion and related mods.
  * Created with consent and permission of King Lemming and Team CoFH. Released with permission under LGPL 2.1 when bundled with Forge.
  */
-public class SlashBladeState implements ISlashBladeState {
+public class SlashBladeState implements ISlashBladeState{
 
     //action state
     protected long lastActionTime; //lastActionTime
@@ -86,12 +90,12 @@ public class SlashBladeState implements ISlashBladeState {
     protected Optional<CarryType> carryType = Optional.empty(); //StandbyRenderType
     protected Optional<Color> effectColor = Optional.empty(); //SummonedSwordColor
     protected boolean effectColorInverse;//SummonedSwordColorInverse
-    protected Optional<Vector3d> adjust = Optional.empty();//adjustXYZ
+    protected Optional<Vec3> adjust = Optional.empty();//adjustXYZ
 
     protected Optional<ResourceLocation> texture = Optional.empty(); //TextureName
     protected Optional<ResourceLocation> model = Optional.empty();//ModelName
 
-    private CompoundNBT shareTag = null;
+    private CompoundTag shareTag = null;
 
     public SlashBladeState() {
     }
@@ -360,12 +364,12 @@ public class SlashBladeState implements ISlashBladeState {
     }
 
     @Override
-    public Vector3d getAdjust() {
-        return adjust.orElseGet(() -> Vector3d.ZERO);
+    public Vec3 getAdjust() {
+        return adjust.orElseGet(() -> Vec3.ZERO);
     }
 
     @Override
-    public void setAdjust(Vector3d adjust) {
+    public void setAdjust(Vec3 adjust) {
         this.adjust = Optional.ofNullable(adjust);
     }
 
@@ -447,12 +451,12 @@ public class SlashBladeState implements ISlashBladeState {
 
 
     @Override
-    public CompoundNBT getShareTag() {
+    public CompoundTag getShareTag() {
         return this.shareTag;
     }
 
     @Override
-    public void setShareTag(CompoundNBT shareTag) {
+    public void setShareTag(CompoundTag shareTag) {
         this.shareTag = shareTag;
     }
 

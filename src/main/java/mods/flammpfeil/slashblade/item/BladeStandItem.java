@@ -2,17 +2,18 @@ package mods.flammpfeil.slashblade.item;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.entity.BladeStandEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.HangingEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.item.PaintingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
+import net.minecraft.world.item.HangingEntityItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 
 public class BladeStandItem extends HangingEntityItem {
     private boolean isWallType;
@@ -26,41 +27,41 @@ public class BladeStandItem extends HangingEntityItem {
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
-        BlockPos blockpos = context.getPos();
-        Direction direction = context.getFace();
-        BlockPos blockpos1 = blockpos.offset(direction);
-        PlayerEntity playerentity = context.getPlayer();
-        ItemStack itemstack = context.getItem();
-        if (playerentity != null && !this.canPlace(playerentity, direction, itemstack, blockpos1)) {
-            return ActionResultType.FAIL;
+    public InteractionResult useOn(UseOnContext context) {
+        BlockPos blockpos = context.getClickedPos();
+        Direction direction = context.getClickedFace();
+        BlockPos blockpos1 = blockpos.relative(direction);
+        Player playerentity = context.getPlayer();
+        ItemStack itemstack = context.getItemInHand();
+        if (playerentity != null && !this.mayPlace(playerentity, direction, itemstack, blockpos1)) {
+            return InteractionResult.FAIL;
         } else {
-            World world = context.getWorld();
+            Level world = context.getLevel();
             HangingEntity hangingentity = BladeStandEntity.createInstanceFromPos(world, blockpos1, direction, this);
 
-            CompoundNBT compoundnbt = itemstack.getTag();
+            CompoundTag compoundnbt = itemstack.getTag();
             if (compoundnbt != null) {
-                EntityType.applyItemNBT(world, playerentity, hangingentity, compoundnbt);
+                EntityType.updateCustomEntityTag(world, playerentity, hangingentity, compoundnbt);
             }
 
-            if (hangingentity.onValidSurface()) {
-                if (!world.isRemote) {
-                    hangingentity.playPlaceSound();
-                    world.addEntity(hangingentity);
+            if (hangingentity.survives()) {
+                if (!world.isClientSide) {
+                    hangingentity.playPlacementSound();
+                    world.addFreshEntity(hangingentity);
                 }
 
                 itemstack.shrink(1);
-                return ActionResultType.func_233537_a_(world.isRemote);
+                return InteractionResult.sidedSuccess(world.isClientSide);
             } else {
-                return ActionResultType.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
     }
 
-    protected boolean canPlace(PlayerEntity player, Direction dir, ItemStack stack, BlockPos pos) {
+    protected boolean mayPlace(Player player, Direction dir, ItemStack stack, BlockPos pos) {
         if(isWallType)
-            return !dir.getAxis().isVertical() && !World.isOutsideBuildHeight(pos) && player.canPlayerEdit(pos, dir, stack);
+            return !dir.getAxis().isVertical() && !player.level.isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
         else
-            return (dir == Direction.UP) && !World.isOutsideBuildHeight(pos) && player.canPlayerEdit(pos, dir, stack);
+            return (dir == Direction.UP) && !player.level.isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
     }
 }

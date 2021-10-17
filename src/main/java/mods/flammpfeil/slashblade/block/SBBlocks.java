@@ -1,7 +1,6 @@
 package mods.flammpfeil.slashblade.block;
 
 import mods.flammpfeil.slashblade.SlashBlade;
-import net.minecraft.block.Block;
 import net.minecraftforge.registries.ObjectHolder;
 
 @ObjectHolder(SlashBlade.modid)

@@ -1,12 +1,9 @@
 package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,7 +32,7 @@ public class RankPointHandler {
             victim.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->cr.addRankPoint(victim, -cr.getUnitCapacity()));
 
 
-        Entity trueSource = event.getSource().getTrueSource();
+        Entity trueSource = event.getSource().getEntity();
         if (!(trueSource instanceof LivingEntity)) return;
         trueSource.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->cr.addRankPoint(event.getSource()));
     }

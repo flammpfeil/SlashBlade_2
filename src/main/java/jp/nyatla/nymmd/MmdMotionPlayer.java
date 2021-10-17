@@ -40,16 +40,16 @@ package jp.nyatla.nymmd;
 
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import jp.nyatla.nymmd.core.PmdBone;
 import jp.nyatla.nymmd.core.PmdFace;
 import jp.nyatla.nymmd.core.PmdIK;
-import jp.nyatla.nymmd.types.*;
+import jp.nyatla.nymmd.types.FaceData;
+import jp.nyatla.nymmd.types.MmdMatrix;
+import jp.nyatla.nymmd.types.MmdVector3;
+import jp.nyatla.nymmd.types.MotionData;
 
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public abstract class MmdMotionPlayer
 {

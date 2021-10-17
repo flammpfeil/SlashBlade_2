@@ -1,21 +1,13 @@
 package mods.flammpfeil.slashblade.event;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import mods.flammpfeil.slashblade.capability.slashblade.BladeStateCapabilityProvider;
-import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.NBTHelper;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentData;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +23,7 @@ public class AnvilCraftingRecipe {
 
     ItemStack result;
 
-    CompoundNBT overwriteTag;
+    CompoundTag overwriteTag;
 
     public AnvilCraftingRecipe() {
         this.level = 1;
@@ -50,7 +42,7 @@ public class AnvilCraftingRecipe {
         if(!material.hasTag())
             return null;
 
-        CompoundNBT tag = material.getOrCreateTag();
+        CompoundTag tag = material.getOrCreateTag();
 
 
         if(!tag.contains("RequiredBlade"))
@@ -65,7 +57,7 @@ public class AnvilCraftingRecipe {
         return recipe;
     }
 
-    public void readNBT(CompoundNBT tag){
+    public void readNBT(CompoundTag tag){
         NBTHelper.getNBTCoupler(tag)
                 .get("level", this::setLevel)
                 .get("killCount", this::setKillcount)
@@ -77,8 +69,8 @@ public class AnvilCraftingRecipe {
                 .get("overwriteTag", this::setOverwriteTag);
     }
 
-    public INBT writeNBT(){
-        CompoundNBT tag = new CompoundNBT();
+    public Tag writeNBT(){
+        CompoundTag tag = new CompoundTag();
 
         NBTHelper.getNBTCoupler(tag)
                 .put("level", this.getLevel())
@@ -87,7 +79,7 @@ public class AnvilCraftingRecipe {
                 .put("broken", this.isBroken())
                 .put("noScabbard", this.isNoScabbard())
                 .put("translationKey", this.getTranslationKey())
-                .put("result", this.getResult().write(new CompoundNBT()))
+                .put("result", this.getResult().save(new CompoundTag()))
                 .put("overwriteTag", this.getOverwriteTag());
 
         return tag;
@@ -97,7 +89,7 @@ public class AnvilCraftingRecipe {
         if(base.isEmpty()) return false;
 
         if(!this.translationKey.isEmpty()){
-            if(!base.getTranslationKey().equals(this.translationKey))
+            if(!base.getDescriptionId().equals(this.translationKey))
                 return false;
         }
 
@@ -132,7 +124,7 @@ public class AnvilCraftingRecipe {
 
         if(!this.getEnchantments().isEmpty()){
             for (Map.Entry<Enchantment,Integer> entry : this.getEnchantments().entrySet()) {
-                if(EnchantmentHelper.getEnchantmentLevel(entry.getKey(), base) < entry.getValue())
+                if(EnchantmentHelper.getItemEnchantmentLevel(entry.getKey(), base) < entry.getValue())
                     return false;
             }
         }
@@ -214,10 +206,10 @@ public class AnvilCraftingRecipe {
         if(isOnlyTagOverwrite()){
             //refine item
 
-            CompoundNBT tag = base.write(new CompoundNBT());
+            CompoundTag tag = base.save(new CompoundTag());
             tag.merge(this.getOverwriteTag().copy());
 
-            result = ItemStack.read(tag);
+            result = ItemStack.of(tag);
 
         }else{
             //reforge item
@@ -261,19 +253,19 @@ public class AnvilCraftingRecipe {
     public void setResult(ItemStack result) {
         this.result = result;
     }
-    public void setResultWithNBT(CompoundNBT tag){
-        this.setResult(ItemStack.read(tag));
+    public void setResultWithNBT(CompoundTag tag){
+        this.setResult(ItemStack.of(tag));
     }
 
     public boolean isOnlyTagOverwrite() {
         return overwriteTag != null;
     }
 
-    public CompoundNBT getOverwriteTag() {
+    public CompoundTag getOverwriteTag() {
         return overwriteTag;
     }
 
-    public void setOverwriteTag(CompoundNBT overwriteTag) {
+    public void setOverwriteTag(CompoundTag overwriteTag) {
         this.overwriteTag = overwriteTag;
     }
 }

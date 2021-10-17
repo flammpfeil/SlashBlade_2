@@ -1,22 +1,21 @@
 package mods.flammpfeil.slashblade.capability.inputstate;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import mods.flammpfeil.slashblade.util.EnumSetConverter;
+import mods.flammpfeil.slashblade.util.InputCommand;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class InputStateCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundNBT> {
+public class InputStateCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
-    @CapabilityInject(IInputState.class)
-    public static Capability<IInputState> INPUT_STATE = null;
+    public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 
-    protected LazyOptional<IInputState> state = LazyOptional.of(INPUT_STATE::getDefaultInstance);
+    protected LazyOptional<IInputState> state = LazyOptional.of(()->new InputState());
 
     @Nonnull
     @Override
@@ -24,19 +23,24 @@ public class InputStateCapabilityProvider implements ICapabilityProvider, INBTSe
         return INPUT_STATE.orEmpty(cap, state);
     }
 
-    static final String tagState = "InputState";
+    static final String KEY = "Command";
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT baseTag = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag baseTag = new CompoundTag();
 
-        state.ifPresent(state -> baseTag.put(tagState , INPUT_STATE.writeNBT(state, null)));
+        state.ifPresent(instance -> {
+            baseTag.putInt(KEY, EnumSetConverter.convertToInt(instance.getCommands()));
+        });
 
         return baseTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT baseTag) {
-        state.ifPresent(state -> INPUT_STATE.readNBT(state, null, baseTag.getCompound(tagState)));
+    public void deserializeNBT(CompoundTag baseTag) {
+        state.ifPresent(instance ->{
+            instance.getCommands().addAll(
+                    EnumSetConverter.convertToEnumSet(InputCommand.class, baseTag.getInt(KEY)));
+        });
     }
 }

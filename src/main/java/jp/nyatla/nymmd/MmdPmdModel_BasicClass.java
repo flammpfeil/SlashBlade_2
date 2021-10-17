@@ -37,16 +37,23 @@
  */
 package jp.nyatla.nymmd;
 
-import java.util.*;
-import java.io.*;
-import java.util.stream.Stream;
-
 import com.google.common.collect.Maps;
-import jp.nyatla.nymmd.core.*;
-import jp.nyatla.nymmd.struct.*;
+import jp.nyatla.nymmd.core.PmdBone;
+import jp.nyatla.nymmd.core.PmdFace;
+import jp.nyatla.nymmd.core.PmdIK;
+import jp.nyatla.nymmd.struct.DataReader;
 import jp.nyatla.nymmd.struct.pmd.*;
-import jp.nyatla.nymmd.types.*;
-import net.minecraft.util.ResourceLocation;
+import jp.nyatla.nymmd.types.MmdTexUV;
+import jp.nyatla.nymmd.types.MmdVector3;
+import jp.nyatla.nymmd.types.PmdMaterial;
+import jp.nyatla.nymmd.types.PmdSkinInfo;
+import net.minecraft.resources.ResourceLocation;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Stream;
 
 
 class DataComparator implements Comparator<PmdIK>

@@ -2,7 +2,7 @@ package mods.flammpfeil.slashblade.event;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fmlserverevents.FMLServerAboutToStartEvent;
 
 public class AllowFlightOverrwrite {
 
@@ -19,6 +19,6 @@ public class AllowFlightOverrwrite {
 
     @SubscribeEvent
     public void onFMLServerAboutToStartEvent(FMLServerAboutToStartEvent event){
-        event.getServer().setAllowFlight(true);
+        event.getServer().setFlightAllowed(true);
     }
 }

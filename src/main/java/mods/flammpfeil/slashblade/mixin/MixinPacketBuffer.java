@@ -3,10 +3,10 @@ package mods.flammpfeil.slashblade.mixin;
 
 import io.netty.buffer.ByteBuf;
 import mods.flammpfeil.slashblade.SlashBlade;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,60 +15,60 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-@Mixin(PacketBuffer.class)
+@Mixin(FriendlyByteBuf.class)
 public class MixinPacketBuffer{
 
     @Inject(at = @At("HEAD")
-            , method="writeItemStack(Lnet/minecraft/item/ItemStack;Z)Lnet/minecraft/network/PacketBuffer;"
+            , method="writeItemStack(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/network/FriendlyByteBuf;"
             , cancellable = true
             , remap = false)
-    public void writeItemStack(ItemStack stack, boolean limitedTag, CallbackInfoReturnable<PacketBuffer> callback) {
+    public void writeItemStack(ItemStack stack, boolean limitedTag, CallbackInfoReturnable<FriendlyByteBuf> callback) {
         if (stack.isEmpty()) {
             this.writeBoolean(false);
         } else {
             this.writeBoolean(true);
             Item item = stack.getItem();
-            this.writeVarInt(Item.getIdFromItem(item));
+            this.writeVarInt(Item.getId(item));
             this.writeByte(stack.getCount());
 
-            CompoundNBT compoundnbt = null;
-            if (item.isDamageable(stack) || item.shouldSyncTag()) {
+            CompoundTag compoundnbt = null;
+            if (item.isDamageable(stack) || item.shouldOverrideMultiplayerNbt()) {
                 compoundnbt = limitedTag ? stack.getShareTag() : stack.getTag();
             }
 
-            this.writeCompoundTag(compoundnbt);
+            this.writeNbt(compoundnbt);
 
             //add
-            CompoundNBT completeNbt =new CompoundNBT();
-            stack.write(completeNbt);
-            CompoundNBT caps = completeNbt.contains("ForgeCaps") ? completeNbt.getCompound("ForgeCaps") : null;
-            this.writeCompoundTag(caps);
+            CompoundTag completeNbt =new CompoundTag();
+            stack.save(completeNbt);
+            CompoundTag caps = completeNbt.contains("ForgeCaps") ? completeNbt.getCompound("ForgeCaps") : null;
+            this.writeNbt(caps);
         }
 
-        callback.setReturnValue(PacketBuffer.class.cast(this));
+        callback.setReturnValue(FriendlyByteBuf.class.cast(this));
         callback.cancel();
     }
 
     @Shadow
     public ByteBuf writeBoolean(boolean b) {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+        throw new IllegalStateException("Mixin failed to shadow writeBoolean()");
     }
     @Shadow
-    public PacketBuffer writeVarInt(int i) {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+    public FriendlyByteBuf writeVarInt(int i) {
+        throw new IllegalStateException("Mixin failed to shadow writeVarInt()");
     }
     @Shadow
     public ByteBuf writeByte(int i) {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+        throw new IllegalStateException("Mixin failed to shadow writeByte()");
     }
     @Shadow
-    public PacketBuffer writeCompoundTag(@Nullable CompoundNBT nbt) {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+    public FriendlyByteBuf writeNbt(@Nullable CompoundTag nbt) {
+        throw new IllegalStateException("Mixin failed to shadow writeNbt()");
     }
 
 
     @Inject(at=@At("HEAD")
-        , method = "readItemStack()Lnet/minecraft/item/ItemStack;"
+        , method = "readItem()Lnet/minecraft/world/item/ItemStack;"
         , cancellable = true)
     public void readItemStack(CallbackInfoReturnable<ItemStack> callback) {
         ItemStack result;
@@ -78,10 +78,10 @@ public class MixinPacketBuffer{
             int i = this.readVarInt();
             int j = this.readByte();
 
-            CompoundNBT shareTag = this.readCompoundTag();
-            CompoundNBT capsTag = this.readCompoundTag();
+            CompoundTag shareTag = this.readNbt();
+            CompoundTag capsTag = this.readNbt();
 
-            result = new ItemStack(Item.getItemById(i), j, capsTag);
+            result = new ItemStack(Item.byId(i), j, capsTag);
             result.readShareTag(shareTag);
         }
 
@@ -91,18 +91,18 @@ public class MixinPacketBuffer{
 
     @Shadow
     public boolean readBoolean() {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+        throw new IllegalStateException("Mixin failed to shadow readBoolean()");
     }
     @Shadow
     public int readVarInt() {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+        throw new IllegalStateException("Mixin failed to shadow readVarInt()");
     }
     @Shadow
     public byte readByte() {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+        throw new IllegalStateException("Mixin failed to shadow readByte()");
     }
     @Shadow
-    public CompoundNBT readCompoundTag() {
-        throw new IllegalStateException("Mixin failed to shadow getItem()");
+    public CompoundTag readNbt() {
+        throw new IllegalStateException("Mixin failed to shadow readNbt()");
     }
 }

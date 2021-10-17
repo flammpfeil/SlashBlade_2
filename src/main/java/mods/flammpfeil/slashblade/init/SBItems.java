@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.init;
 
 import mods.flammpfeil.slashblade.SlashBlade;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ObjectHolder;
 
 @ObjectHolder(SlashBlade.modid)

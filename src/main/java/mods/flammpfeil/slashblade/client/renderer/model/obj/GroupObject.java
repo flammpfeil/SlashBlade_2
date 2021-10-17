@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.client.renderer.model.obj;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -29,7 +29,7 @@ public class GroupObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void render(IVertexBuilder tessellator)
+    public void render(VertexConsumer tessellator)
     {
         if (faces.size() > 0)
         {

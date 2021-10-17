@@ -2,8 +2,8 @@ package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,15 +28,15 @@ public class Untouchable {
 
     public static void setUntouchable(LivingEntity entity, int ticks){
         entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
-            ef.setManagedUntouchable(entity.world.getGameTime(), ticks);
-            ef.storeEffects(entity.getActivePotionMap().keySet());
+            ef.setManagedUntouchable(entity.level.getGameTime(), ticks);
+            ef.storeEffects(entity.getActiveEffectsMap().keySet());
             ef.storeHealth(entity.getHealth());
         });
     }
 
     private boolean checkUntouchable(LivingEntity entity){
         Optional<Boolean> isUntouchable = entity.getCapability(CapabilityMobEffect.MOB_EFFECT)
-                .map(ef->ef.isUntouchable(entity.getEntityWorld().getGameTime()));
+                .map(ef->ef.isUntouchable(entity.getCommandSenderWorld().getGameTime()));
 
         return isUntouchable.orElseGet(()->false);
     }
@@ -53,7 +53,7 @@ public class Untouchable {
     public void onLivingHurt(LivingHurtEvent event){
         if(checkUntouchable(event.getEntityLiving())) {
             event.setCanceled(true);
-            doWitchTime(event.getSource().getTrueSource());
+            doWitchTime(event.getSource().getEntity());
         }
     }
 
@@ -61,7 +61,7 @@ public class Untouchable {
     public void onLivingDamage(LivingDamageEvent event){
         if(checkUntouchable(event.getEntityLiving())) {
             event.setCanceled(true);
-            doWitchTime(event.getSource().getTrueSource());
+            doWitchTime(event.getSource().getEntity());
         }
     }
 
@@ -69,7 +69,7 @@ public class Untouchable {
     public void onLivingAttack(LivingAttackEvent event){
         if(checkUntouchable(event.getEntityLiving())) {
             event.setCanceled(true);
-            doWitchTime(event.getSource().getTrueSource());
+            doWitchTime(event.getSource().getEntity());
         }
     }
 
@@ -77,15 +77,15 @@ public class Untouchable {
     public void onLivingDeath(LivingDeathEvent event){
         if(checkUntouchable(event.getEntityLiving())) {
             event.setCanceled(true);
-            doWitchTime(event.getSource().getTrueSource());
+            doWitchTime(event.getSource().getEntity());
 
             LivingEntity entity = event.getEntityLiving();
 
             entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
                 if(ef.hasUntouchableWorked()) {
-                    entity.getActivePotionMap().keySet().stream()
+                    entity.getActiveEffectsMap().keySet().stream()
                             .filter(p -> !(ef.getEffectSet().contains(p) || p.isBeneficial()))
-                            .forEach(p -> entity.removePotionEffect(p));
+                            .forEach(p -> entity.removeEffect(p));
 
                     float storedHealth = ef.getStoredHealth();
                     if(ef.getStoredHealth() < storedHealth)
@@ -99,14 +99,14 @@ public class Untouchable {
     public void onLivingTicks(LivingEvent.LivingUpdateEvent event){
         LivingEntity entity = event.getEntityLiving();
 
-        if(entity.world.isRemote) return;
+        if(entity.level.isClientSide) return;
 
         entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
             if(ef.hasUntouchableWorked()) {
                 ef.setUntouchableWorked(false);
-                entity.getActivePotionMap().keySet().stream()
+                entity.getActiveEffectsMap().keySet().stream()
                         .filter(p -> !(ef.getEffectSet().contains(p) || p.isBeneficial()))
-                        .forEach(p -> entity.removePotionEffect(p));
+                        .forEach(p -> entity.removeEffect(p));
 
                 float storedHealth = ef.getStoredHealth();
                 if(ef.getStoredHealth() < storedHealth)
@@ -120,7 +120,7 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onPlayerJump(LivingEvent.LivingJumpEvent event){
-        if(!event.getEntityLiving().getHeldItemMainhand()
+        if(!event.getEntityLiving().getMainHandItem()
                 .getCapability(ItemSlashBlade.BLADESTATE).isPresent())
             return;
 

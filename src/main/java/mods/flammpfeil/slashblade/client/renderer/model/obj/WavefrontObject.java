@@ -1,13 +1,14 @@
 package mods.flammpfeil.slashblade.client.renderer.model.obj;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.google.common.collect.ImmutableMap;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class WavefrontObject
 {
-    static public VertexFormat POSITION_TEX_LMAP_COL_NORMAL = new VertexFormat(ImmutableList.<VertexFormatElement>builder().add(DefaultVertexFormats.POSITION_3F).add(DefaultVertexFormats.TEX_2F).add(DefaultVertexFormats.TEX_2SB).add(DefaultVertexFormats.COLOR_4UB).add(DefaultVertexFormats.NORMAL_3B).add(DefaultVertexFormats.PADDING_1B).build());
+    static public VertexFormat POSITION_TEX_LMAP_COL_NORMAL = new VertexFormat(ImmutableMap.<String,VertexFormatElement>builder().put("Position",DefaultVertexFormat.ELEMENT_POSITION).put("Color",DefaultVertexFormat.ELEMENT_COLOR).put("UV0",DefaultVertexFormat.ELEMENT_UV0).put("UV2",DefaultVertexFormat.ELEMENT_UV2).put("Normal",DefaultVertexFormat.ELEMENT_NORMAL).put("Padding",DefaultVertexFormat.ELEMENT_PADDING).build());
 
     private static Pattern vertexPattern = Pattern.compile("(v( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *\\n)|(v( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *$)");
     private static Pattern vertexNormalPattern = Pattern.compile("(vn( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *\\n)|(vn( (\\-){0,1}\\d+(\\.\\d+)?){3,4} *$)");
@@ -54,7 +55,7 @@ public class WavefrontObject
 
         try
         {
-            IResource res = Minecraft.getInstance().getResourceManager().getResource(resource);
+            Resource res = Minecraft.getInstance().getResourceManager().getResource(resource);
             loadObjModel(res.getInputStream());
         }
         catch (IOException e)
@@ -173,7 +174,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void tessellateAll(IVertexBuilder tessellator)
+    public void tessellateAll(VertexConsumer tessellator)
     {
         for (GroupObject groupObject : groupObjects)
         {
@@ -182,7 +183,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void tessellateOnly(IVertexBuilder tessellator, String... groupNames) {
+    public void tessellateOnly(VertexConsumer tessellator, String... groupNames) {
         for (GroupObject groupObject : groupObjects)
         {
             for (String groupName : groupNames)
@@ -196,7 +197,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void tessellatePart(IVertexBuilder tessellator, String partName) {
+    public void tessellatePart(VertexConsumer tessellator, String partName) {
         for (GroupObject groupObject : groupObjects)
         {
             if (partName.equalsIgnoreCase(groupObject.name))
@@ -207,7 +208,7 @@ public class WavefrontObject
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void tessellateAllExcept(IVertexBuilder tessellator, String... excludedGroupNames)
+    public void tessellateAllExcept(VertexConsumer tessellator, String... excludedGroupNames)
     {
         boolean exclude;
         for (GroupObject groupObject : groupObjects)

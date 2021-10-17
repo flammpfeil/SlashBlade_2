@@ -38,10 +38,10 @@
 package jp.nyatla.nymmd;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**

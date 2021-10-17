@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.capability.mobeffect;
 
 import com.google.common.collect.Sets;
-import net.minecraft.potion.Effect;
+import net.minecraft.world.effect.MobEffect;
 
 import java.util.Optional;
 import java.util.Set;
@@ -58,7 +58,7 @@ public class MobEffectState implements IMobEffectState {
 
     Optional<Long> UntouchableTimeout = Optional.empty();
     int untouchableLimit = 200;
-    Set<Effect> effectSet = Sets.newHashSet();
+    Set<MobEffect> effectSet = Sets.newHashSet();
     float storedHealth;
     boolean hasWorked;
 
@@ -84,7 +84,7 @@ public class MobEffectState implements IMobEffectState {
     }
 
     @Override
-    public Set<Effect> getEffectSet() {
+    public Set<MobEffect> getEffectSet() {
         return effectSet;
     }
 

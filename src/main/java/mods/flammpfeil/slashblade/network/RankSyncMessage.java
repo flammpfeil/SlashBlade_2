@@ -3,13 +3,13 @@ package mods.flammpfeil.slashblade.network;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -20,13 +20,13 @@ public class RankSyncMessage {
 
     public RankSyncMessage(){}
 
-    static public RankSyncMessage decode(PacketBuffer buf) {
+    static public RankSyncMessage decode(FriendlyByteBuf buf) {
         RankSyncMessage msg = new RankSyncMessage();
         msg.rawPoint = buf.readLong();
         return msg;
     }
 
-    static public void encode(RankSyncMessage msg, PacketBuffer buf) {
+    static public void encode(RankSyncMessage msg, FriendlyByteBuf buf) {
         buf.writeLong(msg.rawPoint);
     }
 
@@ -48,10 +48,10 @@ public class RankSyncMessage {
 
     @OnlyIn(Dist.CLIENT)
     static public void setPoint(long point){
-        PlayerEntity pl = Minecraft.getInstance().player;
+        Player pl = Minecraft.getInstance().player;
         pl.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->{
 
-            long time = pl.world.getGameTime();
+            long time = pl.level.getGameTime();
 
             IConcentrationRank.ConcentrationRanks oldRank = cr.getRank(time);
 

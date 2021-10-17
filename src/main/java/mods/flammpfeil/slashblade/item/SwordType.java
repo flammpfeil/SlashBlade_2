@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.item;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.EnumSet;
@@ -36,7 +36,7 @@ public enum SwordType{
                 if(s.isSealed())
                     types.add(Cursed);
 
-                if(!s.isSealed() && itemStackIn.isEnchanted() && (itemStackIn.hasDisplayName() || s.isDefaultBewitched()))
+                if(!s.isSealed() && itemStackIn.isEnchanted() && (itemStackIn.hasCustomHoverName() || s.isDefaultBewitched()))
                     types.add(Bewitched);
             });
         }else{

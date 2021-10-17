@@ -2,19 +2,18 @@ package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector4f;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -44,7 +43,7 @@ public class FallHandler {
     }
 
     public static void resetState(LivingEntity user){
-        user.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+        user.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
             state.setFallDecreaseRate(0);
 
             ComboState combo = state.getComboSeq();
@@ -56,47 +55,47 @@ public class FallHandler {
     }
 
     public static void spawnLandingParticle(LivingEntity user , float fallFactor){
-        if (!user.world.isRemote) {
-            int x = MathHelper.floor(user.getPosX());
-            int y = MathHelper.floor(user.getPosY() - (double)0.5F);
-            int z = MathHelper.floor(user.getPosZ());
+        if (!user.level.isClientSide) {
+            int x = Mth.floor(user.getX());
+            int y = Mth.floor(user.getY() - (double)0.5F);
+            int z = Mth.floor(user.getZ());
             BlockPos pos = new BlockPos(x, y, z);
-            BlockState state = user.world.getBlockState(pos);
+            BlockState state = user.level.getBlockState(pos);
 
-            float f = (float) MathHelper.ceil(fallFactor);
-            if (!state.isAir(user.world, pos)) {
+            float f = (float) Mth.ceil(fallFactor);
+            if (!state.isAir()) {
                 double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                 int i = (int)(150.0D * d0);
-                if (!state.addLandingEffects((ServerWorld)user.world, pos, state, user, i))
-                    ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), user.getPosX(), user.getPosY(), user.getPosZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+                if (!state.addLandingEffects((ServerLevel)user.level, pos, state, user, i))
+                    ((ServerLevel)user.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), user.getX(), user.getY(), user.getZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }
-    public static void spawnLandingParticle(Entity user, Vector3d targetPos, Vector3d normal, float fallFactor){
-        if (!user.world.isRemote) {
+    public static void spawnLandingParticle(Entity user, Vec3 targetPos, Vec3 normal, float fallFactor){
+        if (!user.level.isClientSide) {
 
-            Vector3d blockPos = targetPos.add(normal.normalize().scale(0.5f));
+            Vec3 blockPos = targetPos.add(normal.normalize().scale(0.5f));
 
-            int x = MathHelper.floor(blockPos.getX());
-            int y = MathHelper.floor(blockPos.getY());
-            int z = MathHelper.floor(blockPos.getZ());
+            int x = Mth.floor(blockPos.x());
+            int y = Mth.floor(blockPos.y());
+            int z = Mth.floor(blockPos.z());
             BlockPos pos = new BlockPos(x, y, z);
-            BlockState state = user.world.getBlockState(pos);
+            BlockState state = user.level.getBlockState(pos);
 
-            float f = (float) MathHelper.ceil(fallFactor);
-            if (!state.isAir(user.world, pos)) {
+            float f = (float) Mth.ceil(fallFactor);
+            if (!state.isAir()) {
                 double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                 int i = (int)(150.0D * d0);
-                ((ServerWorld)user.world).spawnParticle(new BlockParticleData(ParticleTypes.BLOCK, state), targetPos.getX(), targetPos.getY(), targetPos.getZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+                ((ServerLevel)user.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), targetPos.x(), targetPos.y(), targetPos.z(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }
 
     public static void fallDecrease(LivingEntity user){
-        if(!user.hasNoGravity() && !user.isOnGround()){
+        if(!user.isNoGravity() && !user.isOnGround()){
             user.fallDistance = 1;
 
-            float currentRatio = user.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map((state)->
+            float currentRatio = user.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map((state)->
             {
                 float decRatio = state.getFallDecreaseRate();
 
@@ -110,29 +109,29 @@ public class FallHandler {
 
             double gravityReductionFactor = 0.85f;
 
-            int level = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.FEATHER_FALLING, user);
+            int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.FALL_PROTECTION, user);
             if(0 < level){
                 gravityReductionFactor = Math.min(0.93, gravityReductionFactor + 0.2 * level);
             }
 
-            ModifiableAttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+            AttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             double g = gravity.getValue() * gravityReductionFactor;
 
-            Vector3d motion = user.getMotion();
+            Vec3 motion = user.getDeltaMovement();
             if(motion.y < 0)
-                user.setMotion(motion.x, (motion.y + g) * currentRatio, motion.z);
+                user.setDeltaMovement(motion.x, (motion.y + g) * currentRatio, motion.z);
         }
     }
 
     public static void fallResist(LivingEntity user){
-        if(!user.hasNoGravity() && !user.isOnGround()){
+        if(!user.isNoGravity() && !user.isOnGround()){
             user.fallDistance = 1;
 
-            Vector3d motion = user.getMotion();
-            ModifiableAttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+            Vec3 motion = user.getDeltaMovement();
+            AttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             double g = gravity.getValue();
             if(motion.y < 0)
-                user.setMotion(motion.x, (motion.y + g + 0.002f), motion.z);
+                user.setDeltaMovement(motion.x, (motion.y + g + 0.002f), motion.z);
         }
     }
 }

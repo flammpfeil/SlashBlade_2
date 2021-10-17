@@ -7,15 +7,17 @@ import mods.flammpfeil.slashblade.network.MoveCommandMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -23,8 +25,7 @@ import java.util.EnumSet;
 
 public class MoveInputHandler {
 
-    @CapabilityInject(IInputState.class)
-    public static Capability<IInputState> INPUT_STATE = null;
+    public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 
     public static boolean checkFlag(int data, int flags){
         return (data & flags) == flags;
@@ -35,25 +36,25 @@ public class MoveInputHandler {
     static public void onPlayerPostTick(TickEvent.PlayerTickEvent event){
         if(event.phase != TickEvent.Phase.END) return;
 
-        if(!(event.player instanceof ClientPlayerEntity)) return;
+        if(!(event.player instanceof LocalPlayer)) return;
 
-        ClientPlayerEntity player = (ClientPlayerEntity)event.player;
+        LocalPlayer player = (LocalPlayer)event.player;
 
         EnumSet<InputCommand> commands = EnumSet.noneOf(InputCommand.class);
 
-        if(player.movementInput.forwardKeyDown)
+        if(player.input.up)
             commands.add(InputCommand.FORWARD);
-        if(player.movementInput.backKeyDown)
+        if(player.input.down)
             commands.add(InputCommand.BACK);
-        if(player.movementInput.leftKeyDown)
+        if(player.input.left)
             commands.add(InputCommand.LEFT);
-        if(player.movementInput.rightKeyDown)
+        if(player.input.right)
             commands.add(InputCommand.RIGHT);
 
-        if(player.movementInput.sneaking)
+        if(player.input.shiftKeyDown)
             commands.add(InputCommand.SNEAK);
 
-        if(Minecraft.getInstance().gameSettings.keyBindSprint.isKeyDown())
+        if(Minecraft.getInstance().options.keySprint.isDown())
             commands.add(InputCommand.SPRINT);
 
 /*
@@ -69,23 +70,23 @@ public class MoveInputHandler {
             message.activeTag += MoveCommandMessage.STYLE;
 */
 
-        if(Minecraft.getInstance().gameSettings.keyBindUseItem.isKeyDown())
+        if(Minecraft.getInstance().options.keyUse.isDown())
             commands.add(InputCommand.R_DOWN);
-        if(Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown())
+        if(Minecraft.getInstance().options.keyAttack.isDown())
             commands.add(InputCommand.L_DOWN);
 
-        if(Minecraft.getInstance().gameSettings.keyBindPickBlock.isKeyDown())
+        if(Minecraft.getInstance().options.keyPickItem.isDown())
             commands.add(InputCommand.M_DOWN);
 
 
-        if(Minecraft.getInstance().gameSettings.keyBindSaveToolbar.isKeyDown())
+        if(Minecraft.getInstance().options.keySaveHotbarActivator.isDown())
             commands.add(InputCommand.SAVE_TOOLBAR);
 
         EnumSet<InputCommand> old = player.getCapability(INPUT_STATE)
                 .map((state)->state.getCommands())
                 .orElseGet(()->EnumSet.noneOf(InputCommand.class));
 
-        long currentTime = player.getEntityWorld().getGameTime();
+        long currentTime = player.getCommandSenderWorld().getGameTime();
 
         /*
         if(player.movementInput.forwardKeyDown &&  (0 < (player.getPersistentData().getInt(KEY) & MoveCommandMessage.SNEAK)))
@@ -97,7 +98,7 @@ public class MoveInputHandler {
         boolean doCopy = player.isCreative();
 
         if(doCopy && old.contains(InputCommand.SAVE_TOOLBAR) && !commands.contains(InputCommand.SAVE_TOOLBAR)){
-            ItemStack stack = player.getHeldItemMainhand();
+            ItemStack stack = player.getMainHandItem();
 
             JsonObject ret = new JsonObject();
 
@@ -110,10 +111,10 @@ public class MoveInputHandler {
                 if (stack.getCount() != 1)
                     ret.addProperty("count", stack.getCount());
 
-                CompoundNBT tag = new CompoundNBT();
-                stack.write(tag);
+                CompoundTag tag = new CompoundTag();
+                stack.save(tag);
 
-                CompoundNBT nbt = stack.getOrCreateTag().copy();
+                CompoundTag nbt = stack.getOrCreateTag().copy();
                 if(tag.contains("ForgeCaps"))
                     nbt.put("ForgeCaps", tag.get("ForgeCaps"));
 
@@ -121,7 +122,7 @@ public class MoveInputHandler {
                     //add anvilcrafting recipe template
                     AnvilCraftingRecipe acr = new AnvilCraftingRecipe();
 
-                    ItemStack result = player.getHeldItemOffhand();
+                    ItemStack result = player.getOffhandItem();
                     acr.setResult(result);
 
                     nbt.put("RequiredBlade",acr.writeNBT());
@@ -129,9 +130,9 @@ public class MoveInputHandler {
 
                 if(KeyModifier.CONTROL.isActive(KeyConflictContext.UNIVERSAL)){
                     //add anvilcrafting recipe template
-                    ItemStack result = player.getHeldItemMainhand();
+                    ItemStack result = player.getMainHandItem();
 
-                    CompoundNBT iconNbt = result.write(new CompoundNBT());
+                    CompoundTag iconNbt = result.save(new CompoundTag());
 
                     ret.addProperty("iconStr_nbt",iconNbt.toString());
 
@@ -139,7 +140,7 @@ public class MoveInputHandler {
                     JsonObject criteriaitem = new JsonObject();
                     criteriaitem.addProperty("item", result.getItem().getRegistryName().toString());
 
-                    CompoundNBT checktarget = new CompoundNBT();
+                    CompoundTag checktarget = new CompoundTag();
                     {
                         NBTHelper.NBTCoupler nbtc = NBTHelper.getNBTCoupler(checktarget)
                                 .getChild("ForgeCaps")
@@ -167,7 +168,7 @@ public class MoveInputHandler {
                 GSON.toJson(ret);
             }
 
-            Minecraft.getInstance().keyboardListener.setClipboardString(str);
+            Minecraft.getInstance().keyboardHandler.setClipboard(str);
         }
 
 

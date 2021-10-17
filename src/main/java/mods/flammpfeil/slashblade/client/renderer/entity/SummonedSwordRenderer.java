@@ -1,20 +1,19 @@
 package mods.flammpfeil.slashblade.client.renderer.entity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -25,35 +24,35 @@ public class SummonedSwordRenderer<T extends EntityAbstractSummonedSword> extend
 
     @Nullable
     @Override
-    public ResourceLocation getEntityTexture(T entity) {
+    public ResourceLocation getTextureLocation(T entity) {
         return entity.getTextureLoc();
     }
 
-    public SummonedSwordRenderer(EntityRendererManager renderManagerIn) {
-        super(renderManagerIn);
+    public SummonedSwordRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override
-    public void render(T entity, float entityYaw, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    public void render(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn) {
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
             Entity hits = entity.getHitEntity();
             boolean hasHitEntity = hits != null;
 
             if(hasHitEntity){
-                matrixStack.rotate(Vector3f.YN.rotationDegrees(MathHelper.lerp(partialTicks, hits.prevRotationYaw, hits.rotationYaw) -90));
-                matrixStack.rotate(Vector3f.YN.rotationDegrees(entity.getOffsetYaw()));
+                matrixStack.mulPose(Vector3f.YN.rotationDegrees(Mth.lerp(partialTicks, hits.yRotO, hits.getYRot()) -90));
+                matrixStack.mulPose(Vector3f.YN.rotationDegrees(entity.getOffsetYaw()));
             }else{
-                matrixStack.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationYaw, entity.rotationYaw) - 90.0F));
+                matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
             }
 
-            matrixStack.rotate(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch)));
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
 
-            matrixStack.rotate(Vector3f.XP.rotationDegrees(entity.getRoll()));
+            matrixStack.mulPose(Vector3f.XP.rotationDegrees(entity.getRoll()));
 
             float scale = 0.0075f;
             matrixStack.scale(scale,scale,scale);
-            matrixStack.rotate(Vector3f.YP.rotationDegrees(90.0F));
+            matrixStack.mulPose(Vector3f.YP.rotationDegrees(90.0F));
 
 
             if(hasHitEntity){
@@ -63,7 +62,7 @@ public class SummonedSwordRenderer<T extends EntityAbstractSummonedSword> extend
             //matrixStack.blendEquation(GL14.GL_FUNC_REVERSE_SUBTRACT);
             WavefrontObject model = BladeModelManager.getInstance().getModel(entity.getModelLoc());
             BladeRenderState.setCol(entity.getColor(), false);
-            BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "ss",getEntityTexture(entity), matrixStack, bufferIn, packedLightIn);
+            BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "ss",getTextureLocation(entity), matrixStack, bufferIn, packedLightIn);
         }
     }
 }

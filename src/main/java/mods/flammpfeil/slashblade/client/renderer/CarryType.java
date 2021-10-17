@@ -6,5 +6,6 @@ public enum CarryType {
     DEFAULT,
     NINJA,
     KATANA,
+    RNINJA,
 
 }

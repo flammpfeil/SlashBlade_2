@@ -38,8 +38,10 @@
 package jp.nyatla.nymmd.struct.pmd;
 
 
-import jp.nyatla.nymmd.*;
-import jp.nyatla.nymmd.struct.*;
+import jp.nyatla.nymmd.MmdException;
+import jp.nyatla.nymmd.struct.DataReader;
+import jp.nyatla.nymmd.struct.StructReader;
+import jp.nyatla.nymmd.struct.StructType;
 import jp.nyatla.nymmd.types.MmdVector3;
 public class PMD_FACE_VTX implements StructType
 {

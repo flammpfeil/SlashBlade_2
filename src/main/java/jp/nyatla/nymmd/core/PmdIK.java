@@ -38,7 +38,9 @@
 package jp.nyatla.nymmd.core;
 
 import jp.nyatla.nymmd.struct.pmd.PMD_IK;
-import jp.nyatla.nymmd.types.*;
+import jp.nyatla.nymmd.types.MmdMatrix;
+import jp.nyatla.nymmd.types.MmdVector3;
+import jp.nyatla.nymmd.types.MmdVector4;
 
 public class PmdIK
 {

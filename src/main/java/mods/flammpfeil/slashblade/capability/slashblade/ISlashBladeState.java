@@ -30,18 +30,18 @@ import mods.flammpfeil.slashblade.specialattack.SlashArts;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,9 +67,9 @@ public interface ISlashBladeState {
     long getLastActionTime();
     void setLastActionTime(long lastActionTime);
     default long getElapsedTime(LivingEntity user){
-        long ticks = (Math.max(0, user.world.getGameTime() - this.getLastActionTime()));
+        long ticks = (Math.max(0, user.level.getGameTime() - this.getLastActionTime()));
 
-        if(user.world.isRemote)
+        if(user.level.isClientSide)
             ticks = Math.max(0, ticks + 1);
 
         return ticks;
@@ -174,8 +174,8 @@ public interface ISlashBladeState {
     }
 
     @Nonnull
-    Vector3d getAdjust();
-	void setAdjust(Vector3d adjust);
+    Vec3 getAdjust();
+	void setAdjust(Vec3 adjust);
 
     @Nonnull
     Optional<ResourceLocation> getTexture();
@@ -189,17 +189,17 @@ public interface ISlashBladeState {
 	void setTargetEntityId(int id);
 
     @Nullable
-    default Entity getTargetEntity(World world) {
+    default Entity getTargetEntity(Level world) {
         int id = getTargetEntityId();
         if (id < 0)
             return null;
         else
-            return world.getEntityByID(id);
+            return world.getEntity(id);
     }
 
 	default void setTargetEntityId(Entity target) {
         if (target != null)
-            this.setTargetEntityId(target.getEntityId());
+            this.setTargetEntityId(target.getId());
         else
             this.setTargetEntityId(-1);
     }
@@ -209,7 +209,7 @@ public interface ISlashBladeState {
     }
 
     default boolean isCharged(LivingEntity user){
-        int elapsed = user.getItemInUseMaxCount();
+        int elapsed = user.getTicksUsingItem();
         return getFullChargeTicks(user) < elapsed;
     }
 
@@ -288,7 +288,7 @@ public interface ISlashBladeState {
 
     default void updateComboSeq(LivingEntity entity, ComboState cs){
         this.setComboSeq(cs);
-        this.setLastActionTime(entity.world.getGameTime());
+        this.setLastActionTime(entity.level.getGameTime());
 
         cs.clickAction(entity);
     }
@@ -331,8 +331,8 @@ public interface ISlashBladeState {
         return Optional.ofNullable(ComboState.NONE.valueOf(this.getComboRootAirName())).orElseGet(()-> Extra.STANDBY_INAIR);
     }
 
-    CompoundNBT getShareTag();
-    void setShareTag(CompoundNBT shareTag);
+    CompoundTag getShareTag();
+    void setShareTag(CompoundTag shareTag);
 
     float getDamage();
     void setDamage(float damage);
@@ -342,7 +342,7 @@ public interface ISlashBladeState {
 
         boolean current = this.isBroken();
 
-        stack.damageItem(1, entityIn, (s)->{});
+        stack.hurtAndBreak(1, entityIn, (s)->{});
 
         if(1.0f <= this.getDamage())
             this.setBroken(true);
@@ -350,13 +350,13 @@ public interface ISlashBladeState {
         if(current != this.isBroken()){
             onBroken.accept(entityIn);
 
-            if (entityIn instanceof ServerPlayerEntity) {
+            if (entityIn instanceof ServerPlayer) {
                 stack.getShareTag();
-                CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)entityIn, stack);
+                CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer)entityIn, stack);
             }
 
-            if(entityIn instanceof PlayerEntity)
-                ((PlayerEntity)entityIn).addStat(Stats.ITEM_BROKEN.get(stack.getItem()));
+            if(entityIn instanceof Player)
+                ((Player)entityIn).awardStat(Stats.ITEM_BROKEN.get(stack.getItem()));
         }
 
 
@@ -372,17 +372,17 @@ public interface ISlashBladeState {
     void setHasChangedActiveState(boolean isChanged);
 
     default void sendChanges(Entity entityIn){
-        if(!entityIn.world.isRemote && this.hasChangedActiveState()){
+        if(!entityIn.level.isClientSide && this.hasChangedActiveState()){
             ActiveStateSyncMessage msg = new ActiveStateSyncMessage();
             msg.activeTag = this.getActiveState();
-            msg.id = entityIn.getEntityId();
+            msg.id = entityIn.getId();
             NetworkManager.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(()->entityIn), msg);
 
             this.setHasChangedActiveState(false);
         }
     }
 
-    static void removeActiveState(CompoundNBT tag){
+    static void removeActiveState(CompoundTag tag){
         NBTHelper.getNBTCoupler(tag)
                 .remove("lastActionTime")
                 .remove("TargetEntity")
@@ -399,8 +399,8 @@ public interface ISlashBladeState {
                 .remove("Damage");
     }
 
-    default CompoundNBT getActiveState(){
-        CompoundNBT tag = new CompoundNBT();
+    default CompoundTag getActiveState(){
+        CompoundTag tag = new CompoundTag();
 
         NBTHelper.getNBTCoupler(tag)
                 .put("BladeUniqueId", this.getUniqueId())
@@ -424,7 +424,7 @@ public interface ISlashBladeState {
         return tag;
     }
 
-    default void setActiveState(CompoundNBT tag){
+    default void setActiveState(CompoundTag tag){
         NBTHelper.getNBTCoupler(tag)
                 //.get("BladeUniqueId", this::setUniqueId)
 

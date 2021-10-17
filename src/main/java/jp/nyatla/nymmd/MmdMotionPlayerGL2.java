@@ -1,23 +1,19 @@
 package jp.nyatla.nymmd;
 
 
-import java.awt.*;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import jp.nyatla.nymmd.types.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.Vector;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import jp.nyatla.nymmd.types.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 
 public class MmdMotionPlayerGL2 extends MmdMotionPlayer
@@ -153,13 +149,13 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 		// とりあえず転写用
 
 
-		BufferBuilder wr = Tessellator.getInstance().getBuffer();
+		BufferBuilder wr = Tesselator.getInstance().getBuilder();
 		int number_of_vertex=this._ref_pmd_model.getNumberOfVertex();
 
 		// 頂点座標、法線、テクスチャ座標の各配列をセット
 		for (int i = this._materials.length-1; i>=0 ; i--)
 		{
-			wr.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+			wr.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
 			final Material mt_ptr=this._materials[i];
 
@@ -170,7 +166,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 				//wr.setNormal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]);
 				int vpos = pos*3;
 				//wr.addVertexWithUV(_fbuf[vpos++],_fbuf[vpos++],_fbuf[vpos++],this._tex_array[pos].u,this._tex_array[pos].v);
-				wr.pos(_fbuf[vpos++],_fbuf[vpos++],-_fbuf[vpos++]).tex(this._tex_array[pos].u,this._tex_array[pos].v).normal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]).color(1,1,1,1).endVertex();
+				wr.vertex(_fbuf[vpos++],_fbuf[vpos++],-_fbuf[vpos++]).uv(this._tex_array[pos].u,this._tex_array[pos].v).normal(_fbuf[npos++], _fbuf[npos++], _fbuf[npos++]).color(1,1,1,1).endVertex();
 			}
 
 			// マテリアル設定
@@ -178,7 +174,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK,GL11.GL_AMBIENT_AND_DIFFUSE);
 
-			GlStateManager.color4f(mt_ptr.color[0],mt_ptr.color[1],mt_ptr.color[2],mt_ptr.color[3]);
+			GL11.glColor4f(mt_ptr.color[0],mt_ptr.color[1],mt_ptr.color[2],mt_ptr.color[3]);
 
 			//GL11.glColor4f(mt_ptr.color.get(0),mt_ptr.color.get(1),mt_ptr.color.get(2),mt_ptr.color.get(3));
 
@@ -210,7 +206,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 
             if(mt_ptr.texture_id != null){
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				Minecraft.getInstance().getRenderManager().textureManager.bindTexture(mt_ptr.texture_id);
+				Minecraft.getInstance().getEntityRenderDispatcher().textureManager.getTexture(mt_ptr.texture_id);
 			}else{
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
 			}
@@ -229,7 +225,7 @@ public class MmdMotionPlayerGL2 extends MmdMotionPlayer
 			//GL11.glDrawElements(GL11.GL_TRIANGLES, mt_ptr.indices);
 
 
-			Tessellator.getInstance().draw();
+			Tesselator.getInstance().end();
 		}
 
 		GL11.glPopClientAttrib();

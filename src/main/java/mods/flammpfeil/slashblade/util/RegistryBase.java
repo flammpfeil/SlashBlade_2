@@ -2,7 +2,7 @@ package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Maps;
 import mods.flammpfeil.slashblade.SlashBlade;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 

@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.entity;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public interface IShootable {
 

@@ -1,7 +1,7 @@
 package mods.flammpfeil.slashblade.util;
 
 import mods.flammpfeil.slashblade.event.KnockBackHandler;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.function.Consumer;
 

@@ -39,7 +39,8 @@ package jp.nyatla.nymmd.struct.pmd;
 
 
 import jp.nyatla.nymmd.MmdException;
-import jp.nyatla.nymmd.struct.*;
+import jp.nyatla.nymmd.struct.DataReader;
+import jp.nyatla.nymmd.struct.StructType;
 
 public class PMD_FACE implements StructType
 {

@@ -1,15 +1,16 @@
 package mods.flammpfeil.slashblade.client.renderer.model;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.ModelLoader;
 
 import javax.annotation.Nullable;
@@ -19,19 +20,19 @@ import java.util.Random;
 /**
  * Created by Furia on 2016/02/07.
  */
-public class BladeModel implements IBakedModel {
+public class BladeModel implements BakedModel {
 
-    IBakedModel original;
-    ItemOverrideList overrides;
-    public BladeModel(IBakedModel original, ModelLoader loader){
+    BakedModel original;
+    ItemOverrides overrides;
+    public BladeModel(BakedModel original, ModelLoader loader){
         this.original = original;
-        this.overrides = new ItemOverrideList(loader, null, null, ImmutableList.<ItemOverride>of()){
+        this.overrides = new ItemOverrides(loader, null, null, ImmutableList.<ItemOverride>of()){
+            @Nullable
             @Override
-            public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
-                user = entity;
-                return super.getOverrideModel(originalModel, stack, world, entity);
+            public BakedModel resolve(BakedModel p_173465_, ItemStack p_173466_, @Nullable ClientLevel p_173467_, @Nullable LivingEntity p_173468_, int p_173469_) {
+                user = p_173468_;
+                return super.resolve(p_173465_, p_173466_, p_173467_, p_173468_, p_173469_);
             }
-
         };
     }
 
@@ -41,7 +42,7 @@ public class BladeModel implements IBakedModel {
 
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return this.overrides;
     }
 
@@ -52,8 +53,8 @@ public class BladeModel implements IBakedModel {
     }
 
     @Override
-    public boolean isAmbientOcclusion() {
-        return original.isAmbientOcclusion();
+    public boolean useAmbientOcclusion() {
+        return original.useAmbientOcclusion();
     }
 
     @Override
@@ -62,18 +63,18 @@ public class BladeModel implements IBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
+    public boolean usesBlockLight() {
         return false;
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return true;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
-        return original.getParticleTexture();
+    public TextureAtlasSprite getParticleIcon() {
+        return original.getParticleIcon();
         //return Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(SlashBlade.proudSoul);
     }
 

@@ -13,16 +13,18 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.JudgementCut;
 import mods.flammpfeil.slashblade.specialattack.SlashArts;
 import mods.flammpfeil.slashblade.util.*;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -33,8 +35,7 @@ import static mods.flammpfeil.slashblade.init.DefaultResources.BaseMotionLocatio
 
 public class ComboState extends RegistryBase<ComboState>{
 
-    @CapabilityInject(IInputState.class)
-    public static Capability<IInputState> INPUT_STATE = null;
+    public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 
     public static final ComboState NONE = new ComboState(BaseInstanceName, 1000,
             ()->0, ()->1, ()->1.0f, ()->true,()->0,
@@ -104,16 +105,16 @@ public class ComboState extends RegistryBase<ComboState>{
             BaseMotionLocation, (a)-> ComboState.COMBO_B2, ()-> ComboState.COMBO_B1_F)
             .setClickAction((e)->AttackManager.areaAttack(e, (ee)->KnockBackHandler.setVertical(ee,0.5)))
             .addHoldAction((player) -> {
-                int elapsed = player.getItemInUseMaxCount();
+                int elapsed = player.getTicksUsingItem();
 
                 EnumSet<InputCommand> commands =
                         player.getCapability(INPUT_STATE).map((state)->state.getCommands(player)).orElseGet(()-> EnumSet.noneOf(InputCommand.class));
 
                 if (5 == elapsed && commands.containsAll(combo_b1_alt)) {
-                    Vector3d motion = player.getMotion();
-                    player.setMotion(motion.x, motion.y + 0.7, motion.z);
+                    Vec3 motion = player.getDeltaMovement();
+                    player.setDeltaMovement(motion.x, motion.y + 0.7, motion.z);
                     player.setOnGround(false);
-                    player.isAirBorne = true;
+                    player.hasImpulse = true;
                 }
             })
             .addHitEffect((e,a)->StunManager.setStun(e, 15))
@@ -147,7 +148,7 @@ public class ComboState extends RegistryBase<ComboState>{
 
                 FallHandler.fallDecrease(playerIn);
 
-                playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                     long elapsed = state.getElapsedTime(playerIn);
                     if(elapsed == 4){
                         AttackManager.areaAttack(playerIn, KnockBackHandler::setCancel);
@@ -191,28 +192,28 @@ public class ComboState extends RegistryBase<ComboState>{
             .setClickAction((e)->AttackManager.areaAttack(e, KnockBackHandler::setCancel))
             .addHitEffect(StunManager::setStun)
             .addHoldAction((playerIn)->{
-                int elapsed = playerIn.getItemInUseMaxCount();
+                int elapsed = playerIn.getTicksUsingItem();
 
                 if(elapsed < 6){
-                    playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn, KnockBackHandler::setCancel,1.0f,false,false,true);
                     });
 
                     if (elapsed % 3 == 1) {
-                        playerIn.world.playSound((PlayerEntity)null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(),
-                                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS,
-                                0.5F, 0.4F / (playerIn.getRNG().nextFloat() * 0.4F + 0.8F));
+                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
+                                SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS,
+                                0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
                 }
 
                 if(elapsed <= 3 && playerIn.isOnGround())
-                    playerIn.moveRelative( playerIn.isInWater() ? 0.35f : 0.8f , new Vector3d(0, 0, 1));
+                    playerIn.moveRelative( playerIn.isInWater() ? 0.35f : 0.8f , new Vec3(0, 0, 1));
 
-                if(elapsed == 10 && (playerIn.world.isRemote ? playerIn.isOnGround() : true)){
-                    playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+                if(elapsed == 10 && (playerIn.level.isClientSide ? playerIn.isOnGround() : true)){
+                    playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
                         ComboState combo = ComboState.ARTS_RISING_STAR;
                         state.setComboSeq(combo);
-                        state.setLastActionTime(playerIn.world.getGameTime());
+                        state.setLastActionTime(playerIn.level.getGameTime());
                         combo.clickAction(playerIn);
                     });
                 }
@@ -230,22 +231,22 @@ public class ComboState extends RegistryBase<ComboState>{
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,0.5),1.0f,true,false,false);
 
-                Vector3d motion = playerIn.getMotion();
-                playerIn.setMotion(0, motion.y + 0.7, 0);
+                Vec3 motion = playerIn.getDeltaMovement();
+                playerIn.setDeltaMovement(0, motion.y + 0.7, 0);
                 playerIn.setOnGround(false);
-                playerIn.isAirBorne = true;
+                playerIn.hasImpulse = true;
             })
             .addHoldAction((playerIn)->{
-                int elapsed = playerIn.getItemInUseMaxCount();
+                int elapsed = playerIn.getTicksUsingItem();
                 if(elapsed < 6){
-                    playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,0.5),1.0f,false,false,true);
                     });
 
                     if (elapsed % 2 == 1) {
-                        playerIn.world.playSound((PlayerEntity)null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(),
-                                SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS,
-                                0.5F, 0.4F / (playerIn.getRNG().nextFloat() * 0.4F + 0.8F));
+                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
+                                SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS,
+                                0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
                 }
             })
@@ -260,18 +261,18 @@ public class ComboState extends RegistryBase<ComboState>{
             .setClickAction((playerIn)->{
                 AttackManager.areaAttack(playerIn, KnockBacks.meteor.action,1.0f,true,false,false);
 
-                Vector3d motion = playerIn.getMotion();
-                playerIn.setMotion(motion.x, motion.y - 0.7, motion.z);
+                Vec3 motion = playerIn.getDeltaMovement();
+                playerIn.setDeltaMovement(motion.x, motion.y - 0.7, motion.z);
             })
             .addHoldAction((playerIn)->{
-                int elapsed = playerIn.getItemInUseMaxCount();
+                int elapsed = playerIn.getTicksUsingItem();
                 if(!playerIn.isOnGround()){
-                    playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,-5),1.0f,false,false,true);
                     });
 
                     if (elapsed % 2 == 1) {
-                        playerIn.world.playSound((PlayerEntity)null, playerIn.getPosX(), playerIn.getPosY(), playerIn.getPosZ(), SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 0.5F, 0.4F / (playerIn.getRNG().nextFloat() * 0.4F + 0.8F));
+                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
                 }
             })
@@ -280,10 +281,10 @@ public class ComboState extends RegistryBase<ComboState>{
                     playerIn.fallDistance = 1;
                 else{
                     //finish
-                    playerIn.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                    playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,-5),1.3f,true,true,true);
                         state.setComboSeq(ComboState.ARTS_HELM_BREAKER_F);
-                        state.setLastActionTime(playerIn.world.getGameTime());
+                        state.setLastActionTime(playerIn.level.getGameTime());
                         FallHandler.spawnLandingParticle(playerIn, 20);
                     });
                 }
@@ -309,8 +310,8 @@ public class ComboState extends RegistryBase<ComboState>{
                 a.getCapability(INPUT_STATE).map((state)->state.getCommands(a)).orElseGet(()-> EnumSet.noneOf(InputCommand.class));
 
         if(commands.containsAll(jc_cycle_input)){
-            return a.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE).map(s->{
-                long time = a.world.getGameTime();
+            return a.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(s->{
+                long time = a.level.getGameTime();
                 long lastAction = s.getLastActionTime();
 
                 long count = time - lastAction;
@@ -498,7 +499,7 @@ public class ComboState extends RegistryBase<ComboState>{
     }
 
     static public SlashArts.ArtsType releaseActionQuickCharge(LivingEntity user, Integer elapsed){
-        int level = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.SOUL_SPEED,user);
+        int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED,user);
         if(elapsed <= 3 + level)
             return SlashArts.ArtsType.Jackpot;
         else
@@ -527,7 +528,7 @@ public class ComboState extends RegistryBase<ComboState>{
             if(timeout <= elapsed){
                 return next.apply(livingEntity);
             }else{
-                return livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+                return livingEntity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
                         .map((state)->state.getComboSeq())
                         .orElseGet(()->ComboState.NONE);
             }
@@ -579,7 +580,7 @@ public class ComboState extends RegistryBase<ComboState>{
     }
 
     static public long getElapsed(LivingEntity livingEntity){
-        return livingEntity.getHeldItemMainhand().getCapability(ItemSlashBlade.BLADESTATE)
+        return livingEntity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
                 .map((state)->state.getElapsedTime(livingEntity))
                 .orElseGet(()->0l);
     }

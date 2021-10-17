@@ -37,17 +37,16 @@
  */
 package jp.nyatla.nymmd;
 
-import java.util.*;
-
-import java.util.Arrays;
-import java.io.*;
-
-
 import jp.nyatla.nymmd.struct.DataReader;
 import jp.nyatla.nymmd.struct.vmd.VMD_Face;
 import jp.nyatla.nymmd.struct.vmd.VMD_Header;
 import jp.nyatla.nymmd.struct.vmd.VMD_Motion;
 import jp.nyatla.nymmd.types.*;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Vector;
 
 //------------------------------
 //ボーンキーフレームソート用比較関数

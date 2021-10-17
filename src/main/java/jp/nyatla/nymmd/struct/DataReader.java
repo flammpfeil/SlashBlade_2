@@ -37,10 +37,11 @@
  */
 package jp.nyatla.nymmd.struct;
 
-import java.io.*;
-import java.nio.*;
+import jp.nyatla.nymmd.MmdException;
 
-import jp.nyatla.nymmd.*;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class DataReader
 {

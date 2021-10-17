@@ -3,9 +3,14 @@ package mods.flammpfeil.slashblade;
 import com.google.common.base.CaseFormat;
 import mods.flammpfeil.slashblade.ability.*;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
+import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
+import mods.flammpfeil.slashblade.capability.inputstate.InputState;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
+import mods.flammpfeil.slashblade.capability.mobeffect.IMobEffectState;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
 import mods.flammpfeil.slashblade.client.renderer.entity.*;
@@ -25,38 +30,38 @@ import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.TargetSelector;
-import net.minecraft.block.Block;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.*;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.stats.IStatFormatter;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -66,14 +71,19 @@ import org.apache.logging.log4j.Logger;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+
 @Mod(SlashBlade.modid)
 public class SlashBlade
 {
     public static final String modid = "slashblade";
 
-    public static final ItemGroup SLASHBLADE = new ItemGroup(modid) {
+    public static final CreativeModeTab SLASHBLADE = new CreativeModeTab(modid) {
         @OnlyIn(Dist.CLIENT)
-        public ItemStack createIcon() {
+        public ItemStack makeIcon() {
             ItemStack stack = new ItemStack(SBItems.slashblade);
             stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
                 s.setModel(new ResourceLocation(modid,"model/named/yamato.obj"));
@@ -112,10 +122,6 @@ public class SlashBlade
 
     private void setup(final FMLCommonSetupEvent event)
     {
-        CapabilitySlashBlade.register();
-        CapabilityMobEffect.register();
-        CapabilityInputState.register();
-        CapabilityConcentrationRank.register();
 
         MinecraftForge.EVENT_BUS.addListener(KnockBackHandler::onLivingKnockBack);
 
@@ -148,10 +154,11 @@ public class SlashBlade
 
         MinecraftForge.EVENT_BUS.register(BladeModelManager.getInstance());
         MinecraftForge.EVENT_BUS.register(BladeMotionManager.getInstance());
-
-        Minecraft.getInstance().getRenderManager().getSkinMap().values().stream()
-                .forEach((lr)->lr.addLayer(new LayerMainBlade(lr)));
-
+/*
+        Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().values().stream()
+                .filter((er)-> er instanceof LivingEntityRenderer)
+                .forEach((lr)-> ((LivingEntityRenderer)lr).addLayer(new LayerMainBlade((LivingEntityRenderer)lr)));
+*/
         SneakingMotionCanceller.getInstance().register();
         UserPoseOverrider.getInstance().register();
         LockonCircleRender.getInstance().register();
@@ -166,6 +173,7 @@ public class SlashBlade
 
         //OBJLoader.INSTANCE.addDomain("slashblade");
 
+        /*
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.SummonedSword, SummonedSwordRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
@@ -173,8 +181,8 @@ public class SlashBlade
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.SlashEffect, SlashEffectRenderer::new);
 
         RenderingRegistry.registerEntityRenderingHandler(RegistryEvents.PlacePreview, PlacePreviewEntityRenderer::new);
-
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
+        */
+        //LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().options);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -189,12 +197,6 @@ public class SlashBlade
         LOGGER.info("Got IMC {}", event.getIMCStream().
                 map(m->m.getMessageSupplier().get()).
                 collect(Collectors.toList()));
-    }
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        // do something when the server starts
-        LOGGER.info("HELLO from server starting");
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
@@ -213,114 +215,122 @@ public class SlashBlade
             LOGGER.info("HELLO from Register Block");
         }
 
-        static java.util.function.Supplier<java.util.concurrent.Callable<net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer>> teisr = ()->SlashBladeTEISR::new;
-
         @SubscribeEvent
         public static void onItemsRegistry(final RegistryEvent.Register<Item> event){
             IForgeRegistry<Item> registry = event.getRegistry();
             registry.register(
                     new ItemSlashBlade(
                             new ItemTierSlashBlade(() -> {
-                                ITag<Item> tags = ItemTags.getCollection().get(new ResourceLocation("slashblade","proudsouls"));
-                                return Ingredient.fromTag(tags);
+                                Tag<Item> tags = ItemTags.getAllTags().getTag(new ResourceLocation("slashblade","proudsouls"));
+                                return Ingredient.of(tags);
                                 //Ingredient.fromItems(SBItems.proudsoul)
                             }),
                             1,
                             -2.4F,
-                            (new Item.Properties()).group(ItemGroup.COMBAT)
-                                   .setISTER(teisr)) /*()->SlashBladeTEISR::new*/
+                            (new Item.Properties()).tab(CreativeModeTab.TAB_COMBAT))
                             .setRegistryName(modid,"slashblade"));
 
-            ToolType proudsoulLevel = ToolType.get("proudsoul");
-
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,2)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE)){
                         @Override
                         public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
 
                             if(entity instanceof BladeItemEntity) return false;
 
-                            CompoundNBT tag = entity.serializeNBT();
+                            CompoundTag tag = entity.serializeNBT();
                             tag.putInt("Health", 50);
                             int age = tag.getShort("Age");
                             entity.deserializeNBT(tag);
 
-                            if(entity.isGlowing()){
-                                entity.setMotion(entity.getMotion().mul(0.8,0.0,0.8).add(0.0D, +0.04D, 0.0D));
-                            }else if(entity.isBurning()) {
-                                entity.setMotion(entity.getMotion().mul(0.8,0.5,0.8).add(0.0D, +0.04D, 0.0D));
+                            if(entity.isCurrentlyGlowing()){
+                                entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8,0.0,0.8).add(0.0D, +0.04D, 0.0D));
+                            }else if(entity.isOnFire()) {
+                                entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8,0.5,0.8).add(0.0D, +0.04D, 0.0D));
                             }
 
                             return false;
                         }
 
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+
+                        @Override
+                        public int getEnchantmentValue() {return 50;}
                     }.setRegistryName(modid,"proudsoul"));
 
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,3)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE)){
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+                        @Override
+                        public int getEnchantmentValue() {return 100;}
                     }.setRegistryName(modid,"proudsoul_ingot"));
 
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,1)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE)){
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+                        @Override
+                        public int getEnchantmentValue() {return 10;}
                     }.setRegistryName(modid,"proudsoul_tiny"));
 
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,4).rarity(Rarity.UNCOMMON)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.UNCOMMON)){
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+                        @Override
+                        public int getEnchantmentValue() {return 150;}
                     }.setRegistryName(modid,"proudsoul_sphere"));
 
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,5).rarity(Rarity.RARE)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.RARE)){
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+                        @Override
+                        public int getEnchantmentValue() {return 200;}
                     }.setRegistryName(modid,"proudsoul_crystal"));
 
             registry.register(
-                    new Item((new Item.Properties()).group(SLASHBLADE).addToolType(proudsoulLevel,6).rarity(Rarity.EPIC)){
+                    new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.EPIC)){
                         @Override
-                        public boolean hasEffect(ItemStack stack) {
+                        public boolean isFoil(ItemStack stack) {
                             return true;//super.hasEffect(stack);
                         }
+                        @Override
+                        public int getEnchantmentValue() {return Integer.MAX_VALUE;}
                     }.setRegistryName(modid,"proudsoul_trapezohedron"));
 
 
             registry.register(
-                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                    new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON))
                             .setRegistryName(modid,"bladestand_1"));
             registry.register(
-                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                    new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON))
                             .setRegistryName(modid,"bladestand_2"));
             registry.register(
-                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                    new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON))
                             .setRegistryName(modid,"bladestand_v"));
             registry.register(
-                    new BladeStandItem((new Item.Properties()).group(SLASHBLADE).rarity(Rarity.COMMON))
+                    new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON))
                             .setRegistryName(modid,"bladestand_s"));
             registry.register(
                     new BladeStandItem((new Item.Properties())
-                            .group(SLASHBLADE)
+                            .tab(SLASHBLADE)
                             .rarity(Rarity.COMMON),true)
                             .setRegistryName(modid,"bladestand_1w"));
             registry.register(
                     new BladeStandItem((new Item.Properties())
-                            .group(SLASHBLADE)
+                            .tab(SLASHBLADE)
                             .rarity(Rarity.COMMON),true)
                             .setRegistryName(modid,"bladestand_2w"));
         }
@@ -336,8 +346,8 @@ public class SlashBlade
 
         public static final ResourceLocation BladeItemEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeItemEntity.class));
         public static final EntityType<BladeItemEntity> BladeItem = EntityType.Builder
-                .create(BladeItemEntity::new, EntityClassification.MISC)
-                .size(0.25F, 0.25F)
+                .of(BladeItemEntity::new, MobCategory.MISC)
+                .sized(0.25F, 0.25F)
                 .setTrackingRange(4)
                 .setUpdateInterval(20)
                 .setCustomClientFactory(BladeItemEntity::createInstanceFromPacket)
@@ -345,8 +355,8 @@ public class SlashBlade
 
         public static final ResourceLocation BladeStandEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeStandEntity.class));
         public static final EntityType<BladeStandEntity> BladeStand = EntityType.Builder
-                .create(BladeStandEntity::new, EntityClassification.MISC)
-                .size(0.5F, 0.5F)
+                .of(BladeStandEntity::new, MobCategory.MISC)
+                .sized(0.5F, 0.5F)
                 .setTrackingRange(10)
                 .setUpdateInterval(20)
                 .setShouldReceiveVelocityUpdates(false)
@@ -357,8 +367,8 @@ public class SlashBlade
 
         public static final ResourceLocation SummonedSwordLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityAbstractSummonedSword.class));
         public static final EntityType<EntityAbstractSummonedSword> SummonedSword = EntityType.Builder
-                .create(EntityAbstractSummonedSword::new, EntityClassification.MISC)
-                .size(0.5F, 0.5F)
+                .of(EntityAbstractSummonedSword::new, MobCategory.MISC)
+                .sized(0.5F, 0.5F)
                 .setTrackingRange(4)
                 .setUpdateInterval(20)
                 .setCustomClientFactory(EntityAbstractSummonedSword::createInstance)
@@ -366,8 +376,8 @@ public class SlashBlade
 
         public static final ResourceLocation JudgementCutLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityJudgementCut.class));
         public static final EntityType<EntityJudgementCut> JudgementCut = EntityType.Builder
-                .create(EntityJudgementCut::new, EntityClassification.MISC)
-                .size(2.5F, 2.5F)
+                .of(EntityJudgementCut::new, MobCategory.MISC)
+                .sized(2.5F, 2.5F)
                 .setTrackingRange(4)
                 .setUpdateInterval(20)
                 .setCustomClientFactory(EntityJudgementCut::createInstance)
@@ -375,8 +385,8 @@ public class SlashBlade
 
         public static final ResourceLocation SlashEffectLoc = new ResourceLocation(SlashBlade.modid, classToString(EntitySlashEffect.class));
         public static final EntityType<EntitySlashEffect> SlashEffect = EntityType.Builder
-                .create(EntitySlashEffect::new, EntityClassification.MISC)
-                .size(3.0F, 3.0F)
+                .of(EntitySlashEffect::new, MobCategory.MISC)
+                .sized(3.0F, 3.0F)
                 .setTrackingRange(4)
                 .setUpdateInterval(20)
                 .setCustomClientFactory(EntitySlashEffect::createInstance)
@@ -387,8 +397,8 @@ public class SlashBlade
 
         public static final ResourceLocation PlacePreviewEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(PlacePreviewEntity.class));
         public static final EntityType<PlacePreviewEntity> PlacePreview = EntityType.Builder
-                .create(PlacePreviewEntity::new, EntityClassification.MISC)
-                .size(0.5F, 0.5F)
+                .of(PlacePreviewEntity::new, MobCategory.MISC)
+                .sized(0.5F, 0.5F)
                 .setTrackingRange(10)
                 .setUpdateInterval(20)
                 .setShouldReceiveVelocityUpdates(false)
@@ -441,6 +451,24 @@ public class SlashBlade
             return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityClass.getSimpleName()).replace("entity_", "");
         }
 
+        @SubscribeEvent
+        public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event){
+            event.registerEntityRenderer(RegistryEvents.SummonedSword, SummonedSwordRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.BladeStand, BladeStandEntityRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.SlashEffect, SlashEffectRenderer::new);
+
+            event.registerEntityRenderer(RegistryEvents.PlacePreview, PlacePreviewEntityRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterCapability(final RegisterCapabilitiesEvent event){
+            CapabilitySlashBlade.register(event);
+            CapabilityMobEffect.register(event);
+            CapabilityInputState.register(event);
+            CapabilityConcentrationRank.register(event);
+        }
 
 
         public static final ResourceLocation SWORD_SUMMONED = registerCustomStat("sword_summoned");
@@ -448,7 +476,7 @@ public class SlashBlade
         private static ResourceLocation registerCustomStat(String name) {
             ResourceLocation resourcelocation = new ResourceLocation(modid, name);
             Registry.register(Registry.CUSTOM_STAT, name, resourcelocation);
-            Stats.CUSTOM.get(resourcelocation, IStatFormatter.DEFAULT);
+            Stats.CUSTOM.get(resourcelocation, StatFormatter.DEFAULT);
             return resourcelocation;
         }
 

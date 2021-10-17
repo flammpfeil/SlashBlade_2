@@ -4,16 +4,16 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.Optional;
@@ -28,36 +28,36 @@ public class JudgementCut {
 
     static public EntityJudgementCut doJudgementCut(LivingEntity user){
 
-        World worldIn = user.world;
+        Level worldIn = user.level;
 
-        Vector3d eyePos = user.getEyePosition(1.0f);
+        Vec3 eyePos = user.getEyePosition(1.0f);
         final double airReach = 5;
         final double entityReach = 7;
 
-        ItemStack stack = user.getHeldItemMainhand();
-        Optional<Vector3d> resultPos = stack.getCapability(ItemSlashBlade.BLADESTATE)
+        ItemStack stack = user.getMainHandItem();
+        Optional<Vec3> resultPos = stack.getCapability(ItemSlashBlade.BLADESTATE)
                 .filter(s->s.getTargetEntity(worldIn) != null)
                 .map(s->Optional.of(s.getTargetEntity(worldIn).getEyePosition(1.0f)))
                 .orElseGet(()->Optional.empty());
 
 
         if(!resultPos.isPresent()) {
-            Optional<RayTraceResult> raytraceresult = RayTraceHelper.rayTrace(
-                    worldIn, user, eyePos, user.getLookVec(), airReach, entityReach,
+            Optional<HitResult> raytraceresult = RayTraceHelper.rayTrace(
+                    worldIn, user, eyePos, user.getLookAngle(), airReach, entityReach,
                     (entity) -> {
-                        return !entity.isSpectator() && entity.isAlive() && entity.canBeCollidedWith() && (entity != user);
+                        return !entity.isSpectator() && entity.isAlive() && entity.isPickable() && (entity != user);
                     });
 
             resultPos = raytraceresult.map((rtr) -> {
-                Vector3d pos = null;
-                RayTraceResult.Type type = rtr.getType();
+                Vec3 pos = null;
+                HitResult.Type type = rtr.getType();
                 switch (type) {
                     case ENTITY:
-                        Entity target = ((EntityRayTraceResult) rtr).getEntity();
-                        pos = target.getPositionVec().add(0, target.getEyeHeight() / 2.0f, 0);
+                        Entity target = ((EntityHitResult) rtr).getEntity();
+                        pos = target.position().add(0, target.getEyeHeight() / 2.0f, 0);
                         break;
                     case BLOCK:
-                        Vector3d hitVec = rtr.getHitVec();
+                        Vec3 hitVec = rtr.getLocation();
                         pos = hitVec;
                         break;
                 }
@@ -65,20 +65,20 @@ public class JudgementCut {
             });
         }
 
-        Vector3d pos = resultPos.orElseGet(() -> eyePos.add(user.getLookVec().scale(airReach)));
+        Vec3 pos = resultPos.orElseGet(() -> eyePos.add(user.getLookAngle().scale(airReach)));
 
         EntityJudgementCut jc = new EntityJudgementCut(SlashBlade.RegistryEvents.JudgementCut, worldIn);
-        jc.setPosition(pos.x ,pos.y ,pos.z);
-        jc.setShooter(user);
+        jc.setPos(pos.x ,pos.y ,pos.z);
+        jc.setOwner(user);
 
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
             jc.setColor(state.getColorCode());
         });
 
 
-        worldIn.addEntity(jc);
+        worldIn.addFreshEntity(jc);
 
-        worldIn.playSound((PlayerEntity)null, jc.getPosX(), jc.getPosY(), jc.getPosZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 0.5F, 0.8F / (user.getRNG().nextFloat() * 0.4F + 0.8F));
+        worldIn.playSound((Player)null, jc.getX(), jc.getY(), jc.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5F, 0.8F / (user.getRandom().nextFloat() * 0.4F + 0.8F));
 
         return jc;
     }

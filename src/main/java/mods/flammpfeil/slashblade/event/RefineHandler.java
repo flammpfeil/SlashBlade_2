@@ -4,11 +4,14 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,11 +37,11 @@ public class RefineHandler {
         if(!(base.getItem() instanceof ItemSlashBlade)) return;
         if(material.isEmpty()) return;
 
-        boolean isRepairable = base.getItem().getIsRepairable(base,material);
+        boolean isRepairable = base.getItem().isValidRepairItem(base,material);
 
         if(!isRepairable) return;
 
-        int level = material.getHarvestLevel(ToolType.get("proudsoul"), null, null);
+        int level = material.getItemEnchantability();
 
         if(level < 0) return;
 
@@ -71,7 +74,7 @@ public class RefineHandler {
     @SubscribeEvent
     public void onAnvilRepairEvent(AnvilRepairEvent event){
 
-        if(!(event.getPlayer() instanceof ServerPlayerEntity)) return;
+        if(!(event.getPlayer() instanceof ServerPlayer)) return;
 
         ItemStack material = event.getIngredientInput();
         ItemStack base = event.getItemInput();
@@ -80,26 +83,26 @@ public class RefineHandler {
         if(!(base.getItem() instanceof ItemSlashBlade)) return;
         if(material.isEmpty()) return;
 
-        boolean isRepairable = base.getItem().getIsRepairable(base,material);
+        boolean isRepairable = base.getItem().isValidRepairItem(base,material);
 
         if(!isRepairable) return;
 
-        int level = material.getHarvestLevel(ToolType.get("proudsoul"), null, null);
+        Tag<Item> souls = ItemTags.getAllTags().getTag(new ResourceLocation("slashblade","proudsouls"));
 
-        if(level < 0) return;
+        if(!souls.contains(material.getItem())) return;
 
-        grantCriterion((ServerPlayerEntity) event.getPlayer(), REFINE);
+        grantCriterion((ServerPlayer) event.getPlayer(), REFINE);
     }
 
-    private static void grantCriterion(ServerPlayerEntity player, ResourceLocation resourcelocation){
-        Advancement adv = player.getServer().getAdvancementManager().getAdvancement(resourcelocation);
+    private static void grantCriterion(ServerPlayer player, ResourceLocation resourcelocation){
+        Advancement adv = player.getServer().getAdvancements().getAdvancement(resourcelocation);
         if(adv == null) return;
 
-        AdvancementProgress advancementprogress = player.getAdvancements().getProgress(adv);
+        AdvancementProgress advancementprogress = player.getAdvancements().getOrStartProgress(adv);
         if (advancementprogress.isDone()) return;
 
-        for(String s : advancementprogress.getRemaningCriteria()) {
-            player.getAdvancements().grantCriterion(adv, s);
+        for(String s : advancementprogress.getRemainingCriteria()) {
+            player.getAdvancements().award(adv, s);
         }
     }
 

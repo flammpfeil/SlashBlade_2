@@ -1,22 +1,21 @@
 package mods.flammpfeil.slashblade.capability.concentrationrank;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import mods.flammpfeil.slashblade.util.NBTHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.Tag;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ConcentrationRankCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundNBT> {
+public class ConcentrationRankCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
-    @CapabilityInject(IConcentrationRank.class)
-    public static Capability<IConcentrationRank> RANK_POINT = null;
+    public static final Capability<IConcentrationRank> RANK_POINT = CapabilityManager.get(new CapabilityToken<>(){});
 
-    protected LazyOptional<IConcentrationRank> state = LazyOptional.of(RANK_POINT::getDefaultInstance);
+    protected LazyOptional<IConcentrationRank> state = LazyOptional.of(()->new ConcentrationRank());
 
     @Nonnull
     @Override
@@ -24,19 +23,24 @@ public class ConcentrationRankCapabilityProvider implements ICapabilityProvider,
         return RANK_POINT.orEmpty(cap, state);
     }
 
-    static final String tagState = "rawPoint";
-
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT baseTag = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag baseTag = new CompoundTag();
 
-        state.ifPresent(state -> baseTag.put(tagState , RANK_POINT.writeNBT(state, null)));
+        state.ifPresent(instance -> {
+            NBTHelper.getNBTCoupler(baseTag)
+                    .put("rawPoint", instance.getRawRankPoint())
+                    .put("lastupdate", instance.getLastUpdate());
+        });
 
         return baseTag;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT baseTag) {
-        state.ifPresent(state -> RANK_POINT.readNBT(state, null, baseTag.getCompound(tagState)));
+    public void deserializeNBT(CompoundTag baseTag) {
+        state.ifPresent(instance -> NBTHelper.getNBTCoupler((CompoundTag) baseTag)
+                .get("rawPoint", instance::setRawRankPoint)
+                .get("lastupdate", instance::setLastUpdte));
+        ;
     }
 }

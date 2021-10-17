@@ -1,13 +1,13 @@
 package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.inventory.container.RepairContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,7 +29,7 @@ public class BladeComponentTooltips {
 
     @SubscribeEvent
     public void onItemTooltipEvent(ItemTooltipEvent event) {
-        List<ITextComponent> tooltip = event.getToolTip();
+        List<Component> tooltip = event.getToolTip();
 
         ItemStack stack = event.getItemStack();
 
@@ -42,21 +42,21 @@ public class BladeComponentTooltips {
         boolean hasAnvil = false;
 
         if(event.getPlayer() != null){
-            if(event.getPlayer().openContainer instanceof RepairContainer){
+            if(event.getPlayer().containerMenu instanceof AnvilMenu){
                 hasAnvil = true;
-                blade = event.getPlayer().openContainer.getSlot(0).getStack();
+                blade = event.getPlayer().containerMenu.getSlot(0).getItem();
             }
         }
 
-        tooltip.add(new TranslationTextComponent(
-                "slashblade.tooltip.material").mergeStyle(TextFormatting.DARK_AQUA));
+        tooltip.add(new TranslatableComponent(
+                "slashblade.tooltip.material").withStyle(ChatFormatting.DARK_AQUA));
 
         tooltip.add(getRequirements(
                 "slashblade.tooltip.material.requiredobjects.anvil"
                 ,hasAnvil));
 
         tooltip.add(getRequirements(recipe.getTranslationKey()
-                ,recipe.getTranslationKey().equals(blade.getTranslationKey())));
+                ,recipe.getTranslationKey().equals(blade.getDescriptionId())));
 
         if(0 < recipe.getKillcount())
             tooltip.add(getRequirements(
@@ -99,7 +99,7 @@ public class BladeComponentTooltips {
         if(!stack.isEnchanted()) return false;
 
         for(Map.Entry<Enchantment, Integer> entry : requirements.entrySet()){
-            if(entry.getValue() > EnchantmentHelper.getEnchantmentLevel(entry.getKey(), stack)){
+            if(entry.getValue() > EnchantmentHelper.getItemEnchantmentLevel(entry.getKey(), stack)){
                 return false;
             }
         }
@@ -107,11 +107,11 @@ public class BladeComponentTooltips {
         return true;
     }
 
-    ITextComponent getRequirements(String key, boolean check, Object... args){
-        TranslationTextComponent tc = new TranslationTextComponent(key, args);
+    Component getRequirements(String key, boolean check, Object... args){
+        TranslatableComponent tc = new TranslatableComponent(key, args);
 
         if(check){
-            tc.mergeStyle(TextFormatting.GREEN);
+            tc.withStyle(ChatFormatting.GREEN);
         }
 
         return tc;

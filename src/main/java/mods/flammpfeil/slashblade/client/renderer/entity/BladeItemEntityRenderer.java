@@ -1,6 +1,6 @@
 package mods.flammpfeil.slashblade.client.renderer.entity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
@@ -8,19 +8,20 @@ import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemEntityRenderer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.math.Vector3f;
 
 import java.util.EnumSet;
 
-public class BladeItemEntityRenderer extends ItemRenderer {
-    public BladeItemEntityRenderer(EntityRendererManager renderManagerIn) {
-        super(renderManagerIn, Minecraft.getInstance().getItemRenderer());
+public class BladeItemEntityRenderer extends ItemEntityRenderer {
+    public BladeItemEntityRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override
@@ -34,21 +35,21 @@ public class BladeItemEntityRenderer extends ItemRenderer {
     }
 
     @Override
-    public void render(ItemEntity itemIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
-        this.shadowSize = 0;
+    public void render(ItemEntity itemIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
+        this.shadowRadius = 0;
 
         if(!itemIn.getItem().isEmpty()){
             renderBlade(itemIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
         }else{
-            partialTicks = (float)(itemIn.hoverStart * 20.0 - (double)itemIn.getAge());
+            partialTicks = (float)(itemIn.bobOffs * 20.0 - (double)itemIn.getAge());
             super.render(itemIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
         }
     }
 
-    private void renderBlade(ItemEntity itemIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    private void renderBlade(ItemEntity itemIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
 
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
-            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(entityYaw));
+            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(entityYaw));
 
             ItemStack current = itemIn.getItem();
 
@@ -98,23 +99,23 @@ public class BladeItemEntityRenderer extends ItemRenderer {
                 if(itemIn.isInWater()){
 
                     matrixStackIn.translate(0, 0.025f, 0);
-                    matrixStackIn.rotate(Vector3f.YP.rotationDegrees(itemIn.hoverStart));
+                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(itemIn.bobOffs));
 
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90));
+                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(90));
 
                 }else if(!itemIn.isOnGround())
                 {
                     matrixStackIn.scale(scale, scale, scale);
 
                     float speed = -81f;
-                    matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(speed * (itemIn.ticksExisted + partialTicks)));
+                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(speed * (itemIn.tickCount + partialTicks)));
                     matrixStackIn.translate(xOffset, 0 , 0);
                 }else{
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(60 + (float)Math.toDegrees(itemIn.hoverStart / 6.0)));
+                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(60 + (float)Math.toDegrees(itemIn.bobOffs / 6.0)));
                     matrixStackIn.translate(heightOffset, 0 , 0);
                 }
 
@@ -130,7 +131,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
                     matrixStackIn.translate(0, 0.025f, 0);
 
-                    matrixStackIn.rotate(Vector3f.YP.rotationDegrees(itemIn.hoverStart));
+                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(itemIn.bobOffs));
 
                     if(!itemIn.isInWater()){
                         matrixStackIn.translate(0.75, 0, -0.4);
@@ -138,7 +139,7 @@ public class BladeItemEntityRenderer extends ItemRenderer {
 
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90));
+                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(90));
 
                     String renderTarget = "sheath";
 

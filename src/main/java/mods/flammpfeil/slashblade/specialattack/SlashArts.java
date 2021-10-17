@@ -3,9 +3,9 @@ package mods.flammpfeil.slashblade.specialattack;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.util.RegistryBase;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,7 +17,7 @@ public class SlashArts extends RegistryBase<SlashArts> {
     static public final int ChargeJustTicksMax = 5;
 
     static public int getJustReceptionSpan(LivingEntity user){
-        return Math.min(ChargeJustTicksMax , ChargeJustTicks + EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.SOUL_SPEED,user));
+        return Math.min(ChargeJustTicksMax , ChargeJustTicks + EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED,user));
     }
 
     public enum ArtsType{
