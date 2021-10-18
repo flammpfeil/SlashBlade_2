@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
 import java.awt.*;
+import java.util.Optional;
 import java.util.function.Function;
 
 import net.minecraft.client.renderer.RenderStateShard.TextureStateShard;
@@ -76,13 +77,17 @@ public class BladeRenderState extends RenderStateShard{
 
         if(event.isCanceled()) return;
 
-        RenderType rt = getRenderType.apply(event.getTexture());//getSlashBladeBlendLuminous(event.getTexture());
-        VertexConsumer vb = bufferIn.getBuffer(rt);
+        ResourceLocation loc = event.getTexture();
+
+        RenderType rt = getRenderType.apply(loc);//getSlashBladeBlendLuminous(event.getTexture());
+        VertexConsumer vb;
+        vb = bufferIn.getBuffer(rt);
 
         Face.setCol(col);
         Face.setLightMap(packedLightIn);
         Face.setMatrix(matrixStackIn);
         event.getModel().tessellateOnly(vb, event.getTarget());
+
 
         if(stack.hasFoil() && enableEffect){
             vb = bufferIn.getBuffer(BLADE_GLINT);
@@ -112,7 +117,9 @@ public class BladeRenderState extends RenderStateShard{
                     256,
                     false,
                     false ,
-                    RenderType.CompositeState.builder().setTextureState(new TextureStateShard(ItemRenderer.ENCHANT_GLINT_LOCATION, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(ENTITY_GLINT_TEXTURING).createCompositeState(false));
+                    RenderType.CompositeState.builder()
+                            .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_GLINT_SHADER)
+                            .setTextureState(new TextureStateShard(ItemRenderer.ENCHANT_GLINT_LOCATION, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(ENTITY_GLINT_TEXTURING).createCompositeState(false));
 
 
     public static RenderType getSlashBladeBlend(ResourceLocation p_228638_0_) {
