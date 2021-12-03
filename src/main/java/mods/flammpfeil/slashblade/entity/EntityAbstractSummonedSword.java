@@ -44,8 +44,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.PlayMessages;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -95,7 +95,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
         //this.setGlowing(true);
     }
 
-    public static EntityAbstractSummonedSword createInstance(FMLPlayMessages.SpawnEntity packet, Level worldIn){
+    public static EntityAbstractSummonedSword createInstance(PlayMessages.SpawnEntity packet, Level worldIn){
         return new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn);
     }
 

@@ -23,9 +23,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fmllegacy.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.PlayMessages;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -89,7 +89,7 @@ public class PlacePreviewEntity extends ItemFrame implements IEntityAdditionalSp
         return e;
     }
 
-    public static PlacePreviewEntity createInstance(FMLPlayMessages.SpawnEntity spawnEntity, Level world) {
+    public static PlacePreviewEntity createInstance(PlayMessages.SpawnEntity spawnEntity, Level world) {
         return new PlacePreviewEntity(SlashBlade.RegistryEvents.PlacePreview, world);
     }
 

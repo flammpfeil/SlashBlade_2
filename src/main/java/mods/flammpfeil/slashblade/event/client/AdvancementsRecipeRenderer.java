@@ -30,7 +30,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -70,11 +70,16 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     static public ResourceLocation currentRecipe = null;
 
+    static final RecipeType<DummyAnvilRecipe> dummy_anvilType = new RecipeType<DummyAnvilRecipe>() {
+        public String toString() {
+            return "sb_forgeing";
+        }
+    };
+    /*RecipeType.register("sb_forgeing");*/
+
     static RecipeView currentView = null;
     static Map<RecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
 
-
-    static final RecipeType dummy_anvilType = RecipeType.register("sb_forgeing");
     static class DummyAnvilRecipe implements Recipe<Container> {
         protected UpgradeRecipe original;
         private final ItemStack result;
@@ -344,13 +349,12 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
     void drawGhostRecipe(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, float partialTicks){
         try{
             matrixStack.pushPose();
-            matrixStack.translate(0,0,zOffset);
+            //matrixStack.translate(0,0,zOffset);
 
             ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
 
             float tmp = ir.blitOffset;
             ir.blitOffset = zOffset - 125;
-
             int padding = 5;
             ir.renderAndDecorateFakeItem(gr.getRecipe().getToastSymbol(), xCorner + padding, yCorner + padding);
 
@@ -389,16 +393,17 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post event){
-        if(!(event.getGui() instanceof AdvancementsScreen)) return;
+    public void onDrawScreenPost(ScreenEvent.DrawScreenEvent.Post event){
+        if(!(event.getScreen() instanceof AdvancementsScreen)) return;
         if(AdvancementsRecipeRenderer.currentRecipe == null) return;
+        if(AdvancementsRecipeRenderer.currentView == null) return;
 
-        AdvancementsScreen gui = (AdvancementsScreen) event.getGui();
+        AdvancementsScreen gui = (AdvancementsScreen) event.getScreen();
 
         try {
-            event.getMatrixStack().pushPose();
+            event.getPoseStack().pushPose();
 
-            PoseStack matrixStack = event.getMatrixStack();
+            PoseStack matrixStack = event.getPoseStack();
 
             int zOffset = 425;
             int zStep = 75;
@@ -413,22 +418,22 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
             drawBackGround(matrixStack, xCorner, yCorner, zOffset, xSize, ySize, yClip);
 
-            drawGhostRecipe(matrixStack, xCorner, yCorner, zOffset, event.getRenderPartialTicks());
+            drawGhostRecipe(matrixStack, xCorner, yCorner, zOffset, event.getPartialTicks());
 
             matrixStack.translate(0, 0, zStep);
             drawTooltip(matrixStack, xCorner, yCorner, zOffset, event.getMouseX(), event.getMouseY(), gui);
 
         }finally{
-            event.getMatrixStack().popPose();
+            event.getPoseStack().popPose();
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onInitGuiPost(GuiScreenEvent.InitGuiEvent.Post event){
-        if(!(event.getGui() instanceof AdvancementsScreen)) return;
+    public void onInitGuiPost(ScreenEvent.InitScreenEvent.Post event){
+        if(!(event.getScreen() instanceof AdvancementsScreen)) return;
 
-        AdvancementsScreen gui = (AdvancementsScreen) event.getGui();
+        AdvancementsScreen gui = (AdvancementsScreen) event.getScreen();
 
         ((List<GuiEventListener>)gui.children()).add(new AdvancementsExGuiEventListener(gui));
     }

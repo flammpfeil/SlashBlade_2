@@ -15,7 +15,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.TickEvent;
@@ -182,6 +181,5 @@ public class MoveInputHandler {
             msg.command = EnumSetConverter.convertToInt(commands);
             NetworkManager.INSTANCE.sendToServer(msg);
         }
-
     }
 }

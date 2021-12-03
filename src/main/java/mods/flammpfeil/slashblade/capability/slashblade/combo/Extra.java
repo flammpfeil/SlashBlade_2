@@ -130,7 +130,7 @@ public class Extra {
 
     public static final ComboState EX_COMBO_A3 = new ComboState("ex_combo_a3",100,
             ()->200,()->218,()->1.0f,()->false,()->0,
-            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)-> a.hasEffect(MobEffects.DAMAGE_BOOST) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
+            ExMotionLocation, ComboState.TimeoutNext.buildFromFrame(9,(a)-> (a.hasEffect(MobEffects.DAMAGE_BOOST) || a.hasEffect(MobEffects.HUNGER)) ? Extra.EX_COMBO_A4EX : Extra.EX_COMBO_A4) , ()-> Extra.EX_COMBO_A3_END)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -61))
                     .put(6, (entityIn)->AttackManager.doSlash(entityIn,  180-42))
@@ -654,7 +654,7 @@ public class Extra {
 
     public static final ComboState EX_RAPID_SLASH = new ComboState("ex_rapid_slash",70,
             ()->2000, ()->2019, ()->1.0f, ()->false,()->0,
-            ExMotionLocation, (a)-> a.hasEffect(MobEffects.DAMAGE_BOOST) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
+            ExMotionLocation, (a)-> (a.hasEffect(MobEffects.DAMAGE_BOOST) || a.hasEffect(MobEffects.HUNGER)) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
             .addHoldAction((e)->{
                 AttributeModifier am = new AttributeModifier("SweepingDamageRatio", -3, AttributeModifier.Operation.ADDITION);
                 AttributeInstance mai = e.getAttribute(ForgeMod.REACH_DISTANCE.get());

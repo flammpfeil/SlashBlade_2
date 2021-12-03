@@ -64,11 +64,11 @@ public class PlacePreviewEntityRenderer extends EntityRenderer<PlacePreviewEntit
                 {
 
                     RenderType type = BladeRenderState.getPlacePreviewBlendLuminous(this.getTextureLocation(entityIn));
-                    ForgeHooksClient.setRenderLayer(type);
+                    //ForgeHooksClient.setRenderLayer(type);
                     blockrendererdispatcher.getModelRenderer().tesselateBlock(world, blockrendererdispatcher.getBlockModel(blockstate), blockstate, blockpos, matrixStackIn, bufferIn.getBuffer(type), false, new Random(), blockstate.getSeed(entityIn.blockPosition()), OverlayTexture.NO_OVERLAY);
                 }
 
-                ForgeHooksClient.setRenderLayer((RenderType)null);
+                //ForgeHooksClient.setRenderLayer((RenderType)null);
                 matrixStackIn.popPose();
                 super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
             }

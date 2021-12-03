@@ -32,9 +32,9 @@ public class SneakingMotionCanceller {
         event.getRenderer().getModel().crouching = false;
 
         Vec3 offset = event.getRenderer()
-                .getRenderOffset((AbstractClientPlayer) event.getPlayer(), event.getPartialRenderTick())
+                .getRenderOffset((AbstractClientPlayer) event.getPlayer(), event.getPartialTick())
                 .scale(-1);
 
-        event.getMatrixStack().translate(offset.x, offset.y, offset.z);
+        event.getPoseStack().translate(offset.x, offset.y, offset.z);
     }
 }

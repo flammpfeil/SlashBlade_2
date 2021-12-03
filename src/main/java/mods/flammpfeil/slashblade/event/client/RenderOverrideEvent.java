@@ -66,7 +66,7 @@ public class RenderOverrideEvent extends Event {
         this.target = target;
     }
 
-    public PoseStack getMatrixStack() {
+    public PoseStack getPoseStack() {
         return matrixStack;
     }
 

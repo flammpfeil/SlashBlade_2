@@ -33,8 +33,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.PlayMessages;
+import net.minecraftforge.network.NetworkHooks;
 
 public class EntityJudgementCut extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
@@ -74,7 +74,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
         this.seed = this.random.nextInt(360);
     }
 
-    public static EntityJudgementCut createInstance(FMLPlayMessages.SpawnEntity packet, Level worldIn){
+    public static EntityJudgementCut createInstance(PlayMessages.SpawnEntity packet, Level worldIn){
         return new EntityJudgementCut(SlashBlade.RegistryEvents.JudgementCut, worldIn);
     }
 

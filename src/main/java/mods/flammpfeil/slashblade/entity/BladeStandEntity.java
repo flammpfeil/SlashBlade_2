@@ -16,9 +16,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fmllegacy.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -89,7 +89,7 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
         return e;
     }
 
-    public static BladeStandEntity createInstance(FMLPlayMessages.SpawnEntity spawnEntity, Level world) {
+    public static BladeStandEntity createInstance(PlayMessages.SpawnEntity spawnEntity, Level world) {
         return new BladeStandEntity(SlashBlade.RegistryEvents.BladeStand, world);
     }
 

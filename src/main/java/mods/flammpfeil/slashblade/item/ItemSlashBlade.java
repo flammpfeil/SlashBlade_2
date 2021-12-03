@@ -13,6 +13,7 @@ import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.TooltipFlag;
@@ -64,7 +65,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class ItemSlashBlade extends SwordItem {
     protected static final UUID ATTACK_DAMAGE_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FD");
@@ -309,7 +310,17 @@ public class ItemSlashBlade extends SwordItem {
     public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
 
-        if(!isSelected) return;
+        if(!isSelected) {
+            stack.getCapability(BLADESTATE).ifPresent((state)->{
+                if(entityIn instanceof LivingEntity){
+                    if(((LivingEntity) entityIn).hasEffect(MobEffects.HUNGER)){
+                        state.setDamage(state.getDamage() - 0.0004f);
+                    }
+                }
+            });
+
+            return;
+        };
 
         if(stack == null)
             return;
@@ -437,8 +448,9 @@ public class ItemSlashBlade extends SwordItem {
         return Math.min(amount, getHalfMaxdamage() / 2);
     }
 
+
     @Override
-    public boolean showDurabilityBar(ItemStack stack) {
+    public boolean isBarVisible(ItemStack stack) {
         return Minecraft.getInstance().player.getMainHandItem() == stack;
 
         //super.showDurabilityBar(stack);
@@ -446,13 +458,13 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        return stack.getCapability(BLADESTATE).map(s->s.getDamage()).orElse(0.0f);
+    public int getBarWidth(ItemStack stack) {
+        return Math.round(13.F - 13.0F * stack.getCapability(BLADESTATE).map(s->s.getDamage()).orElse(0.0f));
         //return super.getDurabilityForDisplay(stack);
     }
 
     @Override
-    public int getRGBDurabilityForDisplay(ItemStack stack) {
+    public int getBarColor(ItemStack stack) {
         boolean isBroken = stack.getCapability(BLADESTATE).filter(s->s.isBroken()).isPresent();
 
         return isBroken ? 0xFF66AE : 0x02E0EE;

@@ -7,11 +7,11 @@ import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.ModelLoader;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -24,7 +24,7 @@ public class BladeModel implements BakedModel {
 
     BakedModel original;
     ItemOverrides overrides;
-    public BladeModel(BakedModel original, ModelLoader loader){
+    public BladeModel(BakedModel original, ModelBakery loader){
         this.original = original;
         this.overrides = new ItemOverrides(loader, null, null, ImmutableList.<ItemOverride>of()){
             @Nullable

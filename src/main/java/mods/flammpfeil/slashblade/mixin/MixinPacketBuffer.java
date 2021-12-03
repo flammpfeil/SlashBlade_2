@@ -69,7 +69,8 @@ public class MixinPacketBuffer{
 
     @Inject(at=@At("HEAD")
         , method = "readItem()Lnet/minecraft/world/item/ItemStack;"
-        , cancellable = true)
+        , cancellable = true//*
+            , remap = false/**/)
     public void readItemStack(CallbackInfoReturnable<ItemStack> callback) {
         ItemStack result;
         if (!this.readBoolean()) {

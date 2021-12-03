@@ -31,8 +31,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.network.FMLPlayMessages;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.PlayMessages;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -89,7 +89,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
         //this.setGlowing(true);
     }
 
-    public static EntitySlashEffect createInstance(FMLPlayMessages.SpawnEntity packet, Level worldIn){
+    public static EntitySlashEffect createInstance(PlayMessages.SpawnEntity packet, Level worldIn){
         return new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, worldIn);
     }
 

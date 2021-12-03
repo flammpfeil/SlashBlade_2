@@ -26,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Collections;
@@ -300,5 +301,27 @@ public class SlayerStyleArts {
         vec = new Vec3(d0, vec.y, d1);
 
         return vec;
+    }
+
+    static final float stepUpBoost = 1.1f;
+    static final float stepUpDefault = 0.6f;
+
+    @SubscribeEvent
+    public void onTick(TickEvent.PlayerTickEvent event){
+        switch(event.phase){
+            case START -> {
+                float stepUp = event.player.maxUpStep;
+                event.player.getPersistentData().putFloat("sb.store.stepup",stepUp);
+                if((event.player.getMainHandItem().getItem() instanceof ItemSlashBlade) && stepUp < stepUpBoost)
+                    event.player.maxUpStep = stepUpBoost;
+            }
+            case END -> {
+                float stepUp = event.player.getPersistentData().getFloat("sb.tmp.stepup");
+                stepUp = Math.max(stepUp, stepUpDefault);
+
+                if(stepUp < event.player.maxUpStep)
+                    event.player.maxUpStep = stepUp;
+            }
+        }
     }
 }

@@ -38,9 +38,9 @@ public class UserPoseOverrider {
         float rot = event.getEntity().getPersistentData().getFloat(TAG_ROT);
         float rotPrev = event.getEntity().getPersistentData().getFloat(TAG_ROT_PREV);
 
-        PoseStack matrixStackIn = event.getMatrixStack();
+        PoseStack matrixStackIn = event.getPoseStack();
         LivingEntity entityLiving = event.getEntity();
-        float partialTicks = event.getPartialRenderTick();
+        float partialTicks = event.getPartialTick();
 
         float f = Mth.rotLerp(partialTicks, entityLiving.yBodyRotO, entityLiving.yBodyRot);
         matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - f));
