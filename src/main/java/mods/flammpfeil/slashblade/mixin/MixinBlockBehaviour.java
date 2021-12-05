@@ -29,7 +29,7 @@ public class MixinBlockBehaviour {
     @Inject(at = @At("HEAD")
             , method="getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;"
             , cancellable = true
-            , remap = false)
+            , remap = true)
     public void getCollisionShape(BlockGetter p_60743_, BlockPos p_60744_, CollisionContext p_60745_, CallbackInfoReturnable<VoxelShape> callback)
     {
         if(!(asState().getBlock() instanceof LeavesBlock)) return;
@@ -47,7 +47,7 @@ public class MixinBlockBehaviour {
     @Inject(at = @At("HEAD")
             , method="getVisualShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;"
             , cancellable = true
-            , remap = false)
+            , remap = true)
     public void getVisualShape(BlockGetter p_60743_, BlockPos p_60744_, CollisionContext p_60745_, CallbackInfoReturnable<VoxelShape> callback)
     {
         if(!(asState().getBlock() instanceof LeavesBlock)) return;
