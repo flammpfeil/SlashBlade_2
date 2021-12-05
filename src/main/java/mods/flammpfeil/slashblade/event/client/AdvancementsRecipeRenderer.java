@@ -459,6 +459,9 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
             AdvancementTab selectedTab = screen.selectedTab;
 
+            if(selectedTab == null)
+                return false;
+
             int mouseXX = (int)(mouseX - offsetX - 9);
             int mouseYY = (int)(mouseY - offsetY - 18);
 
