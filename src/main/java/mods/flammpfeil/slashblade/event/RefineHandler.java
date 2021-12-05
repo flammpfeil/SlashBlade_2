@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,19 +92,7 @@ public class RefineHandler {
 
         if(!souls.contains(material.getItem())) return;
 
-        grantCriterion((ServerPlayer) event.getPlayer(), REFINE);
-    }
-
-    private static void grantCriterion(ServerPlayer player, ResourceLocation resourcelocation){
-        Advancement adv = player.getServer().getAdvancements().getAdvancement(resourcelocation);
-        if(adv == null) return;
-
-        AdvancementProgress advancementprogress = player.getAdvancements().getOrStartProgress(adv);
-        if (advancementprogress.isDone()) return;
-
-        for(String s : advancementprogress.getRemainingCriteria()) {
-            player.getAdvancements().award(adv, s);
-        }
+        AdvancementHelper.grantCriterion((ServerPlayer) event.getPlayer(), REFINE);
     }
 
 }
