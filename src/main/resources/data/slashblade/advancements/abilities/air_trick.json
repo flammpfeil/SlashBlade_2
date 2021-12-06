@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.air_trick"
+    },
+    "description": {
+      "translate": "adv.slashblade.air_trick.desc",
+      "with":[{"keybind":"key.sprint"},{"keybind":"key.forward"},{"keybind":"key.sneak"}]
+    },
+    "icon": {
+      "item": "minecraft:ender_pearl"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:root",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

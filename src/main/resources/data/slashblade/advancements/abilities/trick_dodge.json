@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.trick_dodge"
+    },
+    "description": {
+      "translate": "adv.slashblade.trick_dodge.desc",
+      "with":[{"keybind":"key.sprint"}]
+    },
+    "icon": {
+      "item": "minecraft:feather"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:abilities/trick_down",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

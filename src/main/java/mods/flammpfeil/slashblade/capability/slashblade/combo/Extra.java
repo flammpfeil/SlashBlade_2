@@ -11,6 +11,7 @@ import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.specialattack.JudgementCut;
 import mods.flammpfeil.slashblade.util.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -56,6 +57,22 @@ public class Extra {
             }}.entrySet().stream()
                     .collect(Collectors.toList());
 
+
+    static public final ResourceLocation ADVANCEMENT_COMBO_A = new ResourceLocation(SlashBlade.modid, "arts/combo_a");
+    static public final ResourceLocation ADVANCEMENT_COMBO_A_EX = new ResourceLocation(SlashBlade.modid, "arts/combo_a_ex");
+    static public final ResourceLocation ADVANCEMENT_COMBO_B = new ResourceLocation(SlashBlade.modid, "arts/combo_b");
+    static public final ResourceLocation ADVANCEMENT_COMBO_B_MAX = new ResourceLocation(SlashBlade.modid, "arts/combo_b_max");
+    static public final ResourceLocation ADVANCEMENT_COMBO_C = new ResourceLocation(SlashBlade.modid, "arts/combo_c");
+    static public final ResourceLocation ADVANCEMENT_AERIAL_A = new ResourceLocation(SlashBlade.modid, "arts/aerial_a");
+    static public final ResourceLocation ADVANCEMENT_AERIAL_B = new ResourceLocation(SlashBlade.modid, "arts/aerial_b");
+    static public final ResourceLocation ADVANCEMENT_UPPERSLASH = new ResourceLocation(SlashBlade.modid, "arts/upperslash");
+    static public final ResourceLocation ADVANCEMENT_UPPERSLASH_JUMP = new ResourceLocation(SlashBlade.modid, "arts/upperslash_jump");
+    static public final ResourceLocation ADVANCEMENT_AERIAL_CLEAVE = new ResourceLocation(SlashBlade.modid, "arts/aerial_cleave");
+    static public final ResourceLocation ADVANCEMENT_RISING_STAR = new ResourceLocation(SlashBlade.modid, "arts/rising_star");
+    static public final ResourceLocation ADVANCEMENT_RAPID_SLASH = new ResourceLocation(SlashBlade.modid, "arts/rapid_slash");
+    static public final ResourceLocation ADVANCEMENT_JUDGEMENT_CUT = new ResourceLocation(SlashBlade.modid, "arts/judgement_cut");
+    static public final ResourceLocation ADVANCEMENT_JUDGEMENT_CUT_JUST = new ResourceLocation(SlashBlade.modid, "arts/judgement_cut_just");
+    static public final ResourceLocation ADVANCEMENT_QUICK_CHARGE = new ResourceLocation(SlashBlade.modid, "arts/quick_charge");
     //=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=-+-=
 
     public static void playQuickSheathSoundAction(LivingEntity e) {
@@ -120,7 +137,8 @@ public class Extra {
                     .put(2, (entityIn)->AttackManager.doSlash(entityIn,  -30))
                     .put(3, (entityIn)->AttackManager.doSlash(entityIn,  -35, true))
                     .build())
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_COMBO_C));
     public static final ComboState EX_COMBO_C_END = new ComboState("ex_combo_c_end",100,
             ()->459,()->488,()->1.0f,()->false,()->0,
             ExMotionLocation,(a)-> ComboState.NONE, ()-> ComboState.NONE)
@@ -164,7 +182,8 @@ public class Extra {
                     .put(8+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
                     .put(8+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_COMBO_A));
     public static final ComboState EX_COMBO_A4_END = new ComboState("ex_combo_a4_end",100,
             ()->576,()->608,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
@@ -205,7 +224,8 @@ public class Extra {
                     .put(13+4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
                     .put(13+5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_COMBO_A_EX));
     public static final ComboState EX_COMBO_A5EX_END = new ComboState("ex_combo_a5ex_end",100,
             ()->1013,()->1061,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
@@ -232,7 +252,8 @@ public class Extra {
                     .put(7+7, (entityIn)->AttackManager.doSlash(entityIn,  +90 + 180 * entityIn.getRandom().nextFloat(), genRushOffset(entityIn), true , false, rushDamageBase))
 
                     .build())
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_COMBO_B));
 
     public static final ComboState EX_COMBO_B1_END = new ComboState("ex_combo_b1_end",100,
             ()->720,()->743,()->1.0f,()->false,()->0,
@@ -353,7 +374,8 @@ public class Extra {
                     .put(12 +4, (entityIn)->UserPoseOverrider.setRot(entityIn, 72, true))
                     .put(12 +5, (entityIn)->UserPoseOverrider.resetRot(entityIn))
                     .build())
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_COMBO_B_MAX));
     public static final ComboState EX_COMBO_B7_END = new ComboState("ex_combo_b7_end",100,
             ()->764,()->787,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
@@ -441,7 +463,8 @@ public class Extra {
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
-            .setIsAerial();
+            .setIsAerial()
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_AERIAL_A));
     public static final ComboState EX_AERIAL_RAVE_A3_END = new ComboState("ex_aerial_rave_a3_end",80,
             ()->1328,()->1338,()->1.0f,()->false,()->0,
             ExMotionLocation,(a)-> ComboState.NONE, ()-> ComboState.NONE)
@@ -499,7 +522,8 @@ public class Extra {
                     .build())
             .addTickAction(FallHandler::fallDecrease)
             .addHitEffect(StunManager::setStun)
-            .setIsAerial();
+            .setIsAerial()
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_AERIAL_B));
     public static final ComboState EX_AERIAL_RAVE_B4_END = new ComboState("ex_aerial_rave_b4_end",80,
             ()->1537,()->1547,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
@@ -528,12 +552,14 @@ public class Extra {
 
                 player.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                     state.updateComboSeq(player, Extra.EX_UPPERSLASH_JUMP);
+                    AdvancementHelper.grantCriterion(player,ADVANCEMENT_UPPERSLASH_JUMP);
                 });
             })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put((int)TimeValueHelper.getTicksFromFrames(7), (entityIn)->AttackManager.doSlash(entityIn,  -80,Vec3.ZERO, false, false, 1.0, KnockBacks.toss))
                     .build())
-            .addHitEffect((t,a)->StunManager.setStun(t, 15));
+            .addHitEffect((t,a)->StunManager.setStun(t, 15))
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_UPPERSLASH));
     public static final ComboState EX_UPPERSLASH_END = new ComboState("ex_upperslash_end",90,
             ()->1659, ()->1693, ()->1.0f, ()->false,()->0,
             ExMotionLocation, (a)->ComboState.NONE, ()-> ComboState.NONE)
@@ -577,6 +603,8 @@ public class Extra {
             .setClickAction((e)->{
                 Vec3 motion = e.getDeltaMovement();
                 e.setDeltaMovement(motion.x, 0.1, motion.z);
+
+                AdvancementHelper.grantCriterion(e,ADVANCEMENT_AERIAL_CLEAVE);
             })
             .addTickAction((e)->{
                 e.fallDistance = 1;
@@ -669,8 +697,10 @@ public class Extra {
                                 if (state.getComboSeq() == Extra.EX_RAPID_SLASH) {
                                     List<Entity> hits = AttackManager.areaAttack(e, KnockBacks.toss.action,0.01f,true,true,true);
 
-                                    if(!hits.isEmpty())
+                                    if(!hits.isEmpty()) {
                                         state.updateComboSeq(e, Extra.EX_RISING_STAR);
+                                        AdvancementHelper.grantCriterion(e,ADVANCEMENT_RISING_STAR);
+                                    }
                                 }
                             });
                         }
@@ -711,7 +741,8 @@ public class Extra {
                     UserPoseOverrider.setRot(e, 0, false);
                 }
             })
-            .addHitEffect(StunManager::setStun);
+            .addHitEffect(StunManager::setStun)
+            .setClickAction(a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_RAPID_SLASH));
     public static final ComboState EX_RAPID_SLASH_QUICK = new ComboState("ex_rapid_slash_quick",70,
             ()->2000, ()->2001, ()->1.0f, ()->false,()->0,
             ExMotionLocation, (a)->Extra.EX_RAPID_SLASH_QUICK, ()-> Extra.EX_RAPID_SLASH);
@@ -791,6 +822,7 @@ public class Extra {
 
                 if(elapsed == 0){
                     e.playSound(SoundEvents.TRIDENT_THROW, 0.80F, 0.625F + 0.1f * e.getRandom().nextFloat());
+                    AdvancementHelper.grantCriterion(e,ADVANCEMENT_JUDGEMENT_CUT);
                 }
 
                 if(elapsed <= 3) {
@@ -866,6 +898,7 @@ public class Extra {
             ()->1923,()->1928,()->0.5f,()->false,()->0,
             ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_AIR, ()->Extra.EX_JUDGEMENT_CUT_SHEATH_AIR)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCut).build())
+            .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_JUDGEMENT_CUT)).build())
             .addTickAction(FallHandler::fallResist)
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addHitEffect(StunManager::setStun);
@@ -880,6 +913,7 @@ public class Extra {
             ()->1923,()->1928,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)-> Extra.EX_JUDGEMENT_CUT_SLASH_JUST, ()->Extra.EX_JUDGEMENT_CUT_SLASH_JUST2)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, JudgementCut::doJudgementCutJust).build())
+            .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, a->AdvancementHelper.grantCriterion(a,ADVANCEMENT_JUDGEMENT_CUT_JUST)).build())
             .addTickAction((entityIn)->UserPoseOverrider.resetRot(entityIn))
             .addTickAction(FallHandler::fallResist)
             .addHitEffect(StunManager::setStun);

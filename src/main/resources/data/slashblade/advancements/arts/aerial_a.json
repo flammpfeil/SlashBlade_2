@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.aerial_a"
+    },
+    "description": {
+      "translate": "adv.slashblade.aerial_a.desc",
+      "with":[{"keybind":"key.use"}]
+    },
+    "icon": {
+      "item": "minecraft:wooden_sword"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:arts/combo_a",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

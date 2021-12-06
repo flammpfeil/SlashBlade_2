@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.aerial_b"
+    },
+    "description": {
+      "translate": "adv.slashblade.aerial_b.desc",
+      "with":[{"keybind":"key.use"}]
+    },
+    "icon": {
+      "item": "minecraft:stone_sword"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:arts/aerial_a",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

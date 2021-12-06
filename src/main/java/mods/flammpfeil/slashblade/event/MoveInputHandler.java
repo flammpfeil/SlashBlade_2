@@ -164,7 +164,7 @@ public class MoveInputHandler {
                     ret.add("nbt", element);
 
                 Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-                GSON.toJson(ret);
+                str = GSON.toJson(ret);
             }
 
             Minecraft.getInstance().keyboardHandler.setClipboard(str);

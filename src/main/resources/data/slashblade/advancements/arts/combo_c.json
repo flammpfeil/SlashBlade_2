@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.combo_c"
+    },
+    "description": {
+      "translate": "adv.slashblade.combo_c.desc",
+      "with":[{"keybind":"key.use"}]
+    },
+    "icon": {
+      "item": "minecraft:diamond_sword"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:arts/combo_b",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

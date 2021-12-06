@@ -7,9 +7,11 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -54,6 +56,11 @@ public class SlayerStyleArts {
 
     final static EnumSet<InputCommand> fowerd_sprint_sneak = EnumSet.of(InputCommand.FORWARD, InputCommand.SPRINT, InputCommand.SNEAK);
     final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
+
+
+    static public final ResourceLocation ADVANCEMENT_AIR_TRICK = new ResourceLocation(SlashBlade.modid, "abilities/air_trick");
+    static public final ResourceLocation ADVANCEMENT_TRICK_DOWN = new ResourceLocation(SlashBlade.modid, "abilities/trick_down");
+    static public final ResourceLocation ADVANCEMENT_TRICK_DODGE = new ResourceLocation(SlashBlade.modid, "abilities/trick_dodge");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -151,6 +158,7 @@ public class SlayerStyleArts {
                     sender.getPersistentData().putInt("sb.avoid.counter",2);
                     NBTHelper.putVector3d(sender.getPersistentData(),"sb.avoid.vec", sender.position());
 
+                    AdvancementHelper.grantCriterion(sender,ADVANCEMENT_TRICK_DOWN);
                     sender.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5f, 1.2f);
 
                     isHandled = true;
@@ -190,6 +198,8 @@ public class SlayerStyleArts {
                     sender.getPersistentData().putInt("sb.avoid.counter",2);
                     NBTHelper.putVector3d(sender.getPersistentData(),"sb.avoid.vec", sender.position());
 
+                    AdvancementHelper.grantCriterion(sender,ADVANCEMENT_TRICK_DODGE);
+
                     sender.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
                             .ifPresent(state->state.updateComboSeq(sender, state.getComboRootAir()));
                 }
@@ -213,6 +223,7 @@ public class SlayerStyleArts {
         entityIn.getPersistentData().putInt("sb.airtrick.target", target.getId());
 
         if(entityIn instanceof ServerPlayer){
+            AdvancementHelper.grantCriterion((ServerPlayer) entityIn,ADVANCEMENT_AIR_TRICK);
             Vec3 motion = target.getPosition(1.0f).subtract(entityIn.getPosition(1.0f)).scale(0.5f);
             ((ServerPlayer) entityIn).connection.send(new ClientboundSetEntityMotionPacket(entityIn.getId(), motion));
         }

@@ -499,8 +499,10 @@ public class ComboState extends RegistryBase<ComboState>{
 
     static public SlashArts.ArtsType releaseActionQuickCharge(LivingEntity user, Integer elapsed){
         int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED,user);
-        if(elapsed <= 3 + level)
+        if(elapsed <= 3 + level) {
+            AdvancementHelper.grantCriterion(user,Extra.ADVANCEMENT_QUICK_CHARGE);
             return SlashArts.ArtsType.Jackpot;
+        }
         else
             return SlashArts.ArtsType.Fail;
     }
