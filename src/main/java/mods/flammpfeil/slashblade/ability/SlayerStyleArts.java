@@ -10,6 +10,7 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.PathfinderMob;
@@ -24,6 +25,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -362,9 +364,38 @@ public class SlayerStyleArts {
         switch(event.phase){
             case START -> {
                 float stepUp = event.player.maxUpStep;
-                event.player.getPersistentData().putFloat("sb.store.stepup",stepUp);
-                if((event.player.getMainHandItem().getItem() instanceof ItemSlashBlade) && stepUp < stepUpBoost)
+
+                LivingEntity player = event.player;
+                Vec3 deltaMovement;
+                {
+                    Vec3 input = new Vec3((double)player.xxa, (double)player.yya, (double)player.zza);
+                    double scale = 1.0;
+                    float yRot = player.getYRot();
+                    double d0 = input.lengthSqr();
+                    if (d0 < 1.0E-7D) {
+                        deltaMovement = Vec3.ZERO;
+                    } else {
+                        Vec3 vec3 = (d0 > 1.0D ? input.normalize() : input).scale((double)scale);
+                        float f = Mth.sin(yRot * ((float)Math.PI / 180F));
+                        float f1 = Mth.cos(yRot * ((float)Math.PI / 180F));
+                        deltaMovement = new Vec3(vec3.x * (double)f1 - vec3.z * (double)f, vec3.y, vec3.z * (double)f1 + vec3.x * (double)f);
+                    }
+                }
+
+                boolean doStepupBoost = true;
+
+                if(doStepupBoost){
+                    Vec3 offset = deltaMovement.normalize().scale(0.5f);
+                    BlockState blockState = player.level.getBlockState(new BlockPos(player.position().add(0,0.25,0).add(offset)).below());
+                    if(blockState.getMaterial().isLiquid()){
+                        doStepupBoost = false;
+                    }
+                }
+
+                if(doStepupBoost && (event.player.getMainHandItem().getItem() instanceof ItemSlashBlade) && stepUp < stepUpBoost){
+                    event.player.getPersistentData().putFloat("sb.store.stepup",stepUp);
                     event.player.maxUpStep = stepUpBoost;
+                }
 
 
                 //handle avoid
