@@ -48,7 +48,7 @@ public class RefineHandler {
 
         ItemStack result = base.copy();
 
-        int refineLimit = 6 <= level ? Integer.MAX_VALUE : Math.max(10, 50*(level-1));
+        int refineLimit = Math.max(10, level);
 
         int cost = 0;
         while(cost < material.getCount()){
@@ -65,7 +65,7 @@ public class RefineHandler {
         }
 
         event.setMaterialCost(cost);
-        int levelCostBase = Math.max(1 , 2 * (level - 1));
+        int levelCostBase = 1;
         event.setCost(levelCostBase * cost);
         event.setOutput(result);
     }
