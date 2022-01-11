@@ -33,7 +33,7 @@
   "item.slashblade.simple.silverbamboo.material": "Blade Component -Imitation-",
   "item.slashblade.simple.iron": "SlashBlade --",
   "item.slashblade.simple.iron.desc": "Basic Blade",
-  "item.slashblade.simple.iron.material": "Blade Comeponent -Iron-",
+  "item.slashblade.simple.iron.material": "Blade Component -Iron-",
 
   "item.slashblade.ex.ruby": "Sharpness -nameless- Ruby",
   "item.slashblade.ex.ruby.desc": "Superior One",
@@ -133,5 +133,9 @@
   "adv.slashblade.trick_down": "Abilities -Trick Down-           ",
   "adv.slashblade.trick_down.desc": "Dashdownward toward an enemy and appear on the ground\nUse buttons\nSprint ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ+♠",
   "adv.slashblade.trick_dodge": "Abilities -Trick Dodge-          ",
-  "adv.slashblade.trick_dodge.desc": "Dash in any direction and evade enemy attacks\nUse buttons\nSprint ♠:%s\nmove in any direction and press ♠"
+  "adv.slashblade.trick_dodge.desc": "Dash in any direction and evade enemy attacks\nUse buttons\nSprint ♠:%s\nmove in any direction and press ♠",
+
+
+  "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
+  "adv.slashblade.summonedswords.desc": "Launch swords\nUse buttons\n%s ♠:%s\npress ♠"
 }

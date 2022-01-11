@@ -2,14 +2,13 @@ package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
-import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.EntityHitResult;
@@ -18,12 +17,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class SummonedSwordArts {
@@ -41,6 +38,9 @@ public class SummonedSwordArts {
     public void register() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
+
+    static public final ResourceLocation ADVANCEMENT_SUMMONEDSWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/summonedswords");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -62,6 +62,8 @@ public class SummonedSwordArts {
                     return;
 
                 sender.giveExperiencePoints(-1);
+
+                AdvancementHelper.grantCriterion(sender, ADVANCEMENT_SUMMONEDSWORDS);
 
                 Optional<Entity> foundTarget = Stream.of(Optional.ofNullable(state.getTargetEntity(sender.level))
                             , RayTraceHelper.rayTrace(sender.level, sender, sender.getEyePosition(1.0f) , sender.getLookAngle(), 12,12, (e)->true)

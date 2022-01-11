@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.summonedswords"
+    },
+    "description": {
+      "translate": "adv.slashblade.summonedswords.desc",
+      "with":[{"translate":"key.pickItem"},{"keybind":"key.pickItem"}]
+    },
+    "icon": {
+      "item": "minecraft:arrow"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:root",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

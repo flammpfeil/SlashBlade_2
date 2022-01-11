@@ -60,9 +60,9 @@ public class LockOnManager {
             //remove target
             targetEntity = null;
         }else{
-            //find target
+            //search target
 
-            Optional<HitResult> result = RayTraceHelper.rayTrace(player.level, player, player.getEyePosition(1.0f) , player.getLookAngle(), 30,30, (e)->true);
+            Optional<HitResult> result = RayTraceHelper.rayTrace(player.level, player, player.getEyePosition(1.0f) , player.getLookAngle(), 40,40, (e)->true);
             Optional<Entity> foundEntity = result
                     .filter(r->r.getType() == HitResult.Type.ENTITY)
                     .filter(r->{
