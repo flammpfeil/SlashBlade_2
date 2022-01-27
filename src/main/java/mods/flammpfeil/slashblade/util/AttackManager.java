@@ -82,6 +82,10 @@ public class AttackManager {
 
         jc.setKnockBack(knockback);
 
+        if(playerIn != null)
+            playerIn.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                    .ifPresent(rank->jc.setRank(rank.getRankLevel(playerIn.level.getGameTime())));
+
         playerIn.level.addFreshEntity(jc);
 
         return jc;

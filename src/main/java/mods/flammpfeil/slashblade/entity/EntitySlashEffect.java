@@ -5,11 +5,13 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.event.FallHandler;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.EnumSetConverter;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.NBTHelper;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,6 +20,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +45,7 @@ import java.util.UUID;
 public class EntitySlashEffect extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROTATION_OFFSET = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROTATION_ROLL = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> BASESIZE = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
@@ -97,6 +101,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     protected void defineSynchedData() {
         this.entityData.define(COLOR, 0x3333FF);
         this.entityData.define(FLAGS, 0);
+        this.entityData.define(RANK, 0.0f);
 
         this.entityData.define(ROTATION_OFFSET, 0.0f);
         this.entityData.define(ROTATION_ROLL, 0.0f);
@@ -111,6 +116,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                 .put("RotationRoll", this.getRotationRoll())
                 .put("BaseSize", this.getBaseSize())
                 .put("Color", this.getColor())
+                .put("Rank", this.getRank())
                 .put("damage", this.damage)
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
@@ -126,6 +132,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                 .get("RotationRoll", this::setRotationRoll)
                 .get("BaseSize", this::setBaseSize)
                 .get("Color", this::setColor)
+                .get("Rank", this::setRank)
                 .get("damage",  ((Double v)->this.damage = v), this.damage)
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
@@ -269,16 +276,22 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                 this.playSound(getHitEntitySound(), 0.2F, 0.4F + 0.25f * this.random.nextFloat());
         }
 
-        if(getShooter() != null && !getShooter().isInWaterOrRain() && tickCount < (getLifetime() * 0.75)){
+        if(tickCount % 2 == 0 || tickCount < 5){
             Vec3 start = this.position();
             Vector4f normal = new Vector4f(1,0,0,1);
+            Vector4f dir = new Vector4f(0,0,1,1);
 
             float progress = this.tickCount / (float)lifetime;
 
-            normal.transform(new Quaternion(Vector3f.YP,-this.getYRot() -90, true));
-            normal.transform(new Quaternion(Vector3f.ZP,this.getXRot(), true));
-            normal.transform(new Quaternion(Vector3f.XP,this.getRotationRoll(), true));
-            normal.transform(new Quaternion(Vector3f.YP,140 + this.getRotationOffset() -200.0F * progress, true));
+            normal.transform(new Quaternion(Vector3f.YP,60 + this.getRotationOffset() -200.0F * progress, true));
+            normal.transform(new Quaternion(Vector3f.ZP,this.getRotationRoll(), true));
+            normal.transform(new Quaternion(Vector3f.XP,this.getXRot(), true));
+            normal.transform(new Quaternion(Vector3f.YP,-this.getYRot(), true));
+
+            dir.transform(new Quaternion(Vector3f.YP,60 + this.getRotationOffset() -200.0F * progress, true));
+            dir.transform(new Quaternion(Vector3f.ZP,this.getRotationRoll(), true));
+            dir.transform(new Quaternion(Vector3f.XP,this.getXRot(), true));
+            dir.transform(new Quaternion(Vector3f.YP,-this.getYRot(), true));
 
             Vec3 normal3d = new Vec3(normal.x(), normal.y(), normal.z());
 
@@ -290,8 +303,18 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                             ClipContext.Fluid.ANY,
                             null));
 
-            if(rayResult.getType() == HitResult.Type.BLOCK){
+            if(getShooter() != null && !getShooter().isInWaterOrRain() && rayResult.getType() == HitResult.Type.BLOCK){
                 FallHandler.spawnLandingParticle(this, rayResult.getLocation(), normal3d , 3);
+            }
+
+            if(IConcentrationRank.ConcentrationRanks.S.level < getRankCode().level){
+                Vec3 vec3 = start.add(normal3d.scale(this.getBaseSize()*2.5));
+                this.level.addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
+                        , dir.x() + normal.x(), dir.y() + normal.y(), dir.z() + normal.z());
+                float randScale = random.nextFloat()*1.0f+0.5f;
+                vec3 = vec3.add(dir.x() * randScale,dir.y()* randScale,dir.z()* randScale);
+                this.level.addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
+                        , dir.x() + normal.x(), dir.y() + normal.y(), dir.z() + normal.z());
             }
         }
 
@@ -335,6 +358,16 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     }
     public void setColor(int value){
         this.getEntityData().set(COLOR,value);
+    }
+
+    public float getRank(){
+        return this.getEntityData().get(RANK);
+    }
+    public void setRank(float value){
+        this.getEntityData().set(RANK,value);
+    }
+    public IConcentrationRank.ConcentrationRanks getRankCode(){
+        return IConcentrationRank.ConcentrationRanks.getRankFromLevel(getRank());
     }
 
     public int getLifetime(){

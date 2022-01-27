@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.specialattack;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.entity.EntityJudgementCut;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
@@ -74,6 +75,10 @@ public class JudgementCut {
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
             jc.setColor(state.getColorCode());
         });
+
+        if(user != null)
+            user.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                    .ifPresent(rank->jc.setRank(rank.getRankLevel(user.level.getGameTime())));
 
 
         worldIn.addFreshEntity(jc);

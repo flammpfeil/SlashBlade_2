@@ -39,6 +39,7 @@ import net.minecraftforge.network.NetworkHooks;
 public class EntityJudgementCut extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
 
     private int lifetime = 10;
     private int seed = -1;
@@ -82,6 +83,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     protected void defineSynchedData() {
         this.entityData.define(COLOR, 0x3333FF);
         this.entityData.define(FLAGS, 0);
+        this.entityData.define(RANK, 0.0f);
     }
 
     @Override
@@ -89,6 +91,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
         NBTHelper.getNBTCoupler(compound)
                 .put("Color", this.getColor())
+                .put("Rank", this.getRank())
                 .put("damage", this.damage)
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
@@ -100,6 +103,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     protected void readAdditionalSaveData(CompoundTag compound) {
         NBTHelper.getNBTCoupler(compound)
                 .get("Color", this::setColor)
+                .get("Rank", this::setRank)
                 .get("damage",  ((Double v)->this.damage = v), this.damage)
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
@@ -243,6 +247,8 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
                 jc.setIndirect(true);
 
+                jc.setRank(this.getRank());
+
                 this.level.addFreshEntity(jc);
             }
         }
@@ -321,6 +327,13 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     }
     public void setColor(int value){
         this.getEntityData().set(COLOR,value);
+    }
+
+    public float getRank(){
+        return this.getEntityData().get(RANK);
+    }
+    public void setRank(float value){
+        this.getEntityData().set(RANK,value);
     }
 
     public int getLifetime(){
