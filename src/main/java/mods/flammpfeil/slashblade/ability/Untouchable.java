@@ -2,12 +2,14 @@ package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.List;
 import java.util.Optional;
 
 public class Untouchable {
@@ -83,9 +85,11 @@ public class Untouchable {
 
             entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
                 if(ef.hasUntouchableWorked()) {
-                    entity.getActiveEffectsMap().keySet().stream()
+                    List<MobEffect> filterd = entity.getActiveEffectsMap().keySet().stream()
                             .filter(p -> !(ef.getEffectSet().contains(p) || p.isBeneficial()))
-                            .forEach(p -> entity.removeEffect(p));
+                            .toList();
+
+                    filterd.forEach(p -> entity.removeEffect(p));
 
                     float storedHealth = ef.getStoredHealth();
                     if(ef.getStoredHealth() < storedHealth)
@@ -104,9 +108,11 @@ public class Untouchable {
         entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
             if(ef.hasUntouchableWorked()) {
                 ef.setUntouchableWorked(false);
-                entity.getActiveEffectsMap().keySet().stream()
+                List<MobEffect> filterd = entity.getActiveEffectsMap().keySet().stream()
                         .filter(p -> !(ef.getEffectSet().contains(p) || p.isBeneficial()))
-                        .forEach(p -> entity.removeEffect(p));
+                        .toList();
+
+                filterd.forEach(p -> entity.removeEffect(p));
 
                 float storedHealth = ef.getStoredHealth();
                 if(ef.getStoredHealth() < storedHealth)
