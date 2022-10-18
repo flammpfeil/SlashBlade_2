@@ -32,6 +32,8 @@ import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.stats.StatType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -221,7 +223,7 @@ public class SlashBlade
             registry.register(
                     new ItemSlashBlade(
                             new ItemTierSlashBlade(() -> {
-                                Tag<Item> tags = ItemTags.getAllTags().getTag(new ResourceLocation("slashblade","proudsouls"));
+                                TagKey<Item> tags = ItemTags.create(new ResourceLocation("slashblade","proudsouls"));
                                 return Ingredient.of(tags);
                                 //Ingredient.fromItems(SBItems.proudsoul)
                             }),
@@ -335,105 +337,89 @@ public class SlashBlade
                             .setRegistryName(modid,"bladestand_2w"));
         }
 
-
-
-
-
-
-
-
-
-
         public static final ResourceLocation BladeItemEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeItemEntity.class));
-        public static final EntityType<BladeItemEntity> BladeItem = EntityType.Builder
-                .of(BladeItemEntity::new, MobCategory.MISC)
-                .sized(0.25F, 0.25F)
-                .setTrackingRange(4)
-                .setUpdateInterval(20)
-                .setCustomClientFactory(BladeItemEntity::createInstanceFromPacket)
-                .build(BladeItemEntityLoc.toString());
+        public static EntityType<BladeItemEntity> BladeItem;
 
         public static final ResourceLocation BladeStandEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(BladeStandEntity.class));
-        public static final EntityType<BladeStandEntity> BladeStand = EntityType.Builder
-                .of(BladeStandEntity::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
-                .setTrackingRange(10)
-                .setUpdateInterval(20)
-                .setShouldReceiveVelocityUpdates(false)
-                .setCustomClientFactory(BladeStandEntity::createInstance)
-                .build(BladeStandEntityLoc.toString());
+        public static EntityType<BladeStandEntity> BladeStand;
 
 
 
         public static final ResourceLocation SummonedSwordLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityAbstractSummonedSword.class));
-        public static final EntityType<EntityAbstractSummonedSword> SummonedSword = EntityType.Builder
-                .of(EntityAbstractSummonedSword::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
-                .setTrackingRange(4)
-                .setUpdateInterval(20)
-                .setCustomClientFactory(EntityAbstractSummonedSword::createInstance)
-                .build(SummonedSwordLoc.toString());
+        public static EntityType<EntityAbstractSummonedSword> SummonedSword;
 
         public static final ResourceLocation JudgementCutLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityJudgementCut.class));
-        public static final EntityType<EntityJudgementCut> JudgementCut = EntityType.Builder
-                .of(EntityJudgementCut::new, MobCategory.MISC)
-                .sized(2.5F, 2.5F)
-                .setTrackingRange(4)
-                .setUpdateInterval(20)
-                .setCustomClientFactory(EntityJudgementCut::createInstance)
-                .build(JudgementCutLoc.toString());
+        public static EntityType<EntityJudgementCut> JudgementCut;
 
         public static final ResourceLocation SlashEffectLoc = new ResourceLocation(SlashBlade.modid, classToString(EntitySlashEffect.class));
-        public static final EntityType<EntitySlashEffect> SlashEffect = EntityType.Builder
-                .of(EntitySlashEffect::new, MobCategory.MISC)
-                .sized(3.0F, 3.0F)
-                .setTrackingRange(4)
-                .setUpdateInterval(20)
-                .setCustomClientFactory(EntitySlashEffect::createInstance)
-                .build(SlashEffectLoc.toString());
+        public static EntityType<EntitySlashEffect> SlashEffect;
 
 
 
 
         public static final ResourceLocation PlacePreviewEntityLoc = new ResourceLocation(SlashBlade.modid, classToString(PlacePreviewEntity.class));
-        public static final EntityType<PlacePreviewEntity> PlacePreview = EntityType.Builder
-                .of(PlacePreviewEntity::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
-                .setTrackingRange(10)
-                .setUpdateInterval(20)
-                .setShouldReceiveVelocityUpdates(false)
-                .setCustomClientFactory(PlacePreviewEntity::createInstance)
-                .build(PlacePreviewEntityLoc.toString());
+        public static EntityType<PlacePreviewEntity> PlacePreview;
 
 
         @SubscribeEvent
         public static void onEntitiesRegistry(final RegistryEvent.Register<EntityType<?>> event){
             {
-                EntityType<EntityAbstractSummonedSword> entity = SummonedSword;
+                EntityType<EntityAbstractSummonedSword> entity = SummonedSword = EntityType.Builder
+                        .of(EntityAbstractSummonedSword::new, MobCategory.MISC)
+                        .sized(0.5F, 0.5F)
+                        .setTrackingRange(4)
+                        .setUpdateInterval(20)
+                        .setCustomClientFactory(EntityAbstractSummonedSword::createInstance)
+                        .build(SummonedSwordLoc.toString());
                 entity.setRegistryName(SummonedSwordLoc);
                 event.getRegistry().register(entity);
             }
 
             {
-                EntityType<EntityJudgementCut> entity = JudgementCut;
+                EntityType<EntityJudgementCut> entity = JudgementCut = EntityType.Builder
+                        .of(EntityJudgementCut::new, MobCategory.MISC)
+                        .sized(2.5F, 2.5F)
+                        .setTrackingRange(4)
+                        .setUpdateInterval(20)
+                        .setCustomClientFactory(EntityJudgementCut::createInstance)
+                        .build(JudgementCutLoc.toString());
                 entity.setRegistryName(JudgementCutLoc);
                 event.getRegistry().register(entity);
             }
 
             {
-                EntityType<BladeItemEntity> entity = BladeItem;
+                EntityType<BladeItemEntity> entity = BladeItem = EntityType.Builder
+                        .of(BladeItemEntity::new, MobCategory.MISC)
+                        .sized(0.25F, 0.25F)
+                        .setTrackingRange(4)
+                        .setUpdateInterval(20)
+                        .setCustomClientFactory(BladeItemEntity::createInstanceFromPacket)
+                        .build(BladeItemEntityLoc.toString());
                 entity.setRegistryName(BladeItemEntityLoc);
                 event.getRegistry().register(entity);
             }
 
             {
-                EntityType<BladeStandEntity> entity = BladeStand;
+                EntityType<BladeStandEntity> entity = BladeStand = EntityType.Builder
+                        .of(BladeStandEntity::new, MobCategory.MISC)
+                        .sized(0.5F, 0.5F)
+                        .setTrackingRange(10)
+                        .setUpdateInterval(20)
+                        .setShouldReceiveVelocityUpdates(false)
+                        .setCustomClientFactory(BladeStandEntity::createInstance)
+                        .build(BladeStandEntityLoc.toString());
                 entity.setRegistryName(BladeStandEntityLoc);
                 event.getRegistry().register(entity);
             }
 
             {
-                EntityType<EntitySlashEffect> entity = SlashEffect;
+                EntityType<EntitySlashEffect> entity = SlashEffect = EntityType.Builder
+                        .of(EntitySlashEffect::new, MobCategory.MISC)
+                        .sized(3.0F, 3.0F)
+                        .setTrackingRange(4)
+                        .setUpdateInterval(20)
+                        .setCustomClientFactory(EntitySlashEffect::createInstance)
+                        .build(SlashEffectLoc.toString());
                 entity.setRegistryName(SlashEffectLoc);
                 event.getRegistry().register(entity);
             }
@@ -441,7 +427,14 @@ public class SlashBlade
 
 
             {
-                EntityType<PlacePreviewEntity> entity = PlacePreview;
+                EntityType<PlacePreviewEntity> entity = PlacePreview = EntityType.Builder
+                        .of(PlacePreviewEntity::new, MobCategory.MISC)
+                        .sized(0.5F, 0.5F)
+                        .setTrackingRange(10)
+                        .setUpdateInterval(20)
+                        .setShouldReceiveVelocityUpdates(false)
+                        .setCustomClientFactory(PlacePreviewEntity::createInstance)
+                        .build(PlacePreviewEntityLoc.toString());
                 entity.setRegistryName(PlacePreviewEntityLoc);
                 event.getRegistry().register(entity);
             }
@@ -470,8 +463,12 @@ public class SlashBlade
             CapabilityConcentrationRank.register(event);
         }
 
+        public static ResourceLocation SWORD_SUMMONED;
 
-        public static final ResourceLocation SWORD_SUMMONED = registerCustomStat("sword_summoned");
+        @SubscribeEvent
+        public static void onCustomStat(final RegistryEvent.Register<StatType<?>> event){
+            SWORD_SUMMONED = registerCustomStat("sword_summoned");
+        }
 
         private static ResourceLocation registerCustomStat(String name) {
             ResourceLocation resourcelocation = new ResourceLocation(modid, name);

@@ -5,9 +5,12 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
@@ -72,6 +75,8 @@ public class RefineHandler {
 
     static private final ResourceLocation REFINE = new ResourceLocation(SlashBlade.modid, "tips/refine");
 
+    static private final TagKey<Item> soul = ItemTags.create(new ResourceLocation("slashblade","proudsouls"));
+
     @SubscribeEvent
     public void onAnvilRepairEvent(AnvilRepairEvent event){
 
@@ -88,9 +93,12 @@ public class RefineHandler {
 
         if(!isRepairable) return;
 
-        Tag<Item> souls = ItemTags.getAllTags().getTag(new ResourceLocation("slashblade","proudsouls"));
-
-        if(!souls.contains(material.getItem())) return;
+        Item materialItem = material.getItem();
+        for(Holder<Item> holder : Registry.ITEM.getTagOrEmpty(soul)) {
+            if (holder.value() == materialItem){
+                return;
+            }
+        }
 
         AdvancementHelper.grantCriterion((ServerPlayer) event.getPlayer(), REFINE);
     }

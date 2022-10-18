@@ -14,6 +14,7 @@ import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.TooltipFlag;
@@ -537,7 +538,7 @@ public class ItemSlashBlade extends SwordItem {
     @Override
     public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
 
-        if(ItemTags.STONE_TOOL_MATERIALS.contains(repair.getItem())){
+        if(Ingredient.of(ItemTags.STONE_TOOL_MATERIALS).test(repair)){
             return true;
         }
 
