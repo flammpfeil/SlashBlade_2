@@ -23,7 +23,7 @@ public class BlockPickCanceller {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onBlockPick(InputEvent.ClickInputEvent event){
+    public void onBlockPick(InputEvent.InteractionKeyMappingTriggered event){
         if(!event.isPickBlock()) return;
 
         LocalPlayer player = Minecraft.getInstance().player;

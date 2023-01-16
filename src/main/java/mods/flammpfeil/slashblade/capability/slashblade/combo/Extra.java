@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 import static mods.flammpfeil.slashblade.init.DefaultResources.ExMotionLocation;
 
+import net.minecraft.world.entity.Entity.RemovalReason;
+
 public class Extra {
 
     public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});

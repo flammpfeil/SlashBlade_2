@@ -7,6 +7,7 @@ import mods.flammpfeil.slashblade.ability.TNTExtinguisher;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRank;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
+import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -168,6 +169,13 @@ public class AttackManager {
     }
 
     static public void doAttackWith(DamageSource src, float amount , Entity target, boolean forceHit, boolean resetHit){
+
+
+
+
+        if(target instanceof EntityAbstractSummonedSword)
+            return;
+
         doManagedAttack((t)->{
             t.hurt(src, amount);
         },target, forceHit, resetHit);

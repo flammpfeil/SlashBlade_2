@@ -61,6 +61,8 @@
   "item.slashblade.proudsoul_sphere":"Blade Soul Sphere",
   "item.slashblade.proudsoul_crystal":"Blade Soul Crystal",
   "item.slashblade.proudsoul_trapezohedron":"Blade Soul Trapezohedron",
+  "item.slashblade.proudsoul_activated":"Activated Blade Soul",
+  "item.slashblade.proudsoul_awakened":"Awakened Blade Soul",
 
   "item.slashblade.bladestand_1": "Blade Stand single",
   "item.slashblade.bladestand_2": "Blade Stand dual",
@@ -75,6 +77,8 @@
   "adv.slashblade.proudsoul_sphere": "Limit of Refine=150\nSmelting\nJewel of Steel with a faint flame.",
   "adv.slashblade.proudsoul_crystal": "Limit of Refine=200\nBlasting\nThe core of the blade soul.",
   "adv.slashblade.proudsoul_trapezohedron":"Unlimited Refinement\nSmoking\nThe blade soul that arrives at the end.",
+  "adv.slashblade.proudsoul_activated":"HUNGER\nSneak&Use",
+  "adv.slashblade.proudsoul_awakened":"awakened",
 
   "adv.slashblade.reforge":"Blade Reforge",
   "adv.slashblade.reforge.desc":"Blades and components are assembled using anvils.",

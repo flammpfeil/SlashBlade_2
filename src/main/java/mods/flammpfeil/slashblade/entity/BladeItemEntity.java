@@ -107,9 +107,9 @@ public class BladeItemEntity extends ItemEntity {
     }
 
     @Override
-    public float getBrightness() {
+    public float getLightLevelDependentMagicValue() {
         if(getAirSupply() < 0)
             return 15728880;
-        return super.getBrightness();
+        return super.getLightLevelDependentMagicValue();
     }
 }

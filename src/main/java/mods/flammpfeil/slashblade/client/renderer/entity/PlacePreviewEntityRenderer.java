@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.entity.PlacePreviewEntity;
 import mods.flammpfeil.slashblade.init.SBItems;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
@@ -65,7 +66,7 @@ public class PlacePreviewEntityRenderer extends EntityRenderer<PlacePreviewEntit
 
                     RenderType type = BladeRenderState.getPlacePreviewBlendLuminous(this.getTextureLocation(entityIn));
                     //ForgeHooksClient.setRenderLayer(type);
-                    blockrendererdispatcher.getModelRenderer().tesselateBlock(world, blockrendererdispatcher.getBlockModel(blockstate), blockstate, blockpos, matrixStackIn, bufferIn.getBuffer(type), false, new Random(), blockstate.getSeed(entityIn.blockPosition()), OverlayTexture.NO_OVERLAY);
+                    blockrendererdispatcher.getModelRenderer().tesselateBlock(world, blockrendererdispatcher.getBlockModel(blockstate), blockstate, blockpos, matrixStackIn, bufferIn.getBuffer(type), false, RandomSource.create(), blockstate.getSeed(entityIn.blockPosition()), OverlayTexture.NO_OVERLAY, net.minecraftforge.client.model.data.ModelData.EMPTY, null);
                 }
 
                 //ForgeHooksClient.setRenderLayer((RenderType)null);

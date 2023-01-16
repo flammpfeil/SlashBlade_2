@@ -4,7 +4,6 @@ import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,7 +39,7 @@ public class BladeMaterialTooltips {
                     .getChild("ShareTag")
                     .getRawCompound().getString("translationKey");
 
-            event.getToolTip().add(new TranslatableComponent(translationKey));
+            event.getToolTip().add(Component.translatable(translationKey));
         }
     }
 

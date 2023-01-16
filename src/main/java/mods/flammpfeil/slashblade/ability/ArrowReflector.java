@@ -83,7 +83,9 @@ public class ArrowReflector {
             if(ticks < period){
                 List<Entity> founds = TargetSelector.getReflectableEntitiesWithinAABB(attacker);
 
-                founds.forEach(e->doReflect(e, attacker));
+                founds.stream()
+                        .filter(e-> (e instanceof Projectile) && ((Projectile) e).getOwner() != attacker)
+                        .forEach(e->doReflect(e, attacker));
             }
         });
 

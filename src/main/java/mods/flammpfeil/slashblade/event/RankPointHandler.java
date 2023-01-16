@@ -27,7 +27,7 @@ public class RankPointHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onLivingDeathEvent(LivingHurtEvent event) {
 
-        LivingEntity victim = event.getEntityLiving();
+        LivingEntity victim = event.getEntity();
         if(victim != null)
             victim.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->cr.addRankPoint(victim, -cr.getUnitCapacity()));
 

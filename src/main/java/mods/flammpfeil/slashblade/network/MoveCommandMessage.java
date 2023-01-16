@@ -51,7 +51,13 @@ public class MoveCommandMessage {
 
                 EnumSet<InputCommand> current = state.getCommands().clone();
 
-                InputCommandEvent.onInputChange(sender, old, current);
+                long currentTime = sender.level.getGameTime();
+                current.forEach(c->{
+                    if(!old.contains(c))
+                        state.getLastPressTimes().put(c, currentTime);
+                });
+
+                InputCommandEvent.onInputChange(sender, state, old, current);
                 //todo: quick turnも実装したい
             });
         });

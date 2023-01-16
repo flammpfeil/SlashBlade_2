@@ -9,7 +9,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +44,7 @@ public class RefineHandler {
 
         if(!isRepairable) return;
 
-        int level = material.getItemEnchantability();
+        int level = material.getEnchantmentValue();
 
         if(level < 0) return;
 
@@ -80,10 +79,11 @@ public class RefineHandler {
     @SubscribeEvent
     public void onAnvilRepairEvent(AnvilRepairEvent event){
 
-        if(!(event.getPlayer() instanceof ServerPlayer)) return;
+        if(!(event.getEntity() instanceof ServerPlayer)) return;
 
-        ItemStack material = event.getIngredientInput();
-        ItemStack base = event.getItemInput();
+        ItemStack material = event.getRight();//.getIngredientInput();
+        ItemStack base = event.getLeft();//.getItemInput();
+        ItemStack output = event.getOutput();
 
         if(base.isEmpty()) return;
         if(!(base.getItem() instanceof ItemSlashBlade)) return;
@@ -93,14 +93,12 @@ public class RefineHandler {
 
         if(!isRepairable) return;
 
-        Item materialItem = material.getItem();
-        for(Holder<Item> holder : Registry.ITEM.getTagOrEmpty(soul)) {
-            if (holder.value() == materialItem){
-                return;
-            }
-        }
+        int before = base.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getRefine()).orElse(0);
+        int after = output.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getRefine()).orElse(0);
 
-        AdvancementHelper.grantCriterion((ServerPlayer) event.getPlayer(), REFINE);
+        if(before < after)
+            AdvancementHelper.grantCriterion((ServerPlayer) event.getEntity(), REFINE);
+
     }
 
 }

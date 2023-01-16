@@ -4,6 +4,7 @@ import com.google.gson.*;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AdvancementBuilder {
     static public String getAdvancementJsonStr(ItemStack inItemStack){
@@ -34,7 +35,7 @@ public class AdvancementBuilder {
                 JsonObject icon = new JsonObject();
                 display.add("icon", icon);
                 {
-                    icon.addProperty("item", iconItem.getItem().getRegistryName().toString());
+                    icon.addProperty("item", ForgeRegistries.ITEMS.getKey(iconItem.getItem()).toString());
 
                     iconItem.getOrCreateTag().putString("Crafting", recipeid);
 
@@ -62,7 +63,7 @@ public class AdvancementBuilder {
                         conditions.add("items", items);
                         {
                             JsonObject item = new JsonObject();
-                            item.addProperty("item", iconItem.getItem().getRegistryName().toString());
+                            item.addProperty("item", ForgeRegistries.ITEMS.getKey(iconItem.getItem()).toString());
                             item.addProperty("nbt", "{ShareTag:{translationKey:\"" + state.getTranslationKey() + "\",isBroken:\"false\"}}");
                             items.add(item);
                         }

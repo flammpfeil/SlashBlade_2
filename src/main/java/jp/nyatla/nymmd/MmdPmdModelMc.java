@@ -51,7 +51,7 @@ public class MmdPmdModelMc extends MmdPmdModel_BasicClass
 {
 	public MmdPmdModelMc(ResourceLocation loc) throws IOException, MmdException
 	{
-		super(Minecraft.getInstance().getResourceManager().getResource(loc).getInputStream(), new FileResourceProvider());
+		super(Minecraft.getInstance().getResourceManager().open(loc), new FileResourceProvider());
 	}
 	public MmdPmdModelMc(InputStream i_stream, IResourceProvider i_res_provider) throws MmdException
 	{

@@ -3,6 +3,7 @@ package mods.flammpfeil.slashblade.item;
 import com.google.common.collect.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.inputstate.IInputState;
+import mods.flammpfeil.slashblade.capability.inputstate.InputState;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
@@ -37,12 +38,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -67,6 +67,8 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraftforge.server.ServerLifecycleHooks;
+
+import net.minecraft.world.item.Item.Properties;
 
 public class ItemSlashBlade extends SwordItem {
     protected static final UUID ATTACK_DAMAGE_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FD");
@@ -182,7 +184,7 @@ public class ItemSlashBlade extends SwordItem {
 
     static public final String BREAK_ACTION_TIMEOUT = "BreakActionTimeout";
 
-    private Consumer<LivingEntity> getOnBroken(ItemStack stack){
+    static public Consumer<LivingEntity> getOnBroken(ItemStack stack){
         return (user)->{
             user.broadcastBreakEvent(user.getUsedItemHand());
 
@@ -313,10 +315,16 @@ public class ItemSlashBlade extends SwordItem {
 
         if(!isSelected) {
             stack.getCapability(BLADESTATE).ifPresent((state)->{
-                if(entityIn instanceof LivingEntity){
-                    if(((LivingEntity) entityIn).hasEffect(MobEffects.HUNGER)){
-                        state.setDamage(state.getDamage() - 0.0004f);
-                    }
+                if(entityIn instanceof Player
+                && ((Player) entityIn).hasEffect(MobEffects.HUNGER)
+                && 0 < ((Player) entityIn).getFoodData().getFoodLevel()) {
+
+                    int level = 1 + Math.abs(((LivingEntity) entityIn).getEffect(MobEffects.HUNGER).getAmplifier());
+                    float amout = 0.0004f * level;
+
+                    ((Player) entityIn).causeFoodExhaustion(0.005F * level);
+
+                    state.setDamage(state.getDamage() - amout);
                 }
             });
 
@@ -330,6 +338,11 @@ public class ItemSlashBlade extends SwordItem {
 
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             if(entityIn instanceof LivingEntity){
+
+                entityIn.getCapability(INPUT_STATE).ifPresent(mInput->{
+                    mInput.getScheduler().onTick((LivingEntity) entityIn);
+                });
+
                 /*
                 if(0.5f > state.getDamage())
                     state.setDamage(0.99f);
@@ -480,11 +493,11 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     @Override
-    protected boolean allowdedIn(CreativeModeTab group) {
+    protected boolean allowedIn(CreativeModeTab group) {
         if(group == SlashBlade.SLASHBLADE)
             return true;
         else
-            return super.allowdedIn(group);
+            return super.allowedIn(group);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -568,10 +581,10 @@ public class ItemSlashBlade extends SwordItem {
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
             if(0 < s.getKillCount())
-                tooltip.add(new TranslatableComponent("slashblade.tooltip.killcount", s.getKillCount()));
+                tooltip.add(Component.translatable("slashblade.tooltip.killcount", s.getKillCount()));
 
             if(0 < s.getRefine()){
-                tooltip.add(new TranslatableComponent("slashblade.tooltip.refine", s.getRefine()).withStyle((ChatFormatting)refineColor.get(s.getRefine())));
+                tooltip.add(Component.translatable("slashblade.tooltip.refine", s.getRefine()).withStyle((ChatFormatting)refineColor.get(s.getRefine())));
             }
         });
 
@@ -607,16 +620,19 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-        consumer.accept(new IItemRenderProperties() {
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+
+        consumer.accept(new IClientItemExtensions() {
             BlockEntityWithoutLevelRenderer renderer = new SlashBladeTEISR(
                     Minecraft.getInstance().getBlockEntityRenderDispatcher(),
                     Minecraft.getInstance().getEntityModels());
 
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return renderer;
             }
         });
+
+        super.initializeClient(consumer);
     }
 }

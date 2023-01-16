@@ -213,7 +213,8 @@ public interface ISlashBladeState {
         return getFullChargeTicks(user) < elapsed;
     }
 
-    default ComboState progressCombo(LivingEntity user){
+
+    default ComboState progressCombo(LivingEntity user, boolean isVirtual){
         ComboState current = resolvCurrentComboState(user);
 
         ComboState next = current.getNext(user);
@@ -226,9 +227,13 @@ public interface ISlashBladeState {
         ComboState resolved = next.getPriority() <= rootNext.getPriority()
                 ? next : rootNext;
 
-        this.setComboSeq(resolved);
+        if(!isVirtual)
+            this.setComboSeq(resolved);
 
         return resolved;
+    }
+    default ComboState progressCombo(LivingEntity user){
+        return progressCombo(user, false);
     }
 
     default ComboState doChargeAction(LivingEntity user, int elapsed){

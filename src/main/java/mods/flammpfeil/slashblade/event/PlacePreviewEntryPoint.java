@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,7 +30,7 @@ public class PlacePreviewEntryPoint {
 
     @SubscribeEvent
     public void onClick(PlayerInteractEvent.RightClickItem event) {
-        Player trueSource = event.getPlayer();
+        Player trueSource = event.getEntity();
 
         if (!(trueSource instanceof LivingEntity)) return;
 

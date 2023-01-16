@@ -7,7 +7,6 @@ import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -41,14 +40,14 @@ public class BladeComponentTooltips {
 
         boolean hasAnvil = false;
 
-        if(event.getPlayer() != null){
-            if(event.getPlayer().containerMenu instanceof AnvilMenu){
+        if(event.getEntity() != null){
+            if(event.getEntity().containerMenu instanceof AnvilMenu){
                 hasAnvil = true;
-                blade = event.getPlayer().containerMenu.getSlot(0).getItem();
+                blade = event.getEntity().containerMenu.getSlot(0).getItem();
             }
         }
 
-        tooltip.add(new TranslatableComponent(
+        tooltip.add(Component.translatable(
                 "slashblade.tooltip.material").withStyle(ChatFormatting.DARK_AQUA));
 
         tooltip.add(getRequirements(
@@ -90,7 +89,7 @@ public class BladeComponentTooltips {
         if(0 < recipe.getLevel())
             tooltip.add(getRequirements(
                     "slashblade.tooltip.material.level"
-                    ,event.getPlayer() != null && recipe.getLevel() <= event.getPlayer().experienceLevel
+                    ,event.getEntity() != null && recipe.getLevel() <= event.getEntity().experienceLevel
                     ,recipe.getLevel()));
     }
 
@@ -108,10 +107,10 @@ public class BladeComponentTooltips {
     }
 
     Component getRequirements(String key, boolean check, Object... args){
-        TranslatableComponent tc = new TranslatableComponent(key, args);
+        Component tc = Component.translatable(key, args);
 
         if(check){
-            tc.withStyle(ChatFormatting.GREEN);
+            tc = Component.empty().append(tc).withStyle(ChatFormatting.GREEN);
         }
 
         return tc;

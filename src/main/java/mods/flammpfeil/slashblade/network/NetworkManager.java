@@ -39,4 +39,5 @@ public class NetworkManager {
                 RankSyncMessage::handle
         );
     }
+
 }

@@ -22,7 +22,7 @@ public class SneakingMotionCanceller {
 
     @SubscribeEvent
     public void onRenderPlayerEventPre(RenderPlayerEvent.Pre event){
-        ItemStack stack = event.getPlayer().getMainHandItem();
+        ItemStack stack = event.getEntity().getMainHandItem();
 
         if(stack.isEmpty()) return;
         if(!(stack.getItem() instanceof ItemSlashBlade)) return;
@@ -32,7 +32,7 @@ public class SneakingMotionCanceller {
         event.getRenderer().getModel().crouching = false;
 
         Vec3 offset = event.getRenderer()
-                .getRenderOffset((AbstractClientPlayer) event.getPlayer(), event.getPartialTick())
+                .getRenderOffset((AbstractClientPlayer) event.getEntity(), event.getPartialTick())
                 .scale(-1);
 
         event.getPoseStack().translate(offset.x, offset.y, offset.z);

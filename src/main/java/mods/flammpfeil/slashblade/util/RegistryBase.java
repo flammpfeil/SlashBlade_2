@@ -3,15 +3,10 @@ package mods.flammpfeil.slashblade.util;
 import com.google.common.collect.Maps;
 import mods.flammpfeil.slashblade.SlashBlade;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
-public abstract class RegistryBase<V extends IForgeRegistryEntry<V>>  extends ForgeRegistryEntry<V> {
-    public static Map<ResourceLocation, Map<ResourceLocation, Object>> registries = Maps.newHashMap();
-
+public abstract class RegistryBase<V> {
     private String name;
 
     static protected String BaseInstanceName = "none";
@@ -24,15 +19,7 @@ public abstract class RegistryBase<V extends IForgeRegistryEntry<V>>  extends Fo
         getRegistry().put(path, (V)this);
     }
 
-    public Map<ResourceLocation, Object> getRegistry(){
-        ResourceLocation key = this.delegate.name();
-
-        if(!registries.containsKey(key)){
-            registries.put(key, Maps.newHashMap());
-        }
-
-        return registries.get(key);
-    }
+    public abstract Map<ResourceLocation, V> getRegistry();
 
     public abstract String getPath();
 

@@ -33,6 +33,12 @@ import java.util.stream.Collectors;
 import static mods.flammpfeil.slashblade.init.DefaultResources.BaseMotionLocation;
 
 public class ComboState extends RegistryBase<ComboState>{
+    static Map<ResourceLocation, ComboState> registry = Maps.newHashMap();
+
+    @Override
+    public Map<ResourceLocation, ComboState> getRegistry() {
+        return ComboState.registry;
+    }
 
     public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 

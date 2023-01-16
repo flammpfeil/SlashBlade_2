@@ -49,7 +49,7 @@ public class PlacePreviewEntity extends ItemFrame implements IEntityAdditionalSp
         super.addAdditionalSaveData(compound);
         String standTypeStr;
         if(this.currentType != null){
-            standTypeStr = this.currentType.getRegistryName().toString();
+            standTypeStr = ForgeRegistries.ITEMS.getKey(this.currentType).toString();
         }else{
             standTypeStr = "";
         }

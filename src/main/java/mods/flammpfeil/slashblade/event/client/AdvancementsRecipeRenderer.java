@@ -393,7 +393,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onDrawScreenPost(ScreenEvent.DrawScreenEvent.Post event){
+    public void onDrawScreenPost(ScreenEvent.Render.Post event){
         if(!(event.getScreen() instanceof AdvancementsScreen)) return;
         if(AdvancementsRecipeRenderer.currentRecipe == null) return;
         if(AdvancementsRecipeRenderer.currentView == null) return;
@@ -418,7 +418,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
             drawBackGround(matrixStack, xCorner, yCorner, zOffset, xSize, ySize, yClip);
 
-            drawGhostRecipe(matrixStack, xCorner, yCorner, zOffset, event.getPartialTicks());
+            drawGhostRecipe(matrixStack, xCorner, yCorner, zOffset, event.getPartialTick());
 
             matrixStack.translate(0, 0, zStep);
             drawTooltip(matrixStack, xCorner, yCorner, zOffset, event.getMouseX(), event.getMouseY(), gui);
@@ -430,7 +430,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void onInitGuiPost(ScreenEvent.InitScreenEvent.Post event){
+    public void onInitGuiPost(ScreenEvent.Init.Post event){
         if(!(event.getScreen() instanceof AdvancementsScreen)) return;
 
         AdvancementsScreen gui = (AdvancementsScreen) event.getScreen();

@@ -53,7 +53,7 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onLivingHurt(LivingHurtEvent event){
-        if(checkUntouchable(event.getEntityLiving())) {
+        if(checkUntouchable(event.getEntity())) {
             event.setCanceled(true);
             doWitchTime(event.getSource().getEntity());
         }
@@ -61,7 +61,7 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onLivingDamage(LivingDamageEvent event){
-        if(checkUntouchable(event.getEntityLiving())) {
+        if(checkUntouchable(event.getEntity())) {
             event.setCanceled(true);
             doWitchTime(event.getSource().getEntity());
         }
@@ -69,7 +69,7 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event){
-        if(checkUntouchable(event.getEntityLiving())) {
+        if(checkUntouchable(event.getEntity())) {
             event.setCanceled(true);
             doWitchTime(event.getSource().getEntity());
         }
@@ -77,11 +77,11 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event){
-        if(checkUntouchable(event.getEntityLiving())) {
+        if(checkUntouchable(event.getEntity())) {
             event.setCanceled(true);
             doWitchTime(event.getSource().getEntity());
 
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
 
             entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
                 if(ef.hasUntouchableWorked()) {
@@ -100,8 +100,8 @@ public class Untouchable {
     }
 
     @SubscribeEvent
-    public void onLivingTicks(LivingEvent.LivingUpdateEvent event){
-        LivingEntity entity = event.getEntityLiving();
+    public void onLivingTicks(LivingEvent.LivingTickEvent event){
+        LivingEntity entity = event.getEntity();
 
         if(entity.level.isClientSide) return;
 
@@ -126,10 +126,10 @@ public class Untouchable {
 
     @SubscribeEvent
     public void onPlayerJump(LivingEvent.LivingJumpEvent event){
-        if(!event.getEntityLiving().getMainHandItem()
+        if(!event.getEntity().getMainHandItem()
                 .getCapability(ItemSlashBlade.BLADESTATE).isPresent())
             return;
 
-        Untouchable.setUntouchable(event.getEntityLiving(), JUMP_TICKS);
+        Untouchable.setUntouchable(event.getEntity(), JUMP_TICKS);
     }
 }

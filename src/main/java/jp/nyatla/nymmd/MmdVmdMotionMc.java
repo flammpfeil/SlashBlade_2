@@ -49,8 +49,7 @@ public class MmdVmdMotionMc extends MmdVmdMotion_BasicClass
     static private InputStream getStream(ResourceLocation loc) throws IOException {
         return new BufferedInputStream(Minecraft.getInstance()
                 .getResourceManager()
-                .getResource(loc)
-                .getInputStream());
+                .open(loc));
     }
 
 	public MmdVmdMotionMc(ResourceLocation loc) throws IOException, MmdException

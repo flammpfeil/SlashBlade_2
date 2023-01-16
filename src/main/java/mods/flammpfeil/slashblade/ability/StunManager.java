@@ -5,11 +5,9 @@ import mods.flammpfeil.slashblade.entity.ai.StunGoal;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 
 /**
@@ -21,7 +19,7 @@ public class StunManager {
 
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onEntityJoinWorldEvent(EntityJoinWorldEvent event){
+    public void onEntityJoinWorldEvent(EntityJoinLevelEvent event){
         if(!(event.getEntity() instanceof PathfinderMob)) return;
         PathfinderMob entity = (PathfinderMob) event.getEntity();
 
@@ -29,8 +27,8 @@ public class StunManager {
     }
 
     @SubscribeEvent
-    public void onEntityLivingUpdate(LivingEvent.LivingUpdateEvent event){
-        LivingEntity target = event.getEntityLiving();
+    public void onEntityLivingUpdate(LivingEvent.LivingTickEvent event){
+        LivingEntity target = event.getEntity();
         if(!(target instanceof PathfinderMob)) return;
         if(target == null) return;
         if(target.level == null) return;
@@ -71,33 +69,6 @@ public class StunManager {
 
         target.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent((state)->{
             state.clearStunTimeOut();
-            state.clearFreezeTimeOut();
-        });
-    }
-
-    @SubscribeEvent
-    public void onEntityCanUpdate(EntityEvent.CanUpdate event){
-        if(event.isCanceled()) return;
-        Entity target = event.getEntity();
-        if(target == null) return;
-        if(target.level == null) return;
-
-
-        boolean onFreeze = target.getCapability(CapabilityMobEffect.MOB_EFFECT)
-                .filter((state)->state.isFreeze(target.level.getGameTime()))
-                .isPresent();
-
-        if(onFreeze)
-            event.setCanUpdate(false);
-
-    }
-
-    public static void setFreeze(LivingEntity target, long duration){
-        if(target.level == null) return;
-        if(!(target instanceof LivingEntity)) return;
-
-        target.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent((state)->{
-            state.setManagedFreeze(target.level.getGameTime(),duration);
         });
     }
 }

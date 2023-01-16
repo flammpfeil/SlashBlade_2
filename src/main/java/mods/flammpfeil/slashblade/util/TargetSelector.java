@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.util;
 
 import com.google.common.collect.Lists;
+import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -234,7 +235,7 @@ public class TargetSelector {
 
         EnumSet<InputCommand> old = event.getOld();
         EnumSet<InputCommand> current = event.getCurrent();
-        ServerPlayer sender = event.getPlayer();
+        ServerPlayer sender = event.getEntity();
 
         //SneakHold & Middle Click
         if (!(!old.contains(InputCommand.M_DOWN) && current.contains(InputCommand.M_DOWN) && current.contains(InputCommand.SNEAK))) return;

@@ -144,8 +144,7 @@ public class RankRenderer {
         wr.vertex(m,x + width, y + 0, zLevel).uv((u + width) * var7, (v + 0) * var8).endVertex();
         wr.vertex(m,x + 0, y + 0, zLevel).uv(  (u + 0) * var7,  (v + 0) * var8).endVertex();
 
-        wr.end();
         //tessellator.end();
-        BufferUploader.end(wr);
+        BufferUploader.drawWithShader(wr.end());
     }
 }

@@ -15,7 +15,9 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PlayMessages;
@@ -49,7 +51,7 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
         super.addAdditionalSaveData(compound);
         String standTypeStr;
         if(this.currentType != null){
-            standTypeStr = this.currentType.getRegistryName().toString();
+            standTypeStr = ForgeRegistries.ITEMS.getKey(this.currentType).toString();
         }else{
             standTypeStr = "";
         }
@@ -108,7 +110,7 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         InteractionResult result = InteractionResult.PASS;
-        if(!this.level.isClientSide){
+        if(!this.level.isClientSide && hand == InteractionHand.MAIN_HAND){
             ItemStack itemstack = player.getItemInHand(hand);
             if(player.isShiftKeyDown() && !this.getItem().isEmpty()){
                 Pose current = this.getPose();
@@ -116,17 +118,26 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
                 this.setPose(Pose.values()[newIndex]);
                 result = InteractionResult.SUCCESS;
             }else if((!itemstack.isEmpty() && itemstack.getItem() instanceof ItemSlashBlade)
-                    || (itemstack.isEmpty() && !this.getItem().isEmpty())){
+                        || (itemstack.isEmpty() && !this.getItem().isEmpty())){
 
                 if(this.getItem().isEmpty()){
-                    result = super.interact(player, hand);
+                    if (!this.isRemoved()) {
+                        this.setItem(itemstack);
+                        if (!player.getAbilities().instabuild) {
+                            itemstack.shrink(1);
+                        }
+                        this.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0F, 1.0F);
+                        result = InteractionResult.SUCCESS;
+                    }
                 }else{
                     ItemStack displayed = this.getItem().copy();
 
-                    this.setItem(ItemStack.EMPTY);
-                    result = super.interact(player, hand);
-
+                    this.setItem(itemstack);
                     player.setItemInHand(hand, displayed);
+
+                    this.playSound(SoundEvents.ITEM_FRAME_REMOVE_ITEM, 1.0F, 1.0F);
+                    result = InteractionResult.SUCCESS;
+
                 }
 
             }else {
@@ -137,4 +148,9 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
         }
         return result;
     }
+
+    protected ItemStack getFrameItemStack() {
+        return new ItemStack(currentType);
+    }
+
 }

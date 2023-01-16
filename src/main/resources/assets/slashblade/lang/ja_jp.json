@@ -61,6 +61,9 @@
   "item.slashblade.proudsoul_sphere":"刀の魂珠",
   "item.slashblade.proudsoul_crystal":"刀の魂晶",
   "item.slashblade.proudsoul_trapezohedron":"揺蕩う刀の魂結晶",
+  "item.slashblade.proudsoul_activated":"飢渇く刀の魂結晶",
+  "item.slashblade.proudsoul_awakened":"幽玄な刀の魂結晶",
+  "item.slashblade.proudsoul_tiny.dark":"揺籃たる刀の薄魂片",
 
   "item.slashblade.bladestand_1": "刀掛け台 一段",
   "item.slashblade.bladestand_2": "刀掛け台 二段",
@@ -75,6 +78,8 @@
   "adv.slashblade.proudsoul_sphere": "強化限界 Refine=150\n製錬\n幻炎抱く宝珠",
   "adv.slashblade.proudsoul_crystal": "強化限界 Refine=200\n精錬\n霊鋼の核心",
   "adv.slashblade.proudsoul_trapezohedron":"強化限界無し\n燻煙\n揺蕩う誇りの末路",
+  "adv.slashblade.proudsoul_activated":"揺り起こした代償は底なしの餓え\n魂結晶のスニーク中に使用で活性化する\n手元に置くとき空腹が襲う\n空腹中は更なる空腹と引き換えに刀の耐久値が回復する",
+  "adv.slashblade.proudsoul_awakened":"精魂共に満ち鎮まった\n再びの餓えを代償に新たに欠片を得ることができる",
 
   "adv.slashblade.reforge":"再鍛造",
   "adv.slashblade.reforge.desc":"刀剣の材料箱は金床での合成に利用する",

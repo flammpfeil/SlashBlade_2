@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[40,)" #mandatory (24 is current forge version)
+loaderVersion="[43,)" #mandatory (24 is current forge version)
 issueTrackerURL="https://github.com/flammpfeil/SlashBlade/issues" #optional
 license="NyMmd-MIT:nyatla, ObjModelImporter:forge, All other Rights reserved."
 
@@ -7,7 +7,7 @@ license="NyMmd-MIT:nyatla, ObjModelImporter:forge, All other Rights reserved."
 modId="slashblade"
 version="${file.jarVersion}"
 displayName="Slash Blade"
-updateJSONURL="https://drive.google.com/uc?id=1NhPuJVKjr4VNidXLNbxLhShWBlZjEFvM"
+#updateJSONURL="https://drive.google.com/uc?id=1NhPuJVKjr4VNidXLNbxLhShWBlZjEFvM"
 displayURL="https://minecraft.curseforge.com/projects/slashblade"
 logoFile="slashblade.png"
 credits="Furia"
@@ -33,6 +33,6 @@ SlashBlade 抜刀剣
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.18.2,1.19)"
+    versionRange="[1.19.2,1.20)"
     ordering="NONE"
     side="BOTH"

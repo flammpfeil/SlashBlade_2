@@ -1,16 +1,26 @@
 package mods.flammpfeil.slashblade.specialattack;
 
+import com.google.common.collect.Maps;
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
+import mods.flammpfeil.slashblade.capability.slashblade.RangeAttack;
 import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.util.RegistryBase;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class SlashArts extends RegistryBase<SlashArts> {
+    static Map<ResourceLocation, SlashArts> registry = Maps.newHashMap();
+
+    @Override
+    public Map<ResourceLocation, SlashArts> getRegistry() {
+        return SlashArts.registry;
+    }
 
     static public final int ChargeTicks = 9;
     static public final int ChargeJustTicks = 3;

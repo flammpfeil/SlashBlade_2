@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
+import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.InputCommand;
@@ -48,9 +49,9 @@ public class LockOnManager {
     public void onInputChange(InputCommandEvent event) {
         if(event.getOld().contains(InputCommand.SNEAK) == event.getCurrent().contains(InputCommand.SNEAK)) return;
 
-        ServerPlayer player = event.getPlayer();
+        ServerPlayer player = event.getEntity();
         //set target
-        ItemStack stack = event.getPlayer().getMainHandItem();
+        ItemStack stack = event.getEntity().getMainHandItem();
         if (stack.isEmpty()) return;
         if (!(stack.getItem() instanceof ItemSlashBlade)) return;
 
@@ -77,6 +78,9 @@ public class LockOnManager {
 
                         if(target instanceof LivingEntity)
                             isMatch = TargetSelector.lockon_focus.test(player, (LivingEntity)target);
+
+                        if(target instanceof IShootable)
+                            isMatch = false;
 
                         return isMatch;
                     }).map(r->((EntityHitResult) r).getEntity());

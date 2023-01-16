@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -19,6 +20,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.EnumSet;
 
@@ -26,9 +28,12 @@ public class MoveInputHandler {
 
     public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
 
+    public static final String LAST_CHANGE_TIME = "SB_LAST_CHANGE_TIME";
+
     public static boolean checkFlag(int data, int flags){
         return (data & flags) == flags;
     }
+
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent()
@@ -85,7 +90,7 @@ public class MoveInputHandler {
                 .map((state)->state.getCommands())
                 .orElseGet(()->EnumSet.noneOf(InputCommand.class));
 
-        long currentTime = player.getCommandSenderWorld().getGameTime();
+        Level worldIn = player.getCommandSenderWorld();
 
         /*
         if(player.movementInput.forwardKeyDown &&  (0 < (player.getPersistentData().getInt(KEY) & MoveCommandMessage.SNEAK)))
@@ -106,7 +111,7 @@ public class MoveInputHandler {
                 str = AdvancementBuilder.getAdvancementJsonStr(stack);
             }else{
 
-                ret.addProperty("item", stack.getItem().getRegistryName().toString());
+                ret.addProperty("item", ForgeRegistries.ITEMS.getKey(stack.getItem()).toString());
                 if (stack.getCount() != 1)
                     ret.addProperty("count", stack.getCount());
 
@@ -137,7 +142,7 @@ public class MoveInputHandler {
 
 
                     JsonObject criteriaitem = new JsonObject();
-                    criteriaitem.addProperty("item", result.getItem().getRegistryName().toString());
+                    criteriaitem.addProperty("item", ForgeRegistries.ITEMS.getKey(result.getItem()).toString());
 
                     CompoundTag checktarget = new CompoundTag();
                     {
@@ -170,10 +175,17 @@ public class MoveInputHandler {
             Minecraft.getInstance().keyboardHandler.setClipboard(str);
         }
 
+        long currentTime = worldIn.getGameTime();
+        boolean doSend = !old.equals(commands);
 
-        if(!old.equals(commands)){
+        if(doSend){
             player.getCapability(INPUT_STATE)
                     .ifPresent((state)->{
+                        commands.forEach(c->{
+                            if(!old.contains(c))
+                                state.getLastPressTimes().put(c, currentTime);
+                        });
+
                         state.getCommands().clear();
                         state.getCommands().addAll(commands);
                     });

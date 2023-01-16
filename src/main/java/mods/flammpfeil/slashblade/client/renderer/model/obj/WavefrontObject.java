@@ -55,8 +55,7 @@ public class WavefrontObject
 
         try
         {
-            Resource res = Minecraft.getInstance().getResourceManager().getResource(resource);
-            loadObjModel(res.getInputStream());
+            loadObjModel(Minecraft.getInstance().getResourceManager().open(resource));
         }
         catch (IOException e)
         {

@@ -6,7 +6,6 @@ import mods.flammpfeil.slashblade.util.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -36,10 +35,12 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.network.NetworkHooks;
 
+import net.minecraft.world.entity.Entity.RemovalReason;
+
 public class EntityJudgementCut extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntityJudgementCut.class, EntityDataSerializers.FLOAT);
 
     private int lifetime = 10;
     private int seed = -1;
@@ -61,8 +62,6 @@ public class EntityJudgementCut extends Projectile implements IShootable {
         this.cycleHit = cycleHit;
     }
 
-    public UUID shootingEntity;
-
     private SoundEvent livingEntitySound = SoundEvents.WITHER_HURT;
     protected SoundEvent getHitEntitySound() {
         return this.livingEntitySound;
@@ -81,6 +80,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
     @Override
     protected void defineSynchedData() {
+        super.defineSynchedData();
         this.entityData.define(COLOR, 0x3333FF);
         this.entityData.define(FLAGS, 0);
         this.entityData.define(RANK, 0.0f);
@@ -88,6 +88,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
 
         NBTHelper.getNBTCoupler(compound)
                 .put("Color", this.getColor())
@@ -95,19 +96,19 @@ public class EntityJudgementCut extends Projectile implements IShootable {
                 .put("damage", this.damage)
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
-                .put("OwnerUUID", this.shootingEntity)
                 .put("Lifetime", this.getLifetime());
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+
         NBTHelper.getNBTCoupler(compound)
                 .get("Color", this::setColor)
                 .get("Rank", this::setRank)
                 .get("damage",  ((Double v)->this.damage = v), this.damage)
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
-                .get("OwnerUUID",  ((UUID v)->this.shootingEntity = v), true)
                 .get("Lifetime",this::setLifetime);
     }
 
@@ -343,20 +344,16 @@ public class EntityJudgementCut extends Projectile implements IShootable {
         this.lifetime = value;
     }
 
+
     @Nullable
     @Override
     public Entity getShooter() {
-        return this.shootingEntity != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.shootingEntity) : null;
+        return this.getOwner();
     }
 
     @Override
     public void setShooter(Entity shooter) {
         setOwner(shooter);
-    }
-
-    @Override
-    public void setOwner(Entity shooter) {
-        this.shootingEntity = (shooter != null) ? shooter.getUUID() : null;
     }
 
     public List<MobEffectInstance> getPotionEffects(){

@@ -34,12 +34,12 @@ public class FallHandler {
 
     @SubscribeEvent
     public void onFall(LivingFallEvent event){
-        resetState(event.getEntityLiving());
+        resetState(event.getEntity());
     }
 
     @SubscribeEvent
     public void onFlyableFall(PlayerFlyableFallEvent event){
-        resetState(event.getEntityLiving());
+        resetState(event.getEntity());
     }
 
     public static void resetState(LivingEntity user){

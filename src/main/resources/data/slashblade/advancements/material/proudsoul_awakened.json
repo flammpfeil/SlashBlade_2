@@ -1,0 +1,31 @@
+{
+  "display": {
+    "title": {
+      "translate": "item.slashblade.proudsoul_awakened"
+    },
+    "description": {
+      "translate": "adv.slashblade.proudsoul_awakened"
+    },
+    "icon": {
+      "item": "slashblade:proudsoul_awakened",
+      "nbt": "{Crafting:\"slashblade:material/awakened_soul\"}"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:material/proudsoul_activated",
+  "criteria": {
+    "BrokenBlade": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "slashblade:proudsoul_awakened"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "recipes": ["slashblade:material/awakened_soul","slashblade:material/duplicate_scrap"]
+  }
+}

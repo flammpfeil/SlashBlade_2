@@ -28,8 +28,7 @@ public class MobEffectCapabilityProvider implements ICapabilityProvider, INBTSer
         CompoundTag baseTag = new CompoundTag();
 
         state.ifPresent(instance -> NBTHelper.getNBTCoupler(baseTag)
-                .put("StunTimeout", instance.getStunTimeOut())
-                .put("FreezeTimeout", instance.getFreezeTimeOut()));
+                .put("StunTimeout", instance.getStunTimeOut()));
 
         return baseTag;
     }
@@ -38,7 +37,6 @@ public class MobEffectCapabilityProvider implements ICapabilityProvider, INBTSer
     public void deserializeNBT(CompoundTag nbt) {
         state.ifPresent(instance ->
                 NBTHelper.getNBTCoupler(nbt)
-                .get("StunTimeout", instance::setStunTimeOut)
-                .get("FreezeTimeout", instance::setFreezeTimeOut));
+                .get("StunTimeout", instance::setStunTimeOut));
     }
 }

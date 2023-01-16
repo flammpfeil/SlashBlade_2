@@ -29,7 +29,7 @@ public class KnockBackHandler {
 
     @SubscribeEvent
     public static void onLivingKnockBack(LivingKnockBackEvent event){
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
 
 
         CompoundTag nbt = target.getPersistentData();
@@ -67,9 +67,9 @@ public class KnockBackHandler {
 
         if(0 < factor.y){
             target.setOnGround(false);
-            event.getEntityLiving().setDeltaMovement(motion.x, Math.max(motion.y, factor.y), motion.z);
+            event.getEntity().setDeltaMovement(motion.x, Math.max(motion.y, factor.y), motion.z);
         }else if(factor.y < 0){
-            event.getEntityLiving().setDeltaMovement(motion.x, Math.min(motion.y, factor.y), motion.z);
+            event.getEntity().setDeltaMovement(motion.x, Math.min(motion.y, factor.y), motion.z);
         }
     }
 }

@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:smithing",
+    "base": {
+        "item": "minecraft:netherite_scrap"
+    },
+    "addition": {
+        "item": "slashblade:proudsoul_awakened"
+    },
+    "result": {
+        "item": "slashblade:proudsoul_tiny",
+        "nbt": {
+            "RequiredBlade": {
+                "result": {
+                    "id": "minecraft:netherite_scrap",
+                    "Count": 2
+                },
+                "level": 5,
+                "translationKey": "item.minecraft.gold_ingot"
+            },
+            "display": {
+                "Name": "{\"translate\":\"item.slashblade.proudsoul_tiny.dark\"}"
+            }
+        }
+    }
+}

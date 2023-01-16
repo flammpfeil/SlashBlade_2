@@ -26,7 +26,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.ClipContext;
@@ -41,6 +40,8 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+
+import net.minecraft.world.entity.Entity.RemovalReason;
 
 public class EntitySlashEffect extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
@@ -81,8 +82,6 @@ public class EntitySlashEffect extends Projectile implements IShootable {
         this.cycleHit = cycleHit;
     }
 
-    public UUID shootingEntity;
-
     private SoundEvent livingEntitySound = SoundEvents.WITHER_HURT;
     protected SoundEvent getHitEntitySound() {
         return this.livingEntitySound;
@@ -99,6 +98,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
 
     @Override
     protected void defineSynchedData() {
+        super.defineSynchedData();
         this.entityData.define(COLOR, 0x3333FF);
         this.entityData.define(FLAGS, 0);
         this.entityData.define(RANK, 0.0f);
@@ -110,6 +110,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
 
         NBTHelper.getNBTCoupler(compound)
                 .put("RotationOffset", this.getRotationOffset())
@@ -120,13 +121,14 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                 .put("damage", this.damage)
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
-                .put("OwnerUUID", this.shootingEntity)
                 .put("Lifetime", this.getLifetime())
                 .put("Knockback", this.getKnockBack().ordinal());
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+
         NBTHelper.getNBTCoupler(compound)
                 .get("RotationOffset", this::setRotationOffset)
                 .get("RotationRoll", this::setRotationRoll)
@@ -136,7 +138,6 @@ public class EntitySlashEffect extends Projectile implements IShootable {
                 .get("damage",  ((Double v)->this.damage = v), this.damage)
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
-                .get("OwnerUUID",  ((UUID v)->this.shootingEntity = v), true)
                 .get("Lifetime",this::setLifetime)
                 .get("Knockback", this::setKnockBackOrdinal);
     }
@@ -395,20 +396,16 @@ public class EntitySlashEffect extends Projectile implements IShootable {
         this.getEntityData().set(BASESIZE, value);
     }
 
+
     @Nullable
     @Override
     public Entity getShooter() {
-        return this.shootingEntity != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.shootingEntity) : null;
+        return this.getOwner();
     }
 
     @Override
     public void setShooter(Entity shooter) {
         setOwner(shooter);
-    }
-
-    @Override
-    public void setOwner(Entity shooter) {
-        this.shootingEntity = (shooter != null) ? shooter.getUUID() : null;
     }
 
     public List<MobEffectInstance> getPotionEffects(){

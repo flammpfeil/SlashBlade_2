@@ -9,10 +9,8 @@ import java.util.Set;
 public class MobEffectState implements IMobEffectState {
 
     long stunTimeout = -1;
-    long freezeTimeout = -1;
 
     int stunLimit = 200;
-    int freezeLimit = 200;
 
     @Override
     public void setStunTimeOut(long timeout) {
@@ -25,16 +23,6 @@ public class MobEffectState implements IMobEffectState {
     }
 
     @Override
-    public void setFreezeTimeOut(long timeout) {
-        freezeTimeout = timeout;
-    }
-
-    @Override
-    public long getFreezeTimeOut() {
-        return freezeTimeout;
-    }
-
-    @Override
     public int getStunLimit() {
         return stunLimit;
     }
@@ -43,17 +31,6 @@ public class MobEffectState implements IMobEffectState {
     public void setStunLimit(int limit) {
         this.stunLimit = limit;
     }
-
-    @Override
-    public int getFreezeLimit() {
-        return freezeLimit;
-    }
-
-    @Override
-    public void setFreezeLimit(int limit) {
-        this.freezeLimit = limit;
-    }
-
 
 
     Optional<Long> UntouchableTimeout = Optional.empty();

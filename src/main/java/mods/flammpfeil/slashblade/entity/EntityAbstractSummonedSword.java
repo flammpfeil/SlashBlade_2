@@ -31,7 +31,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -53,6 +52,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.minecraft.world.entity.Entity.RemovalReason;
+
 public class EntityAbstractSummonedSword extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntityAbstractSummonedSword.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntityAbstractSummonedSword.class, EntityDataSerializers.INT);
@@ -70,7 +71,6 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
     private double damage = 1.0D;
     
     private IntOpenHashSet alreadyHits;
-    public UUID shootingEntity;
 
     private Entity hitEntity = null;
 
@@ -101,6 +101,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
 
     @Override
     protected void defineSynchedData() {
+        super.defineSynchedData();
         this.entityData.define(COLOR, 0x3333FF);
         this.entityData.define(FLAGS, 0);
         this.entityData.define(HIT_ENTITY_ID, -1);
@@ -113,6 +114,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
 
         NBTHelper.getNBTCoupler(compound)
                 .put("Color", this.getColor())
@@ -123,13 +125,14 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
                 .put("crit", this.getIsCritical())
                 .put("clip", this.isNoClip())
                 .put("PierceLevel", this.getPierce())
-                .put("OwnerUUID", this.shootingEntity)
                 .put("model", this.getModelName())
                 .put("Delay", this.getDelay());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+
         NBTHelper.getNBTCoupler(compound)
                 .get("Color", this::setColor)
                 .get("life",((Integer v)->this.ticksInGround = v))
@@ -139,7 +142,6 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
                 .get("crit",this::setIsCritical)
                 .get("clip",this::setNoClip)
                 .get("PierceLevel",this::setPierce)
-                .get("OwnerUUID",  ((UUID v)->this.shootingEntity = v), true)
                 .get("model",this::setModelName)
                 .get("Delay",this::setDelay);
     }
@@ -154,6 +156,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
         Vec3 vec3d = (new Vec3(x, y, z)).normalize().add(this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.random.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale((double)velocity);
         this.setDeltaMovement(vec3d);
         float f = Mth.sqrt((float)vec3d.horizontalDistanceSqr());
+        this.setPos(this.position());
         this.setYRot( (float)(Mth.atan2(vec3d.x, vec3d.z) * (double)(180F / (float)Math.PI)));
         this.setXRot( (float)(Mth.atan2(vec3d.y, (double)f) * (double)(180F / (float)Math.PI)));
         this.yRotO = this.getYRot();
@@ -345,7 +348,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
                     }
                 }
 
-                if (raytraceresult != null && !disallowedHitBlock && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
+                if (raytraceresult != null && !(disallowedHitBlock && raytraceresult.getType() == HitResult.Type.BLOCK) && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
                     this.onHit(raytraceresult);
                     this.hasImpulse = true;
                 }
@@ -573,17 +576,12 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
     @Nullable
     @Override
     public Entity getShooter() {
-        return this.shootingEntity != null && this.level instanceof ServerLevel ? ((ServerLevel)this.level).getEntity(this.shootingEntity) : null;
+        return this.getOwner();
     }
 
     @Override
     public void setShooter(Entity shooter) {
         setOwner(shooter);
-    }
-
-    @Override
-    public void setOwner(Entity shooter) {
-        this.shootingEntity = (shooter != null) ? shooter.getUUID() : null;
     }
 
     public List<MobEffectInstance> getPotionEffects(){
@@ -648,7 +646,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
         }
     }
 
-    private void resetAlreadyHits() {
+    public void resetAlreadyHits() {
         if(this.alreadyHits != null)
             alreadyHits.clear();
     }

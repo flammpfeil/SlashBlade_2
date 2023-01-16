@@ -40,13 +40,13 @@ public class SummonedSwordRenderer<T extends EntityAbstractSummonedSword> extend
             boolean hasHitEntity = hits != null;
 
             if(hasHitEntity){
-                matrixStack.mulPose(Vector3f.YN.rotationDegrees(Mth.lerp(partialTicks, hits.yRotO, hits.getYRot()) -90));
+                matrixStack.mulPose(Vector3f.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) -90));
                 matrixStack.mulPose(Vector3f.YN.rotationDegrees(entity.getOffsetYaw()));
             }else{
-                matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+                matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
             }
 
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
 
             matrixStack.mulPose(Vector3f.XP.rotationDegrees(entity.getRoll()));
 

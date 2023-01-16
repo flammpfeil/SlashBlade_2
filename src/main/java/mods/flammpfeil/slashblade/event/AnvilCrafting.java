@@ -47,17 +47,17 @@ public class AnvilCrafting {
     @SubscribeEvent
     public void onAnvilRepairEvent(AnvilRepairEvent event){
 
-        if(!(event.getPlayer() instanceof ServerPlayer)) return;
+        if(!(event.getEntity() instanceof ServerPlayer)) return;
 
 
-        ItemStack material = event.getIngredientInput();
+        ItemStack material = event.getRight();//.getIngredientInput();
         AnvilCraftingRecipe recipe = AnvilCraftingRecipe.getRecipe(material);
         if(recipe == null) return;
 
-        ItemStack base = event.getItemInput();
+        ItemStack base = event.getLeft();//.getItemInput();
         if(!recipe.matches(base)) return;
 
-        AdvancementHelper.grantCriterion((ServerPlayer) event.getPlayer(), REFORGE);
+        AdvancementHelper.grantCriterion((ServerPlayer) event.getEntity(), REFORGE);
     }
 
 }

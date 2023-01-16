@@ -69,7 +69,7 @@ public class SlayerStyleArts {
 
         EnumSet<InputCommand> old = event.getOld();
         EnumSet<InputCommand> current = event.getCurrent();
-        ServerPlayer sender = event.getPlayer();
+        ServerPlayer sender = event.getEntity();
         Level worldIn = sender.level;
 
         if(!old.contains(InputCommand.SPRINT)){
