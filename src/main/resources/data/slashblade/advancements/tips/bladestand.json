@@ -18,7 +18,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:bladestand_1"
+            "items": ["slashblade:bladestand_1"]
           }
         ]
       }
@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:bladestand_2"
+            "items": ["slashblade:bladestand_2"]
           }
         ]
       }

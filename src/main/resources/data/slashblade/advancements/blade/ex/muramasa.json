@@ -20,7 +20,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:slashblade",
+            "items": ["slashblade:slashblade"],
             "nbt": "{ShareTag:{translationKey:\"item.slashblade.ex.muramasa\",isBroken:\"false\"}}"
           }
         ]

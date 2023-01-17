@@ -19,7 +19,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:proudsoul_sphere"
+            "items": ["slashblade:proudsoul_sphere"]
           }
         ]
       }

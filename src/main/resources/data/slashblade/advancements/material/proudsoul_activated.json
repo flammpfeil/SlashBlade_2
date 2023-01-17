@@ -18,7 +18,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:proudsoul_activated"
+            "items": ["slashblade:proudsoul_activated"]
           }
         ]
       }

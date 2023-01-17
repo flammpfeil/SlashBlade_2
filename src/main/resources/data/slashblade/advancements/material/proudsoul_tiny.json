@@ -19,7 +19,9 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:proudsoul_tiny"
+            "items": [
+              "slashblade:proudsoul_tiny"
+            ]
           }
         ]
       }

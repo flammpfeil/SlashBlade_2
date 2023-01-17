@@ -18,7 +18,7 @@
       "trigger": "minecraft:consume_item",
       "conditions": {
         "item": {
-          "item": "slashblade:slashblade"
+          "items": ["slashblade:slashblade"]
         }
       }
     }

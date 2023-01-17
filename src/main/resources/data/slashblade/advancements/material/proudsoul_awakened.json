@@ -19,7 +19,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:proudsoul_awakened"
+            "items": ["slashblade:proudsoul_awakened"]
           }
         ]
       }

@@ -19,7 +19,7 @@
       "conditions": {
         "items": [
           {
-            "item": "slashblade:proudsoul_trapezohedron"
+            "items": ["slashblade:proudsoul_trapezohedron"]
           }
         ]
       }
