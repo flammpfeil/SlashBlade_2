@@ -1,0 +1,147 @@
+{
+    "itemGroup.slashblade": "拔刀剑",
+    "itemGroup.slashblade.desc": "堕入修罗道",
+  
+    "attribute.name.generic.reachDistance":"Reach",
+  
+    "stat.slashblade.sword_summoned": "幻影剑",
+  
+    "slashblade.tooltip.killcount"  :"KillCount:%1$s",
+    "slashblade.tooltip.refine"     :"Refine   :%1$s",
+  
+    "slashblade.tooltip.material":"制作需求",
+    "slashblade.tooltip.material.requiredobjects.anvil":"必要设备: 铁砧",
+    "slashblade.tooltip.material.killcount":"%1$s <= KillCount",
+    "slashblade.tooltip.material.refine":"%1$s <= Refine",
+    "slashblade.tooltip.material.level":"%1$s <= PlayerLevel",
+    "slashblade.tooltip.material.broken":"折断的",
+    "slashblade.tooltip.material.noscabbard":"无鞘的",
+    "slashblade.tooltip.material.enchantments":"需要附魔",
+    
+    "item.slashblade.slashblade": "无铭「无名」",
+    "item.slashblade.slashblade.desc": "一刀斩敌的木剑<br>乃拔刀术的第一部<br>§8§l§o真正的切伏之刃",
+    "item.slashblade.simple.wood": "无铭刀「木偶」",
+    "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀<br>已初见拔刀术的冰山一角",
+    "item.slashblade.simple.white": "利刀「白鞘」",
+    "item.slashblade.simple.white.desc": "§8§l§o将用铁制的刀刃替代木刀<br>尚未有伟业",
+    "item.slashblade.simple.white.material": "刀剑的材料箱「白」",
+    "item.slashblade.simple.bamboo": "无铭刀「竹光」",
+    "item.slashblade.simple.bamboo.desc": "§8§l§o未制作完成的竹光\n比木刀要优越",
+    "item.slashblade.simple.bamboo.material": "刀剑的材料箱「竹」",
+    "item.slashblade.simple.silverbamboo": "名刀「银纸竹光」",
+    "item.slashblade.simple.silverbamboo.desc": "§8§l§o虽是竹光的完成系，终究是竹刀",
+    "item.slashblade.simple.silverbamboo.material": "刀剑的材料箱「虚荣」",
+    "item.slashblade.simple.iron": "大太刀「」",
+    "item.slashblade.simple.iron.desc": "§8§l§o无铭无名的大太刀",
+    "item.slashblade.simple.iron.material": "刀剑的材料箱「铁」",
+  
+    "item.slashblade.ex.ruby": "利刀「无名」红玉",
+    "item.slashblade.ex.ruby.desc": "将日本刀收纳在鞘里所得之物<br>§8§l§o能力不减反增",
+    "item.slashblade.ex.ruby.material": "刀剑的材料箱「红玉」",
+  
+    "item.slashblade.ex.fox.white": "狐月刀「白狐」",
+    "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿这妖狐的力量<br>招来幸运的白狐",
+    "item.slashblade.ex.fox.white.material": "刀剑的材料箱「白狐」",
+    "item.slashblade.ex.fox.black": "狐月刀「黒狐」",
+    "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿这妖狐的力量<br>退魔平安的黑狐",
+    "item.slashblade.ex.fox.black.material": "刀剑的材料箱「黒狐」",
+  
+    "item.slashblade.ex.tukumo": "结月刀「付丧」",
+    "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀<br>其中一端刻上了他的名字<br>野心家<br>持有时邪化为妖刀<br>心明止水者<br>持有时退治妖魔的护身刀",
+    "item.slashblade.ex.tukumo.material": "刀剑的材料箱「付丧」",
+  
+    "item.slashblade.ex.muramasa": "「千鶴」村正",
+    "item.slashblade.ex.muramasa.desc": "§8§l§o用千锤百炼之刀<br>召唤而来的上古妖刀",
+    "item.slashblade.ex.muramasa.material": "刀剑的材料箱「村正」",
+  
+  
+    "item.slashblade.proudsoul": "刀魂碎片",
+    "item.slashblade.proudsoul_tiny":"刀魂薄片",
+    "item.slashblade.proudsoul_ingot":"刀魂铁锭",
+    "item.slashblade.proudsoul_sphere":"刀魂宝珠",
+    "item.slashblade.proudsoul_crystal":"刀魂结晶",
+    "item.slashblade.proudsoul_trapezohedron":"摇摆的刀魂",
+    "item.slashblade.proudsoul_activated":"饥渴的刀魂",
+    "item.slashblade.proudsoul_awakened":"幽秘的刀魂",
+    "item.slashblade.proudsoul_tiny.dark":"摇篮的刀魂",
+  
+    "item.slashblade.bladestand_1": "刀挂台 单层",
+    "item.slashblade.bladestand_2": "刀挂台 双层",
+    "item.slashblade.bladestand_v": "刀挂台 立式",
+    "item.slashblade.bladestand_s": "刀挂台 短式",
+    "item.slashblade.bladestand_1w":"刀挂台 单层壁挂式",
+    "item.slashblade.bladestand_2w":"刀挂台 双层壁挂式",
+  
+    "adv.slashblade.proudsoul": "强化界限 Refine=50\n刀虽折魂永存",
+    "adv.slashblade.proudsoul_tiny":"强化界限 Refine=10\n幽秘的灵魂之火",
+    "adv.slashblade.proudsoul_ingot": "强化界限 Refine=100\n以紫炎锻造的灵魂之钢",
+    "adv.slashblade.proudsoul_sphere": "强化界限 Refine=150\n冶炼\n幻炎拥抱的宝珠",
+    "adv.slashblade.proudsoul_crystal": "强化界限 Refine=200\n精炼\n刀魂核心",
+    "adv.slashblade.proudsoul_trapezohedron":"强化无界限\n烟熏\n摇摆不定的骄傲末路",
+    "adv.slashblade.proudsoul_activated":"动摇的代价是无底的饥饿\n潜行时使用刀魂水晶激活\n当你把它放在手上时，饥饿感袭来\n在饥饿期间进一步的饥饿以换取剑的耐久值恢复*",
+    "adv.slashblade.proudsoul_awakened":"精神饱满而柔和\n再次饥饿为代价以换取一个新的碎片*",
+  
+    "adv.slashblade.reforge":"重铸",
+    "adv.slashblade.reforge.desc":"刀剑的材料箱用于在铁砧中重铸",
+  
+    "adv.slashblade.refine":"精炼",
+    "adv.slashblade.refine.desc":"每次精炼都会增加锐利程度",
+  
+    "adv.slashblade.white_broken":"折断之刃",
+    "adv.slashblade.white_broken.desc":"重铸",
+  
+    "adv.slashblade.bladestand":"刀挂台",
+    "adv.slashblade.bladestand.desc":"存放刀的地方",
+  
+    "adv.slashblade.imitation_broken":"虚荣的表演",
+    "adv.slashblade.imitation_broken.desc":"虚荣和固执的末路",
+  
+  
+    "adv.slashblade.combo_a": "Blade Arts -Combo A-              ",
+    "adv.slashblade.combo_a.desc": "使用按键\n攻击 ♠:%s\n在地面时\n按下 ♠-♠-♠-♠",
+    "adv.slashblade.combo_b": "Blade Arts -Combo B-              ",
+    "adv.slashblade.combo_b.desc": "使用按键\n攻击 ♠:%s\n地在地面时\n按下 ♠-♠-♠,\n按下 ♠ ，然后重复 ♠",
+    "adv.slashblade.combo_b_max": "Maximum extension of Combo B",
+    "adv.slashblade.combo_b_max.desc": "斩切",
+    "adv.slashblade.combo_c": "Blade Arts -Combo C-              ",
+    "adv.slashblade.combo_c.desc": "使用按键\n攻击 ♠:%s\n在地面时\n按下 ♠-♠, 然后 ♠",
+    "adv.slashblade.combo_a_ex": "Blade Arts -Combo A EX-        ",
+    "adv.slashblade.combo_a_ex.desc": "使用按键\n攻击 ♠:%s\n处于饥饿效果中\n在地面时\n按下 ♠-♠-♠-♠-♠",
+  
+    "adv.slashblade.aerial_a": "Blade Arts -Aerial Rave A-       ",
+    "adv.slashblade.aerial_a.desc": "使用按键\n攻击 ♠:%s\n在空中时\n按下 ♠-♠-♠",
+    "adv.slashblade.aerial_b": "Blade Arts -Aerial Rave B-       ",
+    "adv.slashblade.aerial_b.desc": "使用按键\n攻击 ♠:%s\n在空中时\n按下 ♠-♠,然后 ♠-♠",
+    "adv.slashblade.aerial_cleave": "Blade Arts -Aerial Cleave-       ",
+    "adv.slashblade.aerial_cleave.desc": "使用按键\n攻击 ♠:%s\n后退 ᐁ:%s\n潜行 ⚪:%s\n在空中时\n按下 ⚪+ᐁ+♠",
+  
+    "adv.slashblade.judgement_cut": "Blade Arts -Judgement Cut-        ",
+    "adv.slashblade.judgement_cut.desc": "使用按键\n攻击 ♠:%s\n按住 ♠ 蓄力直到出现粒子时松开",
+    "adv.slashblade.judgement_cut_just": "Blade Arts -Judgement Cut EX-     ",
+    "adv.slashblade.judgement_cut_just.desc": "使用按键\n攻击 ♠:%s\n按住 ♠ 蓄力直到出现粒子前松开",
+    "adv.slashblade.quick_charge": "Blade Arts -Quick Charge-         ",
+    "adv.slashblade.quick_charge.desc": "使用按键\n攻击 ♠:%s\n在纳刀瞬间轻按 ♠",
+  
+    "adv.slashblade.rapid_slash": "Blade Arts -Rapid Slash-         ",
+    "adv.slashblade.rapid_slash.desc": "使用按键\n攻击 ♠:%s\n前进 ᐃ:%s\n潜行 ⚪:%s\n在地面时\n按下 ⚪+ᐃ+♠",
+    "adv.slashblade.rising_star": "Blade Arts -Rising Star-         ",
+    "adv.slashblade.rising_star.desc": "使用按键\n攻击 ♠:%s\nRapid Slash之后\n按住 ♠ 命中敌人",
+  
+    "adv.slashblade.upperslash": "Blade Arts -Upper Slash-         ",
+    "adv.slashblade.upperslash.desc": "使用按键\n攻击 ♠:%s\n后退 ᐁ:%s\n潜行 ⚪:%s\n在地面时\n按下 ⚪+ᐁ+♠",
+    "adv.slashblade.upperslash_jump": "Blade Arts -Jumping Slash-         ",
+    "adv.slashblade.upperslash_jump.desc": "使用按键\n攻击 ♠:%s\nUpper Slash之后\n按住 ♠",
+  
+  
+    "adv.slashblade.air_trick": "Abilities -Air Trick-            ",
+    "adv.slashblade.air_trick.desc": "闪现到敌人头顶并处于空中\n使用按键\n走行 ♠:%s\n前进 ᐃ:%s\n潜行 ⚪:%s\n按下 ⚪+ᐃ+♠",
+    "adv.slashblade.trick_down": "Abilities -Trick Down-           ",
+    "adv.slashblade.trick_down.desc": "向下闪现到敌人并落到地面\n使用按键\n走行 ♠:%s\n后退 ᐁ:%s\n潜行 ⚪:%s\n⚪+ᐁ+♠",
+    "adv.slashblade.trick_dodge": "Abilities -Trick Dodge-          ",
+    "adv.slashblade.trick_dodge.desc": "向任意方向闪现以避开敌人攻击\n使用按键\n走行 ♠:%s\n向任意方向移动并按下 ♠",
+
+    "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
+    "adv.slashblade.summonedswords.desc": "装载幻影剑\n使用按键\n%s ♠:%s\n按下 ♠"
+}
+
+  
