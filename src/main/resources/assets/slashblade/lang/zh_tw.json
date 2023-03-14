@@ -24,35 +24,35 @@
     "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀\n已初見拔刀術的冰山一角",
     "item.slashblade.simple.white": "利刀「白鞘」",
     "item.slashblade.simple.white.desc": "§8§l§o將用鐵制的刀刃替代木刀\n尚未有偉業",
-    "item.slashblade.simple.white.material": "刀劍的材料箱「白」",
+    "item.slashblade.simple.white.material": "刀拵「白」",
     "item.slashblade.simple.bamboo": "無銘刀「竹光」",
     "item.slashblade.simple.bamboo.desc": "§8§l§o未製作完成的竹光\n比木刀要優越",
-    "item.slashblade.simple.bamboo.material": "刀劍的材料箱「竹」",
+    "item.slashblade.simple.bamboo.material": "刀拵「竹」",
     "item.slashblade.simple.silverbamboo": "名刀「銀紙竹光」",
     "item.slashblade.simple.silverbamboo.desc": "§8§l§o雖是竹光的完成系，終究是竹刀",
-    "item.slashblade.simple.silverbamboo.material": "刀劍的材料箱「虛榮」",
+    "item.slashblade.simple.silverbamboo.material": "刀拵「虛榮」",
     "item.slashblade.simple.iron": "大太刀「」",
     "item.slashblade.simple.iron.desc": "§8§l§o無銘無名的大太刀",
-    "item.slashblade.simple.iron.material": "刀劍的材料箱「鐵」",
+    "item.slashblade.simple.iron.material": "刀拵「鐵」",
   
     "item.slashblade.ex.ruby": "利刀「無名」紅玉",
     "item.slashblade.ex.ruby.desc": "將日本刀收納在鞘裡所得之物\n§8§l§o能力不減反增",
-    "item.slashblade.ex.ruby.material": "刀劍的材料箱「紅玉」",
+    "item.slashblade.ex.ruby.material": "刀拵「紅玉」",
   
     "item.slashblade.ex.fox.white": "狐月刀「白狐」",
     "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿這妖狐的力量\n招來幸運的白狐",
-    "item.slashblade.ex.fox.white.material": "刀劍的材料箱「白狐」",
+    "item.slashblade.ex.fox.white.material": "刀拵「白狐」",
     "item.slashblade.ex.fox.black": "狐月刀「黒狐」",
     "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿這妖狐的力量\n退魔平安的黑狐",
-    "item.slashblade.ex.fox.black.material": "刀劍的材料箱「黒狐」",
+    "item.slashblade.ex.fox.black.material": "刀拵「黒狐」",
   
     "item.slashblade.ex.tukumo": "結月刀「付喪」",
     "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀\n其中一端刻上了他的名字\n野心家\n持有時邪化為妖刀\n心明止水者\n持有時退治妖魔的護身刀",
-    "item.slashblade.ex.tukumo.material": "刀劍的材料箱「付喪」",
+    "item.slashblade.ex.tukumo.material": "刀拵「付喪」",
   
     "item.slashblade.ex.muramasa": "「千鶴」村正",
     "item.slashblade.ex.muramasa.desc": "§8§l§o用千錘百煉之刀\n召喚而來的上古妖刀",
-    "item.slashblade.ex.muramasa.material": "刀劍的材料箱「村正」",
+    "item.slashblade.ex.muramasa.material": "刀拵「村正」",
   
   
     "item.slashblade.proudsoul": "刀魂碎片",
@@ -82,7 +82,7 @@
     "adv.slashblade.proudsoul_awakened":"精神飽滿而柔和\n再次饑餓為代價以換取一個新的碎片*",
   
     "adv.slashblade.reforge":"重鑄",
-    "adv.slashblade.reforge.desc":"刀劍的材料箱用於在鐵砧中重鑄",
+    "adv.slashblade.reforge.desc":"刀拵用於在鐵砧中重鑄",
   
     "adv.slashblade.refine":"精煉",
     "adv.slashblade.refine.desc":"每次精煉都會增加銳利程度",
