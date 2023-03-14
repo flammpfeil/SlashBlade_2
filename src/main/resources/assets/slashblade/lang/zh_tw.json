@@ -19,11 +19,11 @@
     "slashblade.tooltip.material.enchantments":"需要附魔",
     
     "item.slashblade.slashblade": "無銘「無名」",
-    "item.slashblade.slashblade.desc": "一刀斬敵的木劍<br>乃拔刀術的第一部<br>§8§l§o真正的切伏之刃",
+    "item.slashblade.slashblade.desc": "一刀斬敵的木劍\n乃拔刀術的第一部\n§8§l§o真正的切伏之刃",
     "item.slashblade.simple.wood": "無銘刀「木偶」",
-    "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀<br>已初見拔刀術的冰山一角",
+    "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀\n已初見拔刀術的冰山一角",
     "item.slashblade.simple.white": "利刀「白鞘」",
-    "item.slashblade.simple.white.desc": "§8§l§o將用鐵制的刀刃替代木刀<br>尚未有偉業",
+    "item.slashblade.simple.white.desc": "§8§l§o將用鐵制的刀刃替代木刀\n尚未有偉業",
     "item.slashblade.simple.white.material": "刀劍的材料箱「白」",
     "item.slashblade.simple.bamboo": "無銘刀「竹光」",
     "item.slashblade.simple.bamboo.desc": "§8§l§o未製作完成的竹光\n比木刀要優越",
@@ -36,22 +36,22 @@
     "item.slashblade.simple.iron.material": "刀劍的材料箱「鐵」",
   
     "item.slashblade.ex.ruby": "利刀「無名」紅玉",
-    "item.slashblade.ex.ruby.desc": "將日本刀收納在鞘裡所得之物<br>§8§l§o能力不減反增",
+    "item.slashblade.ex.ruby.desc": "將日本刀收納在鞘裡所得之物\n§8§l§o能力不減反增",
     "item.slashblade.ex.ruby.material": "刀劍的材料箱「紅玉」",
   
     "item.slashblade.ex.fox.white": "狐月刀「白狐」",
-    "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿這妖狐的力量<br>招來幸運的白狐",
+    "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿這妖狐的力量\n招來幸運的白狐",
     "item.slashblade.ex.fox.white.material": "刀劍的材料箱「白狐」",
     "item.slashblade.ex.fox.black": "狐月刀「黒狐」",
-    "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿這妖狐的力量<br>退魔平安的黑狐",
+    "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿這妖狐的力量\n退魔平安的黑狐",
     "item.slashblade.ex.fox.black.material": "刀劍的材料箱「黒狐」",
   
     "item.slashblade.ex.tukumo": "結月刀「付喪」",
-    "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀<br>其中一端刻上了他的名字<br>野心家<br>持有時邪化為妖刀<br>心明止水者<br>持有時退治妖魔的護身刀",
+    "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀\n其中一端刻上了他的名字\n野心家\n持有時邪化為妖刀\n心明止水者\n持有時退治妖魔的護身刀",
     "item.slashblade.ex.tukumo.material": "刀劍的材料箱「付喪」",
   
     "item.slashblade.ex.muramasa": "「千鶴」村正",
-    "item.slashblade.ex.muramasa.desc": "§8§l§o用千錘百煉之刀<br>召喚而來的上古妖刀",
+    "item.slashblade.ex.muramasa.desc": "§8§l§o用千錘百煉之刀\n召喚而來的上古妖刀",
     "item.slashblade.ex.muramasa.material": "刀劍的材料箱「村正」",
   
   
