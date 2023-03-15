@@ -39,7 +39,7 @@ import net.minecraftforge.network.NetworkHooks;
 public class EntityJudgementCut extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLAGS = SynchedEntityData.<Integer>defineId(EntityJudgementCut.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntitySlashEffect.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RANK = SynchedEntityData.<Float>defineId(EntityJudgementCut.class, EntityDataSerializers.FLOAT);
 
     private int lifetime = 10;
     private int seed = -1;

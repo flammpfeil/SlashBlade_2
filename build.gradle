@@ -24,7 +24,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 //apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = '0.0.8'
+version = '0.0.9'
 group = 'mods.flammpfeil.slashblade' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'SlashBlade-1.18.2'
 
