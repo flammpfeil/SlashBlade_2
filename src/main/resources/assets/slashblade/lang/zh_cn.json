@@ -106,7 +106,7 @@
     "adv.slashblade.combo_c": "Blade Arts -Combo C-              ",
     "adv.slashblade.combo_c.desc": "使用按键\n攻击 ♠:%s\n在地面时\n按下 ♠-♠, 然后 ♠",
     "adv.slashblade.combo_a_ex": "Blade Arts -Combo A EX-        ",
-    "adv.slashblade.combo_a_ex.desc": "使用按键\n攻击 ♠:%s\n处于饥饿效果中\n在地面时\n按下 ♠-♠-♠-♠-♠",
+    "adv.slashblade.combo_a_ex.desc": "使用按键\n攻击 ♠:%s\n处于饥饿效果中*\n在地面时\n按下 ♠-♠-♠-♠-♠",
   
     "adv.slashblade.aerial_a": "Blade Arts -Aerial Rave A-       ",
     "adv.slashblade.aerial_a.desc": "使用按键\n攻击 ♠:%s\n在空中时\n按下 ♠-♠-♠",
