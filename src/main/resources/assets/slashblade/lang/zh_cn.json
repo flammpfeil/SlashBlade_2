@@ -18,7 +18,7 @@
     "slashblade.tooltip.material.noscabbard":"无鞘的",
     "slashblade.tooltip.material.enchantments":"需要附魔",
     
-    "item.slashblade.slashblade": "无铭「无名」",
+    "item.slashblade.slashblade": "无铭「無名」",
     "item.slashblade.slashblade.desc": "一刀斩敌的木剑\n乃拔刀术的第一部\n§8§l§o真正的切伏之刃",
     "item.slashblade.simple.wood": "无铭刀「木偶」",
     "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀\n已初见拔刀术的冰山一角",
@@ -28,16 +28,16 @@
     "item.slashblade.simple.bamboo": "无铭刀「竹光」",
     "item.slashblade.simple.bamboo.desc": "§8§l§o未制作完成的竹光\n比木刀要优越",
     "item.slashblade.simple.bamboo.material": "刀拵「竹」",
-    "item.slashblade.simple.silverbamboo": "名刀「银纸竹光」",
+    "item.slashblade.simple.silverbamboo": "名刀「銀紙竹光」",
     "item.slashblade.simple.silverbamboo.desc": "§8§l§o虽是竹光的完成系，终究是竹刀",
     "item.slashblade.simple.silverbamboo.material": "刀拵「虚荣」",
     "item.slashblade.simple.iron": "大太刀「」",
     "item.slashblade.simple.iron.desc": "§8§l§o无铭无名的大太刀",
-    "item.slashblade.simple.iron.material": "刀拵「铁」",
+    "item.slashblade.simple.iron.material": "刀拵「鐵」",
   
-    "item.slashblade.ex.ruby": "利刀「无名」红玉",
+    "item.slashblade.ex.ruby": "利刀「無名」红玉",
     "item.slashblade.ex.ruby.desc": "将日本刀收纳在鞘里所得之物\n§8§l§o能力不减反增",
-    "item.slashblade.ex.ruby.material": "刀拵「红玉」",
+    "item.slashblade.ex.ruby.material": "刀拵「紅玉」",
   
     "item.slashblade.ex.fox.white": "狐月刀「白狐」",
     "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿这妖狐的力量\n招来幸运的白狐",
@@ -46,9 +46,9 @@
     "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿这妖狐的力量\n退魔平安的黑狐",
     "item.slashblade.ex.fox.black.material": "刀拵「黒狐」",
   
-    "item.slashblade.ex.tukumo": "结月刀「付丧」",
+    "item.slashblade.ex.tukumo": "结月刀「付喪」",
     "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀\n其中一端刻上了他的名字\n野心家\n持有时邪化为妖刀\n心明止水者\n持有时退治妖魔的护身刀",
-    "item.slashblade.ex.tukumo.material": "刀拵「付丧」",
+    "item.slashblade.ex.tukumo.material": "刀拵「付喪」",
   
     "item.slashblade.ex.muramasa": "「千鶴」村正",
     "item.slashblade.ex.muramasa.desc": "§8§l§o用千锤百炼之刀\n召唤而来的上古妖刀",
