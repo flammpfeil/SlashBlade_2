@@ -1,7 +1,7 @@
 {
     "parent": "slashblade:item/stand_2",
     "textures": {
-        "layer0": "slashblade:soul"
+        "layer0": "slashblade:item/soul"
     },
     "display": {
         "ground": {

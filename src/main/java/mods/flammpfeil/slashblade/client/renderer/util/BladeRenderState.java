@@ -52,7 +52,12 @@ public class BladeRenderState extends RenderStateShard{
     }
 
     static public void renderOverrided(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, PoseStack  matrixStackIn, MultiBufferSource bufferIn, int packedLightIn){
-        renderOverrided(stack, model, target, texture, matrixStackIn, bufferIn, packedLightIn, Util.memoize(BladeRenderState::getSlashBladeBlend), true);
+
+        Face.forceQuad = true;
+        renderOverrided(stack, model, target, texture, matrixStackIn, bufferIn, packedLightIn, Util.memoize(RenderType::entitySmoothCutout), true);
+        Face.forceQuad = false;
+
+        //renderOverrided(stack, model, target, texture, matrixStackIn, bufferIn, packedLightIn, Util.memoize(BladeRenderState::getSlashBladeBlend), true);
     }
 
     static public void renderOverridedColorWrite(ItemStack stack, WavefrontObject model, String target, ResourceLocation texture, PoseStack  matrixStackIn, MultiBufferSource bufferIn, int packedLightIn){
@@ -90,8 +95,11 @@ public class BladeRenderState extends RenderStateShard{
 
 
         if(stack.hasFoil() && enableEffect){
-            vb = bufferIn.getBuffer(BLADE_GLINT);
+            boolean forceQuad = Face.forceQuad;
+            Face.forceQuad = true;
+            vb = bufferIn.getBuffer(RenderType.entityGlint());
             event.getModel().tessellateOnly(vb, event.getTarget());
+            Face.forceQuad = forceQuad;
         }
 
         Face.resetMatrix();
@@ -119,7 +127,7 @@ public class BladeRenderState extends RenderStateShard{
                     false ,
                     RenderType.CompositeState.builder()
                             .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_GLINT_SHADER)
-                            .setTextureState(new TextureStateShard(ItemRenderer.ENCHANT_GLINT_LOCATION, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(ENTITY_GLINT_TEXTURING).createCompositeState(false));
+                            .setTextureState(new TextureStateShard(ItemRenderer.ENCHANTED_GLINT_ITEM, true, false)).setWriteMaskState(COLOR_WRITE).setCullState(NO_CULL).setDepthTestState(EQUAL_DEPTH_TEST).setTransparencyState(GLINT_TRANSPARENCY).setTexturingState(ENTITY_GLINT_TEXTURING).createCompositeState(false));
 
 
     public static RenderType getSlashBladeBlend(ResourceLocation p_228638_0_) {

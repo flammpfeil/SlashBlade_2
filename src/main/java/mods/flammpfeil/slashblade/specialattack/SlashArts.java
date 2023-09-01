@@ -40,7 +40,7 @@ public class SlashArts extends RegistryBase<SlashArts> {
     public static final SlashArts NONE = new SlashArts(BaseInstanceName, (e)->ComboState.NONE);
 
     public static final SlashArts JUDGEMENT_CUT =
-            new SlashArts("judgement_cut", (e)-> e.isOnGround() ? Extra.EX_JUDGEMENT_CUT : Extra.EX_JUDGEMENT_CUT_SLASH_AIR)
+            new SlashArts("judgement_cut", (e)-> e.onGround() ? Extra.EX_JUDGEMENT_CUT : Extra.EX_JUDGEMENT_CUT_SLASH_AIR)
                     .setComboStateJust((e)->Extra.EX_JUDGEMENT_CUT_SLASH_JUST)
                     .setComboStateBroken((e)->Extra.EX_VOID_SLASH);
 

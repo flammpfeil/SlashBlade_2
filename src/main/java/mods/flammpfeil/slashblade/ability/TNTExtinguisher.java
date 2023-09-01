@@ -15,11 +15,11 @@ public class TNTExtinguisher {
     public static void doExtinguishing(Entity target, LivingEntity attacker) {
         if(!(target instanceof PrimedTnt)) return;
 
-        if(attacker.level.isClientSide) return;
+        if(attacker.level().isClientSide) return;
 
         target.remove(Entity.RemovalReason.KILLED);
 
-        ServerLevel world = (ServerLevel) attacker.level;
+        ServerLevel world = (ServerLevel) attacker.level();
 
         world.sendParticles(ParticleTypes.SMOKE,
                 target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),

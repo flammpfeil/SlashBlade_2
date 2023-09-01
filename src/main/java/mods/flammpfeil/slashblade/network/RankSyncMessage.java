@@ -51,7 +51,7 @@ public class RankSyncMessage {
         Player pl = Minecraft.getInstance().player;
         pl.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->{
 
-            long time = pl.level.getGameTime();
+            long time = pl.level().getGameTime();
 
             IConcentrationRank.ConcentrationRanks oldRank = cr.getRank(time);
 

@@ -614,7 +614,7 @@ public class Extra {
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 2){
-                    e.level.playSound((Player)null, e.getX(), e.getY(), e.getZ(),
+                    e.level().playSound((Player)null, e.getX(), e.getY(), e.getZ(),
                             SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.PLAYERS, 0.75F, 1.0F);
                 }
 
@@ -626,7 +626,7 @@ public class Extra {
                 if(elapsed % 2 == 0)
                     AttackManager.areaAttack(e, KnockBacks.meteor.action,0.1f,true,false,true);
 
-                if(e.isOnGround()){
+                if(e.onGround()){
                     AttackManager.doSlash(e,  55,Vec3.ZERO, true, true, 1.0, KnockBacks.meteor);
                     e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         state.updateComboSeq(e,Extra.EX_AERIAL_CLEAVE_LANDING);
@@ -656,7 +656,7 @@ public class Extra {
                 if(elapsed % 2 == 0)
                     AttackManager.areaAttack(e, KnockBacks.meteor.action,0.1f,true,false,true);
 
-                if(e.isOnGround()){
+                if(e.onGround()){
                     AttackManager.doSlash(e,  55, Vec3.ZERO, true, true, 1.0, KnockBacks.meteor);
                     e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         state.updateComboSeq(e,Extra.EX_AERIAL_CLEAVE_LANDING);
@@ -687,7 +687,7 @@ public class Extra {
             ExMotionLocation, (a)-> (a.hasEffect(MobEffects.DAMAGE_BOOST) || a.hasEffect(MobEffects.HUNGER)) ? Extra.EX_RAPID_SLASH_QUICK : Extra.EX_RAPID_SLASH, ()-> Extra.EX_RAPID_SLASH_END)
             .addHoldAction((e)->{
                 AttributeModifier am = new AttributeModifier("SweepingDamageRatio", -3, AttributeModifier.Operation.ADDITION);
-                AttributeInstance mai = e.getAttribute(ForgeMod.REACH_DISTANCE.get());
+                AttributeInstance mai = e.getAttribute(ForgeMod.ENTITY_REACH.get());
                 mai.addTransientModifier(am);
                 AttackManager.areaAttack(e, (t)->{
                         boolean isRightDown = e.getCapability(INPUT_STATE)
@@ -713,12 +713,12 @@ public class Extra {
                 long elapsed = ComboState.getElapsed(e);
 
                 if(elapsed == 0){
-                    e.level.playSound((Player) null,e.getX(), e.getY(), e.getZ(),
+                    e.level().playSound((Player) null,e.getX(), e.getY(), e.getZ(),
                             SoundEvents.ARMOR_EQUIP_IRON,
                             SoundSource.PLAYERS,1.0F,1.0F);
                 }
 
-                if(elapsed <= 3 && e.isOnGround())
+                if(elapsed <= 3 && e.onGround())
                     e.moveRelative( e.isInWater() ? 0.35f : 0.8f , new Vec3(0, 0, 1));
 
                 if(2 <= elapsed && elapsed < 6){
@@ -835,7 +835,7 @@ public class Extra {
                         double d1 = vec.z;
                         double d2 = 0.05D;
 
-                        while (d0 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep), 0.0D))) {
+                        while (d0 != 0.0D && e.level().noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep()), 0.0D))) {
                             if (d0 < 0.05D && d0 >= -0.05D) {
                                 d0 = 0.0D;
                             } else if (d0 > 0.0D) {
@@ -845,7 +845,7 @@ public class Extra {
                             }
                         }
 
-                        while (d1 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(0.0D, (double) (-e.maxUpStep), d1))) {
+                        while (d1 != 0.0D && e.level().noCollision(e, e.getBoundingBox().move(0.0D, (double) (-e.maxUpStep()), d1))) {
                             if (d1 < 0.05D && d1 >= -0.05D) {
                                 d1 = 0.0D;
                             } else if (d1 > 0.0D) {
@@ -855,7 +855,7 @@ public class Extra {
                             }
                         }
 
-                        while (d0 != 0.0D && d1 != 0.0D && e.level.noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep), d1))) {
+                        while (d0 != 0.0D && d1 != 0.0D && e.level().noCollision(e, e.getBoundingBox().move(d0, (double) (-e.maxUpStep()), d1))) {
                             if (d0 < 0.05D && d0 >= -0.05D) {
                                 d0 = 0.0D;
                             } else if (d0 > 0.0D) {
@@ -940,18 +940,18 @@ public class Extra {
             ()->2200,()->2277,()->1.0f,()->false,()->0,
             ExMotionLocation, (a)-> Extra.EX_VOID_SLASH, ()->Extra.EX_VOID_SLASH_SHEATH)
             .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(28, (living)->{
-                if(living.level.isClientSide){
+                if(living.level().isClientSide){
                     Vec3 pos = living.position()
                             .add(0.0D, (double)living.getEyeHeight() * 0.75D, 0.0D)
                             .add(living.getLookAngle().scale(0.3f));
 
-                    EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, living.level){
+                    EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, living.level()){
                         @Override
                         protected void tryDespawn() {
                             if(this.getShooter() != null){
                                 long timeout = this.getShooter().getPersistentData().getLong(ItemSlashBlade.BREAK_ACTION_TIMEOUT);
-                                if(timeout <= this.level.getGameTime() || timeout == 0){
-                                    this.level.playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.80F, 0.625F + 0.1f * this.random.nextFloat());
+                                if(timeout <= this.level().getGameTime() || timeout == 0){
+                                    this.level().playSound((Player)null, this.getX(), this.getY(), this.getZ(), SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.80F, 0.625F + 0.1f * this.random.nextFloat());
 
                                     this.remove(RemovalReason.DISCARDED);
                                 }
@@ -982,7 +982,7 @@ public class Extra {
 
                     jc.setLifetime(20*5);
 
-                    living.level.addFreshEntity(jc);
+                    living.level().addFreshEntity(jc);
                 }
             }).build())
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()

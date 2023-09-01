@@ -205,20 +205,20 @@ public class ComboState extends RegistryBase<ComboState>{
                     });
 
                     if (elapsed % 3 == 1) {
-                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
+                        playerIn.level().playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
                                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS,
                                 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
                 }
 
-                if(elapsed <= 3 && playerIn.isOnGround())
+                if(elapsed <= 3 && playerIn.onGround())
                     playerIn.moveRelative( playerIn.isInWater() ? 0.35f : 0.8f , new Vec3(0, 0, 1));
 
-                if(elapsed == 10 && (playerIn.level.isClientSide ? playerIn.isOnGround() : true)){
+                if(elapsed == 10 && (playerIn.level().isClientSide ? playerIn.onGround() : true)){
                     playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
                         ComboState combo = ComboState.ARTS_RISING_STAR;
                         state.setComboSeq(combo);
-                        state.setLastActionTime(playerIn.level.getGameTime());
+                        state.setLastActionTime(playerIn.level().getGameTime());
                         combo.clickAction(playerIn);
                     });
                 }
@@ -249,7 +249,7 @@ public class ComboState extends RegistryBase<ComboState>{
                     });
 
                     if (elapsed % 2 == 1) {
-                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
+                        playerIn.level().playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(),
                                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS,
                                 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
@@ -271,25 +271,25 @@ public class ComboState extends RegistryBase<ComboState>{
             })
             .addHoldAction((playerIn)->{
                 int elapsed = playerIn.getTicksUsingItem();
-                if(!playerIn.isOnGround()){
+                if(!playerIn.onGround()){
                     playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,-5),1.0f,false,false,true);
                     });
 
                     if (elapsed % 2 == 1) {
-                        playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+                        playerIn.level().playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
                     }
                 }
             })
             .addTickAction((playerIn)-> {
-                if(!playerIn.isOnGround())
+                if(!playerIn.onGround())
                     playerIn.fallDistance = 1;
                 else{
                     //finish
                     playerIn.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                         AttackManager.areaAttack(playerIn,(ee)->KnockBackHandler.setVertical(ee,-5),1.3f,true,true,true);
                         state.setComboSeq(ComboState.ARTS_HELM_BREAKER_F);
-                        state.setLastActionTime(playerIn.level.getGameTime());
+                        state.setLastActionTime(playerIn.level().getGameTime());
                         FallHandler.spawnLandingParticle(playerIn, 20);
                     });
                 }
@@ -316,7 +316,7 @@ public class ComboState extends RegistryBase<ComboState>{
 
         if(commands.containsAll(jc_cycle_input)){
             return a.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(s->{
-                long time = a.level.getGameTime();
+                long time = a.level().getGameTime();
                 long lastAction = s.getLastActionTime();
 
                 long count = time - lastAction;

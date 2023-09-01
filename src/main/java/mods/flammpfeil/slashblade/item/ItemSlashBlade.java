@@ -111,7 +111,7 @@ public class ItemSlashBlade extends SwordItem {
 
 
 
-                result.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
+                result.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
                         "Reach amplifer",
                         s.isBroken() ? 0 : 1.5, AttributeModifier.Operation.ADDITION));
 
@@ -164,7 +164,7 @@ public class ItemSlashBlade extends SwordItem {
     @Override
     public boolean onLeftClickEntity(ItemStack itemstack, Player playerIn, Entity entity) {
 
-        Level worldIn = playerIn.level;
+        Level worldIn = playerIn.level();
 
         Optional<ISlashBladeState> stateHolder = itemstack.getCapability(BLADESTATE)
                 .filter((state) -> !state.onClick());
@@ -198,8 +198,8 @@ public class ItemSlashBlade extends SwordItem {
                 s.getModel().ifPresent(r->soul.addTagElement("Model", StringTag.valueOf(r.toString())));
             });
 
-            ItemEntity itementity = new ItemEntity(user.level, user.getX(), user.getY() , user.getZ(), soul);
-            BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.level){
+            ItemEntity itementity = new ItemEntity(user.level(), user.getX(), user.getY() , user.getZ(), soul);
+            BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.level()){
 
                 static final String isReleased = "isReleased";
                 @Override
@@ -210,8 +210,8 @@ public class ItemSlashBlade extends SwordItem {
                     if(!tag.getBoolean(isReleased)){
                         this.getPersistentData().putBoolean(isReleased, true);
 
-                        if(this.level instanceof ServerLevel){
-                            Entity thrower = ((ServerLevel)this.level).getEntity(this.getThrower());
+                        if(this.level() instanceof ServerLevel){
+                            Entity thrower = getOwner();
 
                             if (thrower != null) {
                                 thrower.getPersistentData().remove(BREAK_ACTION_TIMEOUT);
@@ -234,9 +234,9 @@ public class ItemSlashBlade extends SwordItem {
 
             e.setThrower(user.getUUID());
 
-            user.level.addFreshEntity(e);
+            user.level().addFreshEntity(e);
 
-            user.getPersistentData().putLong(BREAK_ACTION_TIMEOUT, user.level.getGameTime() + 20*5);
+            user.getPersistentData().putLong(BREAK_ACTION_TIMEOUT, user.level().getGameTime() + 20*5);
 
             stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state->{
                 if(0 < state.getRefine()){
@@ -292,17 +292,17 @@ public class ItemSlashBlade extends SwordItem {
     }
 
     @Override
-    public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
+    public void onUseTick(Level level, LivingEntity player, ItemStack stack, int count) {
         stack.getCapability(BLADESTATE).ifPresent((state)->{
             state.getComboSeq().holdAction(player);
 
-            if(!player.level.isClientSide){
+            if(!player.level().isClientSide){
                 int ticks = player.getTicksUsingItem();
                 if(0 < ticks){
 
                     if( ticks == 20){//state.getFullChargeTicks(player)){
                         Vec3 pos = player.getEyePosition(1.0f).add(player.getLookAngle());
-                        ((ServerLevel)player.level).sendParticles(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
+                        ((ServerLevel)player.level()).sendParticles(ParticleTypes.PORTAL,pos.x,pos.y,pos.z, 7, 0.7,0.7,0.7, 0.02);
                     }
                 }
             }
@@ -492,14 +492,6 @@ public class ItemSlashBlade extends SwordItem {
                 .orElseGet(()->super.getDescriptionId(stack));
     }
 
-    @Override
-    protected boolean allowedIn(CreativeModeTab group) {
-        if(group == SlashBlade.SLASHBLADE)
-            return true;
-        else
-            return super.allowedIn(group);
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static RecipeManager getClientRM(){
         ClientLevel cw = Minecraft.getInstance().level;
@@ -516,37 +508,6 @@ public class ItemSlashBlade extends SwordItem {
             return null;
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        super.fillItemCategory(group, items);
-
-        if(group == SlashBlade.SLASHBLADE){
-            RecipeManager rm = DistExecutor.runForDist(()->ItemSlashBlade::getClientRM, ()->ItemSlashBlade::getServerRM);
-
-            if(rm == null) return;
-
-            Set<ResourceLocation> keys =rm.getRecipeIds()
-                    .filter((loc)->loc.getNamespace().equals(SlashBlade.modid)
-                            && (!(
-                                    loc.getPath().startsWith("material")
-                                    || loc.getPath().startsWith("bladestand")
-                                    || loc.getPath().startsWith("simple_slashblade"))))
-                    .collect(Collectors.toSet());
-
-            List<ItemStack> allItems = keys.stream()
-                    .map(key->rm.byKey(key)
-                            .map(r->{
-                                ItemStack stack = ((Recipe) r).getResultItem().copy();
-                                stack.readShareTag(stack.getShareTag());
-                                return stack;
-                            })
-                            .orElseGet(()->ItemStack.EMPTY))
-                    .sorted(Comparator.comparing(s->((ItemStack)s).getDescriptionId()).reversed())
-                    .collect(Collectors.toList());
-
-            items.addAll(allItems);
-        }
-    }
 
     @Override
     public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
@@ -597,7 +558,7 @@ public class ItemSlashBlade extends SwordItem {
      */
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
-        return !stack.getCapability(BLADESTATE).filter(s->s.getLastActionTime() == entity.level.getGameTime()).isPresent();
+        return !stack.getCapability(BLADESTATE).filter(s->s.getLastActionTime() == entity.level().getGameTime()).isPresent();
     }
 
     @Override

@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -40,7 +41,7 @@ public class PlacePreviewEntity extends ItemFrame implements IEntityAdditionalSp
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -108,7 +109,7 @@ public class PlacePreviewEntity extends ItemFrame implements IEntityAdditionalSp
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         InteractionResult result = InteractionResult.PASS;
-        if(!this.level.isClientSide){
+        if(!this.level().isClientSide){
             ItemStack itemstack = player.getItemInHand(hand);
             if(player.isShiftKeyDown() && !this.getItem().isEmpty()){
                 Pose current = this.getPose();

@@ -38,7 +38,7 @@ public class ArrowReflector {
                 if(stack.isEmpty()) break;
                 if(!(stack.getItem() instanceof ItemSlashBlade)) break;
 
-                Entity target = stack.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getTargetEntity(attacker.level)).orElse(null);
+                Entity target = stack.getCapability(ItemSlashBlade.BLADESTATE).map(s->s.getTargetEntity(attacker.level())).orElse(null);
                 if(target != null){
                     dir = arrow.position().subtract(target.getEyePosition(1.0f)).normalize();
                 }else{

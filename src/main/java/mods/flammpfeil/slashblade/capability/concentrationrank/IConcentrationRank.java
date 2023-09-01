@@ -105,7 +105,7 @@ public interface IConcentrationRank {
     }
 
     default void addRankPoint(LivingEntity user, long point){
-        long time = user.level.getGameTime();
+        long time = user.level().getGameTime();
 
         ConcentrationRanks oldRank = getRank(time);
 
@@ -115,7 +115,7 @@ public interface IConcentrationRank {
         if(oldRank.level < getRank(time).level)
             this.setLastRankRise(time);
 
-        if(user instanceof ServerPlayer && !user.level.isClientSide){
+        if(user instanceof ServerPlayer && !user.level().isClientSide){
             if(((ServerPlayer)user).connection == null) return;
 
             RankSyncMessage msg = new RankSyncMessage();

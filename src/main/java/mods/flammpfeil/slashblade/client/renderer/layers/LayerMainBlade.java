@@ -13,6 +13,7 @@ import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
+import mods.flammpfeil.slashblade.util.VectorHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -23,9 +24,9 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.resources.ResourceLocation;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraftforge.common.util.LazyOptional;
+import org.joml.Matrix4f;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
             {
                 ComboState combo = s.getComboSeq();
                 //tick to msec
-                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.level.getGameTime() - s.getLastActionTime()) + partialTicks);
+                double time = TimeValueHelper.getMSecFromTicks(Math.max(0, entity.level().getGameTime() - s.getLastActionTime()) + partialTicks);
 
                 while(combo != ComboState.NONE && combo.getTimeoutMS() < time){
                     time -= combo.getTimeoutMS();
@@ -153,7 +154,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
 
                     //transpoze mmd to mc
-                    matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+                    matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
 
 
                     ResourceLocation textureLocation = s.getTexture().orElseGet(() -> BladeModelManager.resourceDefaultTexture);
@@ -168,19 +169,19 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             float[] buf = new float[16];
                             mmp._skinning_mat[idx].getValue(buf);
 
-                            Matrix4f mat = new Matrix4f(buf);
-                            mat.transpose();
+                            Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
+                            //mat.transpose();
 
                             matrixStack.scale(-1, 1, 1);
                             PoseStack.Pose entry = matrixStack.last();
-                            entry.pose().multiply(mat);
+                            entry.pose().mul(mat);
                             matrixStack.scale(-1, 1, 1);
                         }
 
                         float modelScale = (float)(modelScaleBase * (1.0f / motionScale));
                         matrixStack.scale(modelScale, modelScale, modelScale);
 
-                        //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));
+                        //matrixStack.rotate(Axis.YP.rotationDegrees(180));
 
 
                         String part;
@@ -200,12 +201,12 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                             float[] buf = new float[16];
                             mmp._skinning_mat[idx].getValue(buf);
 
-                            Matrix4f mat = new Matrix4f(buf);
-                            mat.transpose();
+                            Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
+                            //mat.transpose();
 
                             matrixStack.scale(-1, 1, 1);
                             PoseStack.Pose entry = matrixStack.last();
-                            entry.pose().multiply(mat);
+                            entry.pose().mul(mat);
                             matrixStack.scale(-1, 1, 1);
                         }
 
@@ -213,7 +214,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                         float modelScale = (float)(modelScaleBase * (1.0f / motionScale));
                         matrixStack.scale(modelScale, modelScale, modelScale);
 
-                        //matrixStack.rotate(Vector3f.YP.rotationDegrees(180));
+                        //matrixStack.rotate(Axis.YP.rotationDegrees(180));
 
                         BladeRenderState.renderOverrided(stack, obj, "sheath", textureLocation, matrixStack, bufferIn, lightIn);
                         BladeRenderState.renderOverridedLuminous(stack, obj, "sheath_luminous", textureLocation, matrixStack, bufferIn, lightIn);

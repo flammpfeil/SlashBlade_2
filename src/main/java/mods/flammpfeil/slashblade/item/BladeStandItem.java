@@ -62,8 +62,8 @@ public class BladeStandItem extends HangingEntityItem {
 
     protected boolean mayPlace(Player player, Direction dir, ItemStack stack, BlockPos pos) {
         if(isWallType)
-            return !dir.getAxis().isVertical() && !player.level.isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
+            return !dir.getAxis().isVertical() && !player.level().isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
         else
-            return (dir == Direction.UP) && !player.level.isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
+            return (dir == Direction.UP) && !player.level().isOutsideBuildHeight(pos) && player.mayUseItemAt(pos, dir, stack);
     }
 }

@@ -27,27 +27,15 @@ import java.util.Random;
 public class BladeModel implements BakedModel {
 
     BakedModel original;
-    ItemOverrides overrides;
     public BladeModel(BakedModel original, ModelBakery loader){
         this.original = original;
-        this.overrides = new ItemOverrides(loader, null, null, ImmutableList.<ItemOverride>of()){
-            @Nullable
-            @Override
-            public BakedModel resolve(BakedModel p_173465_, ItemStack p_173466_, @Nullable ClientLevel p_173467_, @Nullable LivingEntity p_173468_, int p_173469_) {
-                user = p_173468_;
-                return super.resolve(p_173465_, p_173466_, p_173467_, p_173468_, p_173469_);
-            }
-        };
     }
 
     public static LivingEntity user = null;
 
-    //public static ItemCameraTransforms.TransformType type = ItemCameraTransforms.TransformType.NONE;
-
-
     @Override
     public ItemOverrides getOverrides() {
-        return this.overrides;
+        return this.original.getOverrides();
     }
 
     @Override

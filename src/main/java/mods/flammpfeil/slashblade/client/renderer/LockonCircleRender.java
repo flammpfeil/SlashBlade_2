@@ -1,12 +1,6 @@
 package mods.flammpfeil.slashblade.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.Face;
@@ -70,7 +64,7 @@ public class LockonCircleRender {
         ItemStack stack = player.getMainHandItem();
 
         Optional<Color> effectColor = stack.getCapability(ItemSlashBlade.BLADESTATE)
-                .filter(s->event.getEntity().equals(s.getTargetEntity(player.level)))
+                .filter(s->event.getEntity().equals(s.getTargetEntity(player.level())))
                 .map(s->s.getEffectColor());
 
         if(effectColor.isEmpty()) return;

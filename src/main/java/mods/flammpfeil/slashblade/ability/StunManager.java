@@ -31,10 +31,10 @@ public class StunManager {
         LivingEntity target = event.getEntity();
         if(!(target instanceof PathfinderMob)) return;
         if(target == null) return;
-        if(target.level == null) return;
+        if(target.level() == null) return;
 
         boolean onStun = target.getCapability(CapabilityMobEffect.MOB_EFFECT)
-                .filter((state)->state.isStun(target.level.getGameTime()))
+                .filter((state)->state.isStun(target.level().getGameTime()))
                 .isPresent();
 
         if(onStun){
@@ -55,15 +55,15 @@ public class StunManager {
     }
     public static void setStun(LivingEntity target, long duration){
         if(!(target instanceof PathfinderMob)) return;
-        if(target.level == null) return;
+        if(target.level() == null) return;
 
         target.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent((state)->{
-            state.setManagedStun(target.level.getGameTime() , duration);
+            state.setManagedStun(target.level().getGameTime() , duration);
         });
     }
 
     public static void removeStun(LivingEntity target){
-        if(target.level == null) return;
+        if(target.level() == null) return;
         if(!(target instanceof LivingEntity)) return;
 
 

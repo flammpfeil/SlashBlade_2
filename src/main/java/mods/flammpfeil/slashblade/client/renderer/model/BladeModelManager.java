@@ -57,7 +57,7 @@ public class BladeModelManager {
     }
 
     @SubscribeEvent
-    public void reload(TextureStitchEvent.Pre event){
+    public void reload(TextureStitchEvent.Post event){
         cache.invalidateAll();
 
         defaultModel = new WavefrontObject(resourceDefaultModel);

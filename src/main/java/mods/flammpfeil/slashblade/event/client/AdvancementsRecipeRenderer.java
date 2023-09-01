@@ -7,11 +7,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.advancements.AdvancementWidget;
 import net.minecraft.client.gui.screens.advancements.AdvancementTab;
@@ -37,11 +38,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.*;
 
 import net.minecraft.recipebook.PlaceRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.UpgradeRecipe;
+import net.minecraft.world.item.crafting.SmithingTransformRecipe;
 
 public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
@@ -81,19 +78,20 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
     static Map<RecipeType, RecipeView> typeRecipeViewMap = createRecipeViewMap();
 
     static class DummyAnvilRecipe implements Recipe<Container> {
-        protected UpgradeRecipe original;
+        protected SmithingTransformRecipe original;
         private final ItemStack result;
         private final ResourceLocation recipeId;
 
         NonNullList<Ingredient> nonnulllist = NonNullList.withSize(2, Ingredient.EMPTY);
 
-        public DummyAnvilRecipe(UpgradeRecipe recipe) {
+        public DummyAnvilRecipe(SmithingTransformRecipe recipe) {
             original = recipe;
 
             FriendlyByteBuf pb = new FriendlyByteBuf(Unpooled.buffer());
-            UpgradeRecipe.Serializer ss = new UpgradeRecipe.Serializer();
+            SmithingTransformRecipe.Serializer ss = new SmithingTransformRecipe.Serializer();
             ss.toNetwork(pb,original);
 
+            Ingredient.fromNetwork(pb);
             nonnulllist.set(0, Ingredient.fromNetwork(pb));
             nonnulllist.set(1, Ingredient.fromNetwork(pb));
 
@@ -108,7 +106,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
         }
 
         @Override
-        public ItemStack assemble(Container inv) {
+        public ItemStack assemble(Container p_44001_, RegistryAccess p_267165_) {
             return result.copy();
         }
 
@@ -118,7 +116,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
         }
 
         @Override
-        public ItemStack getResultItem() {
+        public ItemStack getResultItem(RegistryAccess p_267052_) {
             return result;
         }
 
@@ -148,7 +146,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
         }
     }
     static class DummySmithingRecipe extends DummyAnvilRecipe{
-        public DummySmithingRecipe(UpgradeRecipe recipe) {
+        public DummySmithingRecipe(SmithingTransformRecipe recipe) {
             super(recipe);
         }
 
@@ -165,13 +163,13 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
     static Recipe overrideDummyRecipe(Recipe original){
 
-        if(!(original instanceof UpgradeRecipe))
+        if(!(original instanceof SmithingTransformRecipe))
             return original;
 
         if(original.getId().getPath().startsWith("anvilcrafting")){
-            return new DummyAnvilRecipe((UpgradeRecipe)original);
+            return new DummyAnvilRecipe((SmithingTransformRecipe)original);
         }else{
-            return new DummySmithingRecipe((UpgradeRecipe)original);
+            return new DummySmithingRecipe((SmithingTransformRecipe)original);
         }
     }
 
@@ -328,7 +326,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
                 if(currentView != null && 0 < currentView.slots.size()){
                     final int outputslotIndex = 0;
                     Vec3i outputSlot = currentView.slots.get(outputslotIndex);
-                    gr.addIngredient(Ingredient.of(iRecipe.getResultItem()), outputSlot.getX(), outputSlot.getY());
+                    gr.addIngredient(Ingredient.of(iRecipe.getResultItem(null)), outputSlot.getX(), outputSlot.getY());
 
                     this.placeRecipe(3,3, outputslotIndex, iRecipe,  iRecipe.getIngredients().iterator(), 1);
                 }
@@ -339,36 +337,37 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
     }
 
 
-    void drawBackGround(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, int xSize, int ySize, int yClip){
-        RenderSystem.setShaderTexture(0, currentView.background);
+    void drawBackGround(GuiGraphics gg, int xCorner, int yCorner, int zOffset, int xSize, int ySize, int yClip){
         int bPadding = 5;
-        GuiComponent.blit(matrixStack, xCorner, yCorner,zOffset, 0, 0, xSize, yClip-bPadding,256, 256);
-        GuiComponent.blit(matrixStack, xCorner, yCorner + yClip - bPadding,zOffset, 0, ySize-bPadding, xSize, bPadding,256, 256);
+        gg.blit(currentView.background, xCorner, yCorner,zOffset, 0, 0, xSize, yClip-bPadding,256, 256);
+        gg.blit(currentView.background, xCorner, yCorner + yClip - bPadding,zOffset, 0, ySize-bPadding, xSize, bPadding,256, 256);
     }
 
-    void drawGhostRecipe(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, float partialTicks){
+    void drawGhostRecipe(GuiGraphics gg, int xCorner, int yCorner, int zOffset, float partialTicks){
         try{
-            matrixStack.pushPose();
+            gg.pose().pushPose();
             //matrixStack.translate(0,0,zOffset);
 
-            ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
+
+/*           ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
 
             float tmp = ir.blitOffset;
             ir.blitOffset = zOffset - 125;
             int padding = 5;
             ir.renderAndDecorateFakeItem(gr.getRecipe().getToastSymbol(), xCorner + padding, yCorner + padding);
-
+*/
             boolean wideOutputSlot = currentView.isWideOutputSlot;
 
-            gr.render(matrixStack, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
-            ir.blitOffset = tmp;
+            gr.render(gg, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);
+
+            //ir.blitOffset = tmp;
 
         }finally {
-            matrixStack.popPose();
+            gg.pose().popPose();
         }
     }
 
-    void drawTooltip(PoseStack matrixStack, int xCorner, int yCorner, int zOffset, int mouseX, int mouseY , Screen gui){
+    void drawTooltip(GuiGraphics gg, int xCorner, int yCorner, int zOffset, int mouseX, int mouseY , Screen gui){
 
         ItemStack itemStack = null;
 
@@ -385,7 +384,7 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
 
         if(itemStack != null){
             if (itemStack != null && Minecraft.getInstance().screen != null) {
-                Minecraft.getInstance().screen.renderComponentTooltip(matrixStack, Minecraft.getInstance().screen.getTooltipFromItem(itemStack), mouseX, mouseY);
+                gg.renderTooltip(Minecraft.getInstance().font, itemStack, mouseX, mouseY);
             }
         }
     }
@@ -401,9 +400,10 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
         AdvancementsScreen gui = (AdvancementsScreen) event.getScreen();
 
         try {
-            event.getPoseStack().pushPose();
 
-            PoseStack matrixStack = event.getPoseStack();
+            event.getGuiGraphics().pose().pushPose();
+
+            PoseStack matrixStack = event.getGuiGraphics().pose();
 
             int zOffset = 425;
             int zStep = 75;
@@ -416,15 +416,15 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
             int xCorner = (gui.width - xSize) / 2;
             int yCorner = (gui.height - yClip) / 2;
 
-            drawBackGround(matrixStack, xCorner, yCorner, zOffset, xSize, ySize, yClip);
+            drawBackGround(event.getGuiGraphics(), xCorner, yCorner, zOffset, xSize, ySize, yClip);
 
-            drawGhostRecipe(matrixStack, xCorner, yCorner, zOffset, event.getPartialTick());
+            drawGhostRecipe(event.getGuiGraphics(), xCorner, yCorner, zOffset, event.getPartialTick());
 
             matrixStack.translate(0, 0, zStep);
-            drawTooltip(matrixStack, xCorner, yCorner, zOffset, event.getMouseX(), event.getMouseY(), gui);
+            drawTooltip(event.getGuiGraphics(), xCorner, yCorner, zOffset, event.getMouseX(), event.getMouseY(), gui);
 
         }finally{
-            event.getPoseStack().popPose();
+            event.getGuiGraphics().pose().popPose();
         }
     }
 
@@ -487,6 +487,18 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
             setGhostRecipe(found);
 
             return false;
+        }
+
+        boolean focus = false;
+
+        @Override
+        public void setFocused(boolean p_265728_) {
+            focus = p_265728_;
+        }
+
+        @Override
+        public boolean isFocused() {
+            return focus;
         }
     }
 }

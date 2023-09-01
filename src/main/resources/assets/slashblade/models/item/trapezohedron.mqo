@@ -534,9 +534,9 @@ Scene {
 	}
 }
 Material 3 {
-	"mat1" shader(3) col(1.000 1.000 1.000 1.000) dif(1.000) amb(0.000) emi(0.000) spc(0.100) power(5.00) tex("slashblade:soul")
+	"mat1" shader(3) col(1.000 1.000 1.000 1.000) dif(1.000) amb(0.000) emi(0.000) spc(0.100) power(5.00) tex("slashblade:item/soul")
 	"mat2" shader(3) col(1.000 1.000 1.000 0.900) dif(0.800) amb(0.600) emi(0.300) spc(0.000) power(5.00) tex("../../textures/soul.png")
-	"mat3" shader(3) col(1.000 1.000 1.000 1.000) dif(0.800) amb(0.600) emi(0.000) spc(0.000) power(5.00) tex("slashblade:soul")
+	"mat3" shader(3) col(1.000 1.000 1.000 1.000) dif(0.800) amb(0.600) emi(0.000) spc(0.000) power(5.00) tex("slashblade:item/soul")
 }
 Object "background" {
 	depth 0

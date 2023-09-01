@@ -51,7 +51,7 @@ public class MoveCommandMessage {
 
                 EnumSet<InputCommand> current = state.getCommands().clone();
 
-                long currentTime = sender.level.getGameTime();
+                long currentTime = sender.level().getGameTime();
                 current.forEach(c->{
                     if(!old.contains(c))
                         state.getLastPressTimes().put(c, currentTime);

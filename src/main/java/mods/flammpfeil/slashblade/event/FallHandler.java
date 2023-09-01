@@ -55,24 +55,24 @@ public class FallHandler {
     }
 
     public static void spawnLandingParticle(LivingEntity user , float fallFactor){
-        if (!user.level.isClientSide) {
+        if (!user.level().isClientSide) {
             int x = Mth.floor(user.getX());
             int y = Mth.floor(user.getY() - (double)0.5F);
             int z = Mth.floor(user.getZ());
             BlockPos pos = new BlockPos(x, y, z);
-            BlockState state = user.level.getBlockState(pos);
+            BlockState state = user.level().getBlockState(pos);
 
             float f = (float) Mth.ceil(fallFactor);
             if (!state.isAir()) {
                 double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                 int i = (int)(150.0D * d0);
-                if (!state.addLandingEffects((ServerLevel)user.level, pos, state, user, i))
-                    ((ServerLevel)user.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), user.getX(), user.getY(), user.getZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+                if (!state.addLandingEffects((ServerLevel)user.level(), pos, state, user, i))
+                    ((ServerLevel)user.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), user.getX(), user.getY(), user.getZ(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }
     public static void spawnLandingParticle(Entity user, Vec3 targetPos, Vec3 normal, float fallFactor){
-        if (!user.level.isClientSide) {
+        if (!user.level().isClientSide) {
 
             Vec3 blockPos = targetPos.add(normal.normalize().scale(0.5f));
 
@@ -80,19 +80,19 @@ public class FallHandler {
             int y = Mth.floor(blockPos.y());
             int z = Mth.floor(blockPos.z());
             BlockPos pos = new BlockPos(x, y, z);
-            BlockState state = user.level.getBlockState(pos);
+            BlockState state = user.level().getBlockState(pos);
 
             float f = (float) Mth.ceil(fallFactor);
             if (!state.isAir()) {
                 double d0 = Math.min((double)(0.2F + f / 15.0F), 2.5D);
                 int i = (int)(150.0D * d0);
-                ((ServerLevel)user.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), targetPos.x(), targetPos.y(), targetPos.z(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
+                ((ServerLevel)user.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), targetPos.x(), targetPos.y(), targetPos.z(), i, 0.0D, 0.0D, 0.0D, (double)0.15F);
             }
         }
     }
 
     public static void fallDecrease(LivingEntity user){
-        if(!user.isNoGravity() && !user.isOnGround()){
+        if(!user.isNoGravity() && !user.onGround()){
             user.fallDistance = 1;
 
             float currentRatio = user.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map((state)->
@@ -124,7 +124,7 @@ public class FallHandler {
     }
 
     public static void fallResist(LivingEntity user){
-        if(!user.isNoGravity() && !user.isOnGround()){
+        if(!user.isNoGravity() && !user.onGround()){
             user.fallDistance = 1;
 
             Vec3 motion = user.getDeltaMovement();

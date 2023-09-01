@@ -1,9 +1,7 @@
 package mods.flammpfeil.slashblade.entity;
 
 import com.google.common.collect.Lists;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+import com.mojang.math.Axis;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.event.FallHandler;
@@ -14,6 +12,7 @@ import mods.flammpfeil.slashblade.util.NBTHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -42,6 +41,8 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.world.entity.Entity.RemovalReason;
+import org.joml.Quaterniond;
+import org.joml.Vector4f;
 
 public class EntitySlashEffect extends Projectile implements IShootable {
     private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.<Integer>defineId(EntitySlashEffect.class, EntityDataSerializers.INT);
@@ -143,7 +144,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -197,7 +198,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     }
 
     private void refreshFlags(){
-        if(this.level.isClientSide){
+        if(this.level().isClientSide){
             int newValue = this.entityData.get(FLAGS).intValue();
             if(intFlags != newValue){
                 intFlags = newValue;
@@ -254,7 +255,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     }
     //disallowedHitBlock
     public boolean isNoClip() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             return this.noPhysics;
         } else {
             refreshFlags();
@@ -284,15 +285,23 @@ public class EntitySlashEffect extends Projectile implements IShootable {
 
             float progress = this.tickCount / (float)lifetime;
 
-            normal.transform(new Quaternion(Vector3f.YP,60 + this.getRotationOffset() -200.0F * progress, true));
-            normal.transform(new Quaternion(Vector3f.ZP,this.getRotationRoll(), true));
-            normal.transform(new Quaternion(Vector3f.XP,this.getXRot(), true));
-            normal.transform(new Quaternion(Vector3f.YP,-this.getYRot(), true));
+            Axis.YP.rotationDegrees(60 + this.getRotationOffset() -200.0F * progress)
+                            .transform(normal);
+            Axis.ZP.rotationDegrees(this.getRotationRoll())
+                            .transform(normal);
+            Axis.XP.rotationDegrees(this.getXRot())
+                            .transform(normal);
+            Axis.YP.rotationDegrees(-this.getYRot())
+                            .transform(normal);
 
-            dir.transform(new Quaternion(Vector3f.YP,60 + this.getRotationOffset() -200.0F * progress, true));
-            dir.transform(new Quaternion(Vector3f.ZP,this.getRotationRoll(), true));
-            dir.transform(new Quaternion(Vector3f.XP,this.getXRot(), true));
-            dir.transform(new Quaternion(Vector3f.YP,-this.getYRot(), true));
+            Axis.YP.rotationDegrees(60 + this.getRotationOffset() -200.0F * progress)
+                    .transform(dir);
+            Axis.ZP.rotationDegrees(this.getRotationRoll())
+                    .transform(dir);
+            Axis.XP.rotationDegrees(this.getXRot())
+                    .transform(dir);
+            Axis.YP.rotationDegrees(-this.getYRot())
+                    .transform(dir);
 
             Vec3 normal3d = new Vec3(normal.x(), normal.y(), normal.z());
 
@@ -310,11 +319,11 @@ public class EntitySlashEffect extends Projectile implements IShootable {
 
             if(IConcentrationRank.ConcentrationRanks.S.level < getRankCode().level){
                 Vec3 vec3 = start.add(normal3d.scale(this.getBaseSize()*2.5));
-                this.level.addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
+                this.level().addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
                         , dir.x() + normal.x(), dir.y() + normal.y(), dir.z() + normal.z());
                 float randScale = random.nextFloat()*1.0f+0.5f;
                 vec3 = vec3.add(dir.x() * randScale,dir.y()* randScale,dir.z()* randScale);
-                this.level.addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
+                this.level().addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z()
                         , dir.x() + normal.x(), dir.y() + normal.y(), dir.z() + normal.z());
             }
         }
@@ -348,7 +357,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
     }
 
     protected void tryDespawn() {
-        if(!this.level.isClientSide){
+        if(!this.level().isClientSide){
             if (getLifetime() < this.tickCount)
                 this.remove(RemovalReason.DISCARDED);
         }
@@ -429,7 +438,7 @@ public class EntitySlashEffect extends Projectile implements IShootable {
 
     @Nullable
     public EntityHitResult getRayTrace(Vec3 p_213866_1_, Vec3 p_213866_2_) {
-        return ProjectileUtil.getEntityHitResult(this.level, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), (p_213871_1_) -> {
+        return ProjectileUtil.getEntityHitResult(this.level(), this, p_213866_1_, p_213866_2_, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.isPickable() && (p_213871_1_ != this.getShooter());
         });
     }

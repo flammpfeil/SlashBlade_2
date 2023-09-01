@@ -17,7 +17,7 @@ public class Scheduler {
     }
 
     public void onTick(LivingEntity entity){
-        queue.tick(entity, entity.level.getGameTime());
+        queue.tick(entity, entity.level().getGameTime());
     }
 
     public void schedule(String key, long time, TimerCallback<LivingEntity> callback){

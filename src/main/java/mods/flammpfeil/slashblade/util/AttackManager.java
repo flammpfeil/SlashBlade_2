@@ -56,7 +56,7 @@ public class AttackManager {
     }
     static public EntitySlashEffect doSlash(LivingEntity playerIn, float roll, int colorCode, Vec3 centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
 
-        if(playerIn.level.isClientSide) return null;
+        if(playerIn.level().isClientSide) return null;
 
         Vec3 pos = playerIn.position()
                 .add(0.0D, (double)playerIn.getEyeHeight() * 0.75D, 0.0D)
@@ -66,7 +66,7 @@ public class AttackManager {
                 .add(VectorHelper.getVectorForRotation( 0, playerIn.getViewYRot(0) + 90).scale(centerOffset.z))
                 .add(playerIn.getLookAngle().scale(centerOffset.z));
 
-        EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, playerIn.level);
+        EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, playerIn.level());
         jc.setPos(pos.x ,pos.y, pos.z);
         jc.setOwner(playerIn);
 
@@ -85,9 +85,9 @@ public class AttackManager {
 
         if(playerIn != null)
             playerIn.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .ifPresent(rank->jc.setRank(rank.getRankLevel(playerIn.level.getGameTime())));
+                    .ifPresent(rank->jc.setRank(rank.getRankLevel(playerIn.level().getGameTime())));
 
-        playerIn.level.addFreshEntity(jc);
+        playerIn.level().addFreshEntity(jc);
 
         return jc;
     }
@@ -100,11 +100,11 @@ public class AttackManager {
         float modifiedRatio = (1.0F + EnchantmentHelper.getSweepingDamageRatio(playerIn) * 0.5f) * ratio;
         AttributeModifier am = new AttributeModifier("SweepingDamageRatio", modifiedRatio, AttributeModifier.Operation.MULTIPLY_BASE);
 
-        if (!playerIn.level.isClientSide()) {
+        if (!playerIn.level().isClientSide()) {
             try {
                 playerIn.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(am);
 
-                founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.level,playerIn);
+                founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.level(),playerIn);
 
                 if(exclude != null)
                     founds.removeAll(exclude);
@@ -122,7 +122,7 @@ public class AttackManager {
         }
 
         if(!mute)
-            playerIn.level.playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
+            playerIn.level().playSound((Player)null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F, 0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
 
         return founds;
     }
@@ -136,9 +136,9 @@ public class AttackManager {
         AABB bb = owner.getBoundingBox();
         //bb = bb.grow(3.0D, 3D, 3.0D);
 
-        if (!owner.level.isClientSide()) {
+        if (!owner.level().isClientSide()) {
 
-            founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.level,
+            founds = TargetSelector.getTargettableEntitiesWithinAABB(owner.level(),
                     reach,
                     owner);
 
@@ -151,7 +151,7 @@ public class AttackManager {
                     beforeHit.accept((LivingEntity)entity);
 
                 float baseAmount = (float) owner.getDamage();
-                doAttackWith(DamageSource.indirectMagic(owner, owner.getShooter()), baseAmount,entity, forceHit, resetHit);
+                doAttackWith(owner.damageSources().indirectMagic(owner, owner.getShooter()), baseAmount,entity, forceHit, resetHit);
             }
         }
 
@@ -210,7 +210,7 @@ public class AttackManager {
             },target, forceHit, resetHit);
         }else{
             float baseAmount = (float) attacker.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-            doAttackWith(DamageSource.mobAttack(attacker), baseAmount, target, forceHit, resetHit);
+            doAttackWith(attacker.damageSources().mobAttack(attacker), baseAmount, target, forceHit, resetHit);
         }
 
         ArrowReflector.doReflect(target, attacker);

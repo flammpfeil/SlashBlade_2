@@ -6,9 +6,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
@@ -38,40 +40,39 @@ public class BladeItemEntity extends ItemEntity {
         return new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, worldIn);
     }
 
-    @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
     public void tick() {
-        if(isOnGround() && tickCount % 40 == 0){
+        if(onGround() && tickCount % 40 == 0){
             tickCount ++;
         }
         super.tick();
 
-        if(!this.isInWater() && !isOnGround() && tickCount % 6 == 0){
+        if(!this.isInWater() && !onGround() && tickCount % 6 == 0){
             this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 0.5F, 2.5F);
         }
 
 
-        if(this.level.isClientSide){
+        if(this.level().isClientSide){
             if (random.nextInt(5) == 0 && getAirSupply() < 0) {
                 Direction direction = Direction.UP;
                 double d0 = (double)this.getX() - (double)(random.nextFloat() * 0.1F);
                 double d1 = (double)this.getY() - (double)(random.nextFloat() * 0.1F);
                 double d2 = (double)this.getZ() - (double)(random.nextFloat() * 0.1F);
                 double d3 = (double)(0.4F - (random.nextFloat() + random.nextFloat()) * 0.4F);
-                this.level.addParticle(ParticleTypes.PORTAL, d0 + (double)direction.getStepX() * d3, d1 + 2 + (double)direction.getStepY() * d3, d2 + (double)direction.getStepZ() * d3, random.nextGaussian() * 0.005D, -2, random.nextGaussian() * 0.005D);
+                this.level().addParticle(ParticleTypes.PORTAL, d0 + (double)direction.getStepX() * d3, d1 + 2 + (double)direction.getStepY() * d3, d2 + (double)direction.getStepZ() * d3, random.nextGaussian() * 0.005D, -2, random.nextGaussian() * 0.005D);
             }
 
-            if (!this.isOnGround() && !this.isInWater() && random.nextInt(3) == 0) {
+            if (!this.onGround() && !this.isInWater() && random.nextInt(3) == 0) {
                 Direction direction = Direction.UP;
                 double d0 = (double)this.getX() - (double)(random.nextFloat() * 0.1F);
                 double d1 = (double)this.getY() - (double)(random.nextFloat() * 0.1F);
                 double d2 = (double)this.getZ() - (double)(random.nextFloat() * 0.1F);
                 double d3 = (double)(0.4F - (random.nextFloat() + random.nextFloat()) * 0.4F);
-                this.level.addParticle(ParticleTypes.END_ROD, d0 + (double)direction.getStepX() * d3, d1 + (double)direction.getStepY() * d3, d2 + (double)direction.getStepZ() * d3, random.nextGaussian() * 0.005D, random.nextGaussian() * 0.005D, random.nextGaussian() * 0.005D);
+                this.level().addParticle(ParticleTypes.END_ROD, d0 + (double)direction.getStepX() * d3, d1 + (double)direction.getStepY() * d3, d2 + (double)direction.getStepZ() * d3, random.nextGaussian() * 0.005D, random.nextGaussian() * 0.005D, random.nextGaussian() * 0.005D);
             }
         }
     }
@@ -88,13 +89,13 @@ public class BladeItemEntity extends ItemEntity {
         int i = Mth.ceil(distance);
         if (i > 0) {
             this.playSound(SoundEvents.GENERIC_BIG_FALL, 1.0F, 1.0F);
-            this.hurt(DamageSource.FALL, (float)i);
+            this.hurt(this.level().damageSources().fall(), (float)i);
             int j = Mth.floor(this.getX());
             int k = Mth.floor(this.getY() - (double)0.2F);
             int l = Mth.floor(this.getZ());
-            BlockState blockstate = this.level.getBlockState(new BlockPos(j, k, l));
+            BlockState blockstate = this.level().getBlockState(new BlockPos(j, k, l));
             if (!blockstate.isAir()) {
-                SoundType soundtype = blockstate.getSoundType(level, new BlockPos(j, k, l), this);
+                SoundType soundtype = blockstate.getSoundType(level(), new BlockPos(j, k, l), this);
                 this.playSound(soundtype.getFallSound(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
             }
 

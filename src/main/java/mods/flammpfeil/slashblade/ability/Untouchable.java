@@ -30,7 +30,7 @@ public class Untouchable {
 
     public static void setUntouchable(LivingEntity entity, int ticks){
         entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
-            ef.setManagedUntouchable(entity.level.getGameTime(), ticks);
+            ef.setManagedUntouchable(entity.level().getGameTime(), ticks);
             ef.storeEffects(entity.getActiveEffectsMap().keySet());
             ef.storeHealth(entity.getHealth());
         });
@@ -103,7 +103,7 @@ public class Untouchable {
     public void onLivingTicks(LivingEvent.LivingTickEvent event){
         LivingEntity entity = event.getEntity();
 
-        if(entity.level.isClientSide) return;
+        if(entity.level().isClientSide) return;
 
         entity.getCapability(CapabilityMobEffect.MOB_EFFECT).ifPresent(ef->{
             if(ef.hasUntouchableWorked()) {

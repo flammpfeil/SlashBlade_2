@@ -13,7 +13,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionHand;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 
 /**
  * Created by Furia on 2016/02/07.
@@ -50,15 +50,15 @@ public class BladeFirstPersonRender {
 
         try(MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStack)){
             PoseStack.Pose me = matrixStack.last();
-            me.pose().setIdentity();
-            me.normal().setIdentity();
+            me.pose().identity();
+            me.normal().identity();
 
             matrixStack.translate(0.0f, 0.0f, -0.5f);
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180.0f));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(180.0f));
             matrixStack.scale(1.2F, 1.0F, 1.0F);
 
             //no sync pitch
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(-mc.player.getXRot()));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(-mc.player.getXRot()));
 
             //layer.disableOffhandRendering();
             float partialTicks = mc.getFrameTime();

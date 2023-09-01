@@ -63,7 +63,7 @@ public class LockOnManager {
         }else{
             //search target
 
-            Optional<HitResult> result = RayTraceHelper.rayTrace(player.level, player, player.getEyePosition(1.0f) , player.getLookAngle(), 40,40, (e)->true);
+            Optional<HitResult> result = RayTraceHelper.rayTrace(player.level(), player, player.getEyePosition(1.0f) , player.getLookAngle(), 40,40, (e)->true);
             Optional<Entity> foundEntity = result
                     .filter(r->r.getType() == HitResult.Type.ENTITY)
                     .filter(r->{
@@ -86,7 +86,7 @@ public class LockOnManager {
                     }).map(r->((EntityHitResult) r).getEntity());
 
             if(!foundEntity.isPresent()){
-                List<LivingEntity> entities = player.level.getNearbyEntities(
+                List<LivingEntity> entities = player.level().getNearbyEntities(
                         LivingEntity.class,
                         TargetSelector.lockon,
                         player,
@@ -122,14 +122,14 @@ public class LockOnManager {
 
         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
 
-            Entity target = s.getTargetEntity(player.level);
+            Entity target = s.getTargetEntity(player.level());
 
             if (target == null) return;
             if(!target.isAlive()) return;
 
             LivingEntity entity = player;
 
-            if(!entity.level.isClientSide) return;
+            if(!entity.level().isClientSide) return;
             if(!entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input->input.getCommands().contains(InputCommand.SNEAK)).isPresent()) return;
 
 

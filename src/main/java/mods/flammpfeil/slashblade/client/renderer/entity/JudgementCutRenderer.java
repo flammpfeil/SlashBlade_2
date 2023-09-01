@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -41,8 +41,8 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
 
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-            matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+            matrixStackIn.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
 
 
             WavefrontObject model = BladeModelManager.getInstance().getModel(modelLocation);
@@ -56,7 +56,7 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
 
             int seed = entity.getSeed();
 
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(seed));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(seed));
 
 
             float scale = 0.01f;
@@ -94,8 +94,8 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
             for (int l = 0; l < windCount; l++) {
                 try (MSAutoCloser msacB = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
-                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees((360.0f / windCount) * l));
-                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(30.0f));
+                    matrixStackIn.mulPose(Axis.XP.rotationDegrees((360.0f / windCount) * l));
+                    matrixStackIn.mulPose(Axis.YP.rotationDegrees(30.0f));
 
                     double rotWind = 360.0 / 20.0;
 
@@ -115,7 +115,7 @@ public class JudgementCutRenderer<T extends EntityJudgementCut> extends EntityRe
                     float windScale = (float)(0.4 + progress);
                     matrixStackIn.scale(windScale, windScale, windScale);
 
-                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees((float)(rotWind * offsetTicks)));
+                    matrixStackIn.mulPose(Axis.ZP.rotationDegrees((float)(rotWind * offsetTicks)));
 
                     Color cc = new Color(col.getRed(), col.getGreen(), col.getBlue(), 0xff & (int) (Math.min(0, 0xFF * Math.sin(rad) * baseAlpha)));
                     BladeRenderState.setCol(cc);

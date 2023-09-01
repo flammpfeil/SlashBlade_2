@@ -110,7 +110,7 @@ public class SummonedSwordArts {
 
                                 //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_SUMMONEDSWORDS);
 
-                                Level worldIn = entity.level;
+                                Level worldIn = entity.level();
                                 for (int i = 0; i < 6; i++) {
                                     EntitySpiralSwords ss = new EntitySpiralSwords(SlashBlade.RegistryEvents.SpiralSwords, worldIn);
 
@@ -141,8 +141,8 @@ public class SummonedSwordArts {
 
                 AdvancementHelper.grantCriterion(sender, ADVANCEMENT_SUMMONEDSWORDS);
 
-                Optional<Entity> foundTarget = Stream.of(Optional.ofNullable(state.getTargetEntity(sender.level))
-                            , RayTraceHelper.rayTrace(sender.level, sender, sender.getEyePosition(1.0f) , sender.getLookAngle(), 12,12, (e)->true)
+                Optional<Entity> foundTarget = Stream.of(Optional.ofNullable(state.getTargetEntity(sender.level()))
+                            , RayTraceHelper.rayTrace(sender.level(), sender, sender.getEyePosition(1.0f) , sender.getLookAngle(), 12,12, (e)->true)
                                     .filter(r->r.getType() == HitResult.Type.ENTITY)
                                     .filter(r->{
                                         EntityHitResult er = (EntityHitResult)r;
@@ -161,7 +161,7 @@ public class SummonedSwordArts {
                         .map(Optional::get)
                         .findFirst();
 
-                Level worldIn = sender.level;
+                Level worldIn = sender.level();
                 Vec3 targetPos = foundTarget.map((e)->new Vec3(e.getX(), e.getY() + e.getEyeHeight() * 0.5, e.getZ()))
                         .orElseGet(()->{
                             Vec3 start = sender.getEyePosition(1.0f);

@@ -26,7 +26,7 @@ public abstract class Projectile extends net.minecraft.world.entity.projectile.P
         int id = this.entityData.get(OWNERID);
 
         if(0 <= id){
-            Entity tmp = this.getLevel().getEntity(id);
+            Entity tmp = this.level().getEntity(id);
             if(super.getOwner() != tmp)
                 this.setOwner(tmp);
         }else{

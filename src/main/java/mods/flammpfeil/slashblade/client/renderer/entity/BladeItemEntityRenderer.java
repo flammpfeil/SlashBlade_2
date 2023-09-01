@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 
 import java.util.EnumSet;
 
@@ -49,7 +49,7 @@ public class BladeItemEntityRenderer extends ItemEntityRenderer {
     private void renderBlade(ItemEntity itemIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
 
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(entityYaw));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(entityYaw));
 
             ItemStack current = itemIn.getItem();
 
@@ -99,23 +99,23 @@ public class BladeItemEntityRenderer extends ItemEntityRenderer {
                 if(itemIn.isInWater()){
 
                     matrixStackIn.translate(0, 0.025f, 0);
-                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(itemIn.bobOffs));
+                    matrixStackIn.mulPose(Axis.YP.rotationDegrees(itemIn.bobOffs));
 
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(90));
+                    matrixStackIn.mulPose(Axis.XP.rotationDegrees(90));
 
-                }else if(!itemIn.isOnGround())
+                }else if(!itemIn.onGround())
                 {
                     matrixStackIn.scale(scale, scale, scale);
 
                     float speed = -81f;
-                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(speed * (itemIn.tickCount + partialTicks)));
+                    matrixStackIn.mulPose(Axis.ZP.rotationDegrees(speed * (itemIn.tickCount + partialTicks)));
                     matrixStackIn.translate(xOffset, 0 , 0);
                 }else{
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(60 + (float)Math.toDegrees(itemIn.bobOffs / 6.0)));
+                    matrixStackIn.mulPose(Axis.ZP.rotationDegrees(60 + (float)Math.toDegrees(itemIn.bobOffs / 6.0)));
                     matrixStackIn.translate(heightOffset, 0 , 0);
                 }
 
@@ -125,13 +125,13 @@ public class BladeItemEntityRenderer extends ItemEntityRenderer {
                 BladeRenderState.renderOverridedLuminous(current, model, renderTarget + "_luminous", textureLocation, matrixStackIn, bufferIn, packedLightIn);
             }
 
-            if((itemIn.isInWater() || itemIn.isOnGround()) && !types.contains(SwordType.NoScabbard)) {
+            if((itemIn.isInWater() || itemIn.onGround()) && !types.contains(SwordType.NoScabbard)) {
 
                 try (MSAutoCloser msac2 = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
                     matrixStackIn.translate(0, 0.025f, 0);
 
-                    matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(itemIn.bobOffs));
+                    matrixStackIn.mulPose(Axis.YP.rotationDegrees(itemIn.bobOffs));
 
                     if(!itemIn.isInWater()){
                         matrixStackIn.translate(0.75, 0, -0.4);
@@ -139,7 +139,7 @@ public class BladeItemEntityRenderer extends ItemEntityRenderer {
 
                     matrixStackIn.scale(scale, scale, scale);
 
-                    matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(90));
+                    matrixStackIn.mulPose(Axis.XP.rotationDegrees(90));
 
                     String renderTarget = "sheath";
 

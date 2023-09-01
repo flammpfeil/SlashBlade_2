@@ -3,6 +3,7 @@ package mods.flammpfeil.slashblade.entity;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.event.KnockBackHandler;
 import mods.flammpfeil.slashblade.util.*;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -113,7 +114,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -165,7 +166,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     }
 
     private void refreshFlags(){
-        if(this.level.isClientSide){
+        if(this.level().isClientSide){
             int newValue = this.entityData.get(FLAGS).intValue();
             if(intFlags != newValue){
                 intFlags = newValue;
@@ -201,7 +202,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     }
     //disallowedHitBlock
     public boolean isNoClip() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             return this.noPhysics;
         } else {
             refreshFlags();
@@ -228,7 +229,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
             final int count = 3;
             if(getIsCritical() && 0 < tickCount && tickCount <= count){
-                EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, this.level);
+                EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, this.level());
                 jc.absMoveTo(
                         this.getX(), this.getY(), this.getZ(),
                         (360.0f / count) * tickCount + this.seed, 0);
@@ -250,7 +251,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
                 jc.setRank(this.getRank());
 
-                this.level.addFreshEntity(jc);
+                this.level().addFreshEntity(jc);
             }
         }
 
@@ -259,7 +260,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     }
 
     protected void tryDespawn() {
-        if(!this.level.isClientSide){
+        if(!this.level().isClientSide){
             if (getLifetime() < this.tickCount) {
                 this.burst();
             }
@@ -368,9 +369,9 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     public void burst(){
         //this.playSound(SoundEvents.BLOCK_GLASS_BREAK, 1.0F, 1.2F / (this.rand.nextFloat() * 0.2F + 0.9F));
 
-        if(!this.level.isClientSide){
-            if(this.level instanceof ServerLevel)
-                ((ServerLevel)this.level).sendParticles(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 16, 0.5, 0.5,0.5,0.25f);
+        if(!this.level().isClientSide){
+            if(this.level() instanceof ServerLevel)
+                ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 16, 0.5, 0.5,0.5,0.25f);
 
             this.burst( getPotionEffects(), null);
         }
@@ -382,7 +383,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
     public void burst(List<MobEffectInstance> effects, @Nullable Entity focusEntity) {
         AABB axisalignedbb = this.getBoundingBox().inflate(4.0D, 2.0D, 4.0D);
         List<Entity> list = TargetSelector.getTargettableEntitiesWithinAABB(
-                this.level,
+                this.level(),
                 2,
                 this);
         //this.world.getEntitiesWithinAABB(LivingEntity.class, axisalignedbb);
@@ -429,7 +430,7 @@ public class EntityJudgementCut extends Projectile implements IShootable {
 
     @Nullable
     public EntityHitResult getRayTrace(Vec3 p_213866_1_, Vec3 p_213866_2_) {
-        return ProjectileUtil.getEntityHitResult(this.level, this, p_213866_1_, p_213866_2_, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), (p_213871_1_) -> {
+        return ProjectileUtil.getEntityHitResult(this.level(), this, p_213866_1_, p_213866_2_, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), (p_213871_1_) -> {
             return !p_213871_1_.isSpectator() && p_213871_1_.isAlive() && p_213871_1_.isPickable() && (p_213871_1_ != this.getShooter());
         });
     }

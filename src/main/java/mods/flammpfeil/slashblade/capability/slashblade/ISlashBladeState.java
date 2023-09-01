@@ -67,9 +67,9 @@ public interface ISlashBladeState {
     long getLastActionTime();
     void setLastActionTime(long lastActionTime);
     default long getElapsedTime(LivingEntity user){
-        long ticks = (Math.max(0, user.level.getGameTime() - this.getLastActionTime()));
+        long ticks = (Math.max(0, user.level().getGameTime() - this.getLastActionTime()));
 
-        if(user.level.isClientSide)
+        if(user.level().isClientSide)
             ticks = Math.max(0, ticks + 1);
 
         return ticks;
@@ -293,7 +293,7 @@ public interface ISlashBladeState {
 
     default void updateComboSeq(LivingEntity entity, ComboState cs){
         this.setComboSeq(cs);
-        this.setLastActionTime(entity.level.getGameTime());
+        this.setLastActionTime(entity.level().getGameTime());
 
         cs.clickAction(entity);
     }
@@ -377,7 +377,7 @@ public interface ISlashBladeState {
     void setHasChangedActiveState(boolean isChanged);
 
     default void sendChanges(Entity entityIn){
-        if(!entityIn.level.isClientSide && this.hasChangedActiveState()){
+        if(!entityIn.level().isClientSide && this.hasChangedActiveState()){
             ActiveStateSyncMessage msg = new ActiveStateSyncMessage();
             msg.activeTag = this.getActiveState();
             msg.id = entityIn.getId();

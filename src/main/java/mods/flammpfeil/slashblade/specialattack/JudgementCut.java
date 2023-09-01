@@ -29,7 +29,7 @@ public class JudgementCut {
 
     static public EntityJudgementCut doJudgementCut(LivingEntity user){
 
-        Level worldIn = user.level;
+        Level worldIn = user.level();
 
         Vec3 eyePos = user.getEyePosition(1.0f);
         final double airReach = 5;
@@ -78,7 +78,7 @@ public class JudgementCut {
 
         if(user != null)
             user.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .ifPresent(rank->jc.setRank(rank.getRankLevel(user.level.getGameTime())));
+                    .ifPresent(rank->jc.setRank(rank.getRankLevel(user.level().getGameTime())));
 
 
         worldIn.addFreshEntity(jc);

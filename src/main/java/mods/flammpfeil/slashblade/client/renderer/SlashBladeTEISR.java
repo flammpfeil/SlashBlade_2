@@ -18,12 +18,13 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 
 import java.awt.*;
 import java.util.EnumSet;
@@ -34,12 +35,8 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
         super(p_172550_, p_172551_);
     }
 
-    private void bindTexture(ResourceLocation res){
-        Minecraft.getInstance().getTextureManager().bindForSetup(res);
-    }
-
     @Override
-    public void renderByItem(ItemStack itemStackIn, ItemTransforms.TransformType type, PoseStack matrixStack, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn) {
+    public void renderByItem(ItemStack itemStackIn, ItemDisplayContext type, PoseStack matrixStack, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn) {
     //public void render(ItemStack itemStackIn, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
         if(!(itemStackIn.getItem() instanceof ItemSlashBlade)) return;
         ItemSlashBlade item = (ItemSlashBlade)itemStackIn.getItem();
@@ -68,16 +65,16 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
         return false;
     }
 
-    private boolean renderBlade(ItemStack stack, ItemTransforms.TransformType transformType , PoseStack matrixStack, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn){
+    private boolean renderBlade(ItemStack stack, ItemDisplayContext transformType , PoseStack matrixStack, MultiBufferSource bufferIn, int combinedLightIn, int combinedOverlayIn){
 
-        if(transformType == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND
-                || transformType == ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND
-                || transformType == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
-                || transformType == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND
-                || transformType == ItemTransforms.TransformType.NONE) {
+        if(transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
+                || transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                || transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+                || transformType == ItemDisplayContext.NONE) {
 
             if(BladeModel.user == null)
-                return false;
+                BladeModel.user = Minecraft.getInstance().player;
 
             EnumSet<SwordType> types = SwordType.from( stack);
 
@@ -85,8 +82,8 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
 
             if(!types.contains(SwordType.NoScabbard)) {
                 handle = BladeModel.user.getMainArm() == HumanoidArm.RIGHT ?
-                        transformType == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND :
-                        transformType == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND;
+                        transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND :
+                        transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
             }
 
             if(handle){
@@ -118,16 +115,16 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
 
             matrixStack.translate(0.5f, 0.5f, 0.5f);
 
-            if (transformType == ItemTransforms.TransformType.GROUND) {
+            if (transformType == ItemDisplayContext.GROUND) {
                 matrixStack.translate(0, 0.15f, 0);
                 renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.005f);
-            } else if (transformType == ItemTransforms.TransformType.GUI) {
+            } else if (transformType == ItemDisplayContext.GUI) {
                 renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.008f, true);
-            } else if (transformType == ItemTransforms.TransformType.FIXED) {
+            } else if (transformType == ItemDisplayContext.FIXED) {
                 if (stack.isFramed() && stack.getFrame() instanceof BladeStandEntity) {
                     renderModel(stack, matrixStack, bufferIn, combinedLightIn);
                 } else {
-                    matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f));
+                    matrixStack.mulPose(Axis.YP.rotationDegrees(180.0f));
                     renderIcon(stack, matrixStack, bufferIn, combinedLightIn,0.0095f);
                 }
             }else{
@@ -313,11 +310,11 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
                 renderTarget = "blade";
 
             matrixStack.translate(bladeOffset.x, bladeOffset.y, bladeOffset.z);
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(bladeOffsetRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(bladeOffsetRot));
 
 
             if(vFlip) {
-                matrixStack.mulPose(Vector3f.XP.rotationDegrees(180.0f));
+                matrixStack.mulPose(Axis.XP.rotationDegrees(180.0f));
                 matrixStack.translate(0, -15,0);
 
                 matrixStack.translate(0, 5, 0);
@@ -326,11 +323,11 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
             if (hFlip) {
                 double offset = defaultOffset;
                 matrixStack.translate(-offset, 0,0);
-                matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f));
+                matrixStack.mulPose(Axis.YP.rotationDegrees(180.0f));
                 matrixStack.translate(offset, 0,0);
             }
 
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(bladeOffsetBaseRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(bladeOffsetBaseRot));
 
 
             BladeRenderState.renderOverrided(stack, model, renderTarget, textureLocation, matrixStack, bufferIn, lightIn);
@@ -342,11 +339,11 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
                 String renderTarget = "sheath";
 
                 matrixStack.translate(sheathOffset.x, sheathOffset.y, sheathOffset.z);
-                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(sheathOffsetRot));
+                matrixStack.mulPose(Axis.ZP.rotationDegrees(sheathOffsetRot));
 
 
                 if(vFlip) {
-                    matrixStack.mulPose(Vector3f.XP.rotationDegrees(180.0f));
+                    matrixStack.mulPose(Axis.XP.rotationDegrees(180.0f));
                     matrixStack.translate(0, -15,0);
 
                     matrixStack.translate(0, 5, 0);
@@ -355,11 +352,11 @@ public class SlashBladeTEISR extends BlockEntityWithoutLevelRenderer {
                 if (hFlip) {
                     double offset = defaultOffset;
                     matrixStack.translate(-offset, 0,0);
-                    matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0f));
+                    matrixStack.mulPose(Axis.YP.rotationDegrees(180.0f));
                     matrixStack.translate(offset, 0,0);
                 }
 
-                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(sheathOffsetBaseRot));
+                matrixStack.mulPose(Axis.ZP.rotationDegrees(sheathOffsetBaseRot));
 
                 BladeRenderState.renderOverrided(stack, model, renderTarget, textureLocation, matrixStack, bufferIn, lightIn);
                 BladeRenderState.renderOverridedLuminous(stack, model, renderTarget + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);

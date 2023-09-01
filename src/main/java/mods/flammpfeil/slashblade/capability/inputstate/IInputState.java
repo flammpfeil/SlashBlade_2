@@ -17,7 +17,7 @@ public interface IInputState {
     default EnumSet<InputCommand> getCommands(LivingEntity owner){
         EnumSet<InputCommand> commands = getCommands().clone();
 
-        if(owner.isOnGround()) {
+        if(owner.onGround()) {
             commands.add(InputCommand.ON_GROUND);
             //commands.remove(InputCommand.ON_AIR);
         }else {

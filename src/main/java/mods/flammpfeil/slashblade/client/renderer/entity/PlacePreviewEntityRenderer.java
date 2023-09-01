@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.entity.PlacePreviewEntity;
 import mods.flammpfeil.slashblade.init.SBItems;
+import mods.flammpfeil.slashblade.util.VectorHelper;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RenderShape;
@@ -49,7 +50,7 @@ public class PlacePreviewEntityRenderer extends EntityRenderer<PlacePreviewEntit
                 matrixStackIn.translate(pos.x, pos.y+1.0f, pos.z);
 
                 //BlockPos blockpos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-                BlockPos blockpos = new BlockPos(entityIn.getX(), entityIn.getBoundingBox().maxY, entityIn.getZ());
+                BlockPos blockpos = new BlockPos(VectorHelper.f2i(entityIn.getX(), entityIn.getBoundingBox().maxY, entityIn.getZ()));
                 matrixStackIn.translate(0.5D, 0.5D, 0.0D);
                 BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
                 Iterator var11 = RenderType.chunkBufferLayers().iterator();

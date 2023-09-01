@@ -60,7 +60,7 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
 
         //todo: add lifetime
 
-        if(!getLevel().isClientSide())
+        if(!level().isClientSide())
             hitCheck();
     }
 
@@ -96,9 +96,9 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
 
         long cycle = 30;
         long tickOffset = 0;
-        if(this.getLevel().isClientSide)
+        if(this.level().isClientSide)
             tickOffset = 1;
-        int ticks = (int)((this.getLevel().getGameTime() + tickOffset) % cycle);
+        int ticks = (int)((this.level().getGameTime() + tickOffset) % cycle);
         /*
         if ((getInterval() - waitTime) < ticks) {
             ticks = getInterval() - waitTime;

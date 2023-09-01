@@ -24,13 +24,22 @@ import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.TargetSelector;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +57,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -63,7 +73,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -74,17 +88,66 @@ public class SlashBlade
 {
     public static final String modid = "slashblade";
 
-    public static final CreativeModeTab SLASHBLADE = new CreativeModeTab(modid) {
-        @OnlyIn(Dist.CLIENT)
-        public ItemStack makeIcon() {
-            ItemStack stack = new ItemStack(SBItems.slashblade);
-            stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
-                s.setModel(new ResourceLocation(modid,"model/named/yamato.obj"));
-                s.setTexture(new ResourceLocation(modid,"model/named/yamato.png"));
-            });
-            return stack;
-        }
-    };
+    public static final CreativeModeTab SLASHBLADE = CreativeModeTab.builder()
+            .title(Component.translatable(modid))
+            .icon(()->{
+                ItemStack stack = new ItemStack(SBItems.slashblade);
+                stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
+                    s.setModel(new ResourceLocation(modid,"model/named/yamato.obj"));
+                    s.setTexture(new ResourceLocation(modid,"model/named/yamato.png"));
+                });
+                return stack;
+            })
+            .displayItems(new CreativeModeTab.DisplayItemsGenerator() {
+                @Override
+                public void accept(CreativeModeTab.ItemDisplayParameters p_270258_, CreativeModeTab.Output p_259752_) {
+                    p_259752_.accept(SBItems.slashblade);
+
+                    p_259752_.accept(SBItems.proudsoul);
+                    p_259752_.accept(SBItems.proudsoul_tiny);
+                    p_259752_.accept(SBItems.proudsoul_ingot);
+                    p_259752_.accept(SBItems.proudsoul_sphere);
+                    p_259752_.accept(SBItems.proudsoul_crystal);
+                    p_259752_.accept(SBItems.proudsoul_trapezohedron);
+                    p_259752_.accept(SBItems.proudsoul_activated);
+                    p_259752_.accept(SBItems.proudsoul_awakened);
+
+                    p_259752_.accept(SBItems.bladestand_1);
+                    p_259752_.accept(SBItems.bladestand_1w);
+                    p_259752_.accept(SBItems.bladestand_2);
+                    p_259752_.accept(SBItems.bladestand_2w);
+                    p_259752_.accept(SBItems.bladestand_s);
+                    p_259752_.accept(SBItems.bladestand_v);
+
+
+                    RecipeManager rm = DistExecutor.runForDist(()->ItemSlashBlade::getClientRM, ()->ItemSlashBlade::getServerRM);
+                    if(rm == null) return;
+
+                    Set<ResourceLocation> keys =rm.getRecipeIds()
+                            .filter((loc)->loc.getNamespace().equals(SlashBlade.modid)
+                                    && (!(
+                                    loc.getPath().startsWith("material")
+                                            || loc.getPath().startsWith("bladestand")
+                                            || loc.getPath().startsWith("simple_slashblade"))))
+                            .collect(Collectors.toSet());
+
+                    List<ItemStack> allItems = keys.stream()
+                            .map(key->rm.byKey(key)
+                                    .map(r->{
+                                        ItemStack stack = ((Recipe) r).getResultItem(Minecraft.getInstance().level.registryAccess()).copy();
+                                        stack.readShareTag(stack.getShareTag());
+                                        return stack;
+                                    })
+                                    .orElseGet(()->ItemStack.EMPTY))
+                            .sorted(Comparator.comparing(s->((ItemStack)s).getDescriptionId()).reversed())
+                            .collect(Collectors.toList());
+
+                    p_259752_.acceptAll(allItems);
+
+                }
+            })
+            .build();
+
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -146,7 +209,6 @@ public class SlashBlade
 
     @OnlyIn(Dist.CLIENT)
     private void doClientStuff(final FMLClientSetupEvent event) {
-
         MinecraftForge.EVENT_BUS.register(BladeModelManager.getInstance());
         MinecraftForge.EVENT_BUS.register(BladeMotionManager.getInstance());
 /*
@@ -163,6 +225,14 @@ public class SlashBlade
 
 
         RankRenderer.getInstance().register();
+
+        ItemProperties.register(SBItems.slashblade, new ResourceLocation("slashblade:user"), new ClampedItemPropertyFunction() {
+            @Override
+            public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_, @Nullable LivingEntity p_174566_, int p_174567_) {
+                BladeModel.user = p_174566_;
+                return 0;
+            }
+        });
 
         // do something that can only be done on the client
 
@@ -233,10 +303,10 @@ public class SlashBlade
                         }),
                         1,
                         -2.4F,
-                        (new Item.Properties()).tab(CreativeModeTab.TAB_COMBAT)));
+                        (new Item.Properties())));
 
 
-                    helper.register(new ResourceLocation(modid,"proudsoul"), new Item((new Item.Properties()).tab(SLASHBLADE)){
+                    helper.register(new ResourceLocation(modid,"proudsoul"), new Item((new Item.Properties())){
                         @Override
                         public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
 
@@ -269,7 +339,7 @@ public class SlashBlade
 
 
                     helper.register(new ResourceLocation(modid,"proudsoul_ingot"),
-                            new Item((new Item.Properties()).tab(SLASHBLADE)){
+                            new Item((new Item.Properties())){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -279,7 +349,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_tiny"),
-                            new Item((new Item.Properties()).tab(SLASHBLADE)){
+                            new Item((new Item.Properties())){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -289,7 +359,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_sphere"),
-                            new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.UNCOMMON)){
+                            new Item((new Item.Properties()).rarity(Rarity.UNCOMMON)){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -299,7 +369,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_crystal"),
-                            new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.RARE)){
+                            new Item((new Item.Properties()).rarity(Rarity.RARE)){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -309,7 +379,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_trapezohedron"),
-                            new Item((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.EPIC)){
+                            new Item((new Item.Properties()).rarity(Rarity.EPIC)){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -331,7 +401,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_activated"),
-                            new ItemSoulActivated((new Item.Properties()).stacksTo(1).tab(SLASHBLADE).rarity(Rarity.EPIC)){
+                            new ItemSoulActivated((new Item.Properties()).stacksTo(1).rarity(Rarity.EPIC)){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -341,7 +411,7 @@ public class SlashBlade
                             });
 
                     helper.register(new ResourceLocation(modid,"proudsoul_awakened"),
-                            new Item((new Item.Properties()).stacksTo(1).tab(SLASHBLADE).rarity(Rarity.EPIC)){
+                            new Item((new Item.Properties()).stacksTo(1).rarity(Rarity.EPIC)){
                                 @Override
                                 public boolean isFoil(ItemStack stack) {
                                     return true;//super.hasEffect(stack);
@@ -360,20 +430,18 @@ public class SlashBlade
 
 
                     helper.register(new ResourceLocation(modid,"bladestand_1"),
-                            new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON)));
+                            new BladeStandItem((new Item.Properties()).rarity(Rarity.COMMON)));
                     helper.register(new ResourceLocation(modid,"bladestand_2"),
-                            new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON)));
+                            new BladeStandItem((new Item.Properties()).rarity(Rarity.COMMON)));
                     helper.register(new ResourceLocation(modid,"bladestand_v"),
-                            new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON)));
+                            new BladeStandItem((new Item.Properties()).rarity(Rarity.COMMON)));
                     helper.register(new ResourceLocation(modid,"bladestand_s"),
-                            new BladeStandItem((new Item.Properties()).tab(SLASHBLADE).rarity(Rarity.COMMON)));
+                            new BladeStandItem((new Item.Properties()).rarity(Rarity.COMMON)));
                     helper.register(new ResourceLocation(modid,"bladestand_1w"),
                             new BladeStandItem((new Item.Properties())
-                                    .tab(SLASHBLADE)
                                     .rarity(Rarity.COMMON),true));
                     helper.register(new ResourceLocation(modid,"bladestand_2w"),
                             new BladeStandItem((new Item.Properties())
-                                    .tab(SLASHBLADE)
                                     .rarity(Rarity.COMMON),true));
                 }
             );
@@ -468,6 +536,8 @@ public class SlashBlade
                 SWORD_SUMMONED =registerCustomStat("sword_summoned");
             });
 
+
+            Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(SlashBlade.modid, "slashblade"), SLASHBLADE);
         }
 
         private static String classToString(Class<? extends Entity> entityClass) {
@@ -498,7 +568,7 @@ public class SlashBlade
 
         private static ResourceLocation registerCustomStat(String name) {
             ResourceLocation resourcelocation = new ResourceLocation(modid, name);
-            Registry.register(Registry.CUSTOM_STAT, name, resourcelocation);
+            Registry.register(BuiltInRegistries.CUSTOM_STAT, name, resourcelocation);
             Stats.CUSTOM.get(resourcelocation, StatFormatter.DEFAULT);
             return resourcelocation;
         }
@@ -509,8 +579,9 @@ public class SlashBlade
          */
     }
 
+
     @OnlyIn(Dist.CLIENT)
-    private void Baked(final ModelEvent.BakingCompleted event){
+    private void Baked(final ModelEvent.ModifyBakingResult event){
         {
             ModelResourceLocation loc = new ModelResourceLocation(
                     ForgeRegistries.ITEMS.getKey(SBItems.slashblade), "inventory");
@@ -518,68 +589,5 @@ public class SlashBlade
             event.getModels().put(loc, model);
         }
 
-        /*
-        overrideModel(event, SBItems.proudsoul, new ResourceLocation(modid, "block/soul.obj"));
-        overrideModel(event, SBItems.proudsoul_ingot, new ResourceLocation(modid, "block/ingot.obj"));
-        overrideModel(event, SBItems.proudsoul_tiny, new ResourceLocation(modid, "block/tiny.obj"));
-        overrideModel(event, SBItems.proudsoul_sphere, new ResourceLocation(modid, "block/sphere.obj"));
-        overrideModel(event, SBItems.proudsoul_crystal, new ResourceLocation(modid, "block/crystal.obj"));
-        overrideModel(event, SBItems.proudsoul_trapezohedron, new ResourceLocation(modid, "block/trapezohedron.obj"));
-
-
-        overrideModelBlockType(event, SBItems.bladestand_1, new ResourceLocation(modid, "block/stand_1.obj"));
-        overrideModelBlockType(event, SBItems.bladestand_2, new ResourceLocation(modid, "block/stand_2.obj"));
-        overrideModelBlockType(event, SBItems.bladestand_v, new ResourceLocation(modid, "block/stand_v.obj"));
-        overrideModelBlockType(event, SBItems.bladestand_s, new ResourceLocation(modid, "block/stand_s.obj"));
-        overrideModelBlockType(event, SBItems.bladestand_1w, new ResourceLocation(modid, "block/stand_w_1.obj"));
-        overrideModelBlockType(event, SBItems.bladestand_2w, new ResourceLocation(modid, "block/stand_w_2.obj"));
-        */
     }
-
-    /*
-    @OnlyIn(Dist.CLIENT)
-    private void overrideModelBlockType(final ModelBakeEvent event, Item item, ResourceLocation newLoc){
-        EnumMap<ItemCameraTransforms.TransformType, TRSRTransformation> block = new EnumMap<>(ItemCameraTransforms.TransformType.class);
-
-        TRSRTransformation thirdPersonBlock = ForgeBlockStateV1.Transforms.convert(0, 2.5f, 0, 75, 45, 0, 0.375f);
-        block.put(ItemCameraTransforms.TransformType.GUI, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 30, 315, 0, 0.625f));
-        block.put(ItemCameraTransforms.TransformType.GROUND, ForgeBlockStateV1.Transforms.convert(0, 3, 0, 0, 0, 0, 0.25f));
-        block.put(ItemCameraTransforms.TransformType.FIXED, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 0, 0, 0.5f));
-        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonBlock);
-        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.leftify(thirdPersonBlock));
-        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 45, 0, 0.4f));
-        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 225, 0, 0.4f));
-
-        SimpleModelState state = new SimpleModelState(ImmutableMap.copyOf(block));
-
-        overrideModel(event, item, newLoc, state);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void overrideModel(final ModelBakeEvent event, Item item, ResourceLocation newLoc){
-
-        EnumMap<ItemCameraTransforms.TransformType, TRSRTransformation> block = new EnumMap<>(ItemCameraTransforms.TransformType.class);
-
-        TRSRTransformation thirdPersonBlock = ForgeBlockStateV1.Transforms.convert(0, 2.5f, 0, 75, 45, 0, 0.375f);
-        block.put(ItemCameraTransforms.TransformType.GUI, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 10, 0, 0, 0.9f));
-        block.put(ItemCameraTransforms.TransformType.GROUND, ForgeBlockStateV1.Transforms.convert(0, 3, 0, 0, 0, 0, 0.5f));
-        block.put(ItemCameraTransforms.TransformType.FIXED, ForgeBlockStateV1.Transforms.convert(0, 0, -10, -90, 0, 0, 1.0f));
-        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonBlock);
-        block.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.leftify(thirdPersonBlock));
-        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 45, 0, 0.4f));
-        block.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ForgeBlockStateV1.Transforms.convert(0, 0, 0, 0, 225, 0, 0.4f));
-
-        SimpleModelState state = new SimpleModelState(ImmutableMap.copyOf(block));
-
-        overrideModel(event, item, newLoc, state);
-    }
-    @OnlyIn(Dist.CLIENT)
-    private void overrideModel(final ModelBakeEvent event, Item item, ResourceLocation newLoc, SimpleModelState state){
-        ModelResourceLocation loc = new ModelResourceLocation(
-                ForgeRegistries.ITEMS.getKey(item), "inventory");
-
-        IModelGeometry unbaked = ModelLoaderRegistry.getmo.getModelOrMissing(newLoc);
-        event.getModelRegistry().put(loc , unbaked.bake(event.getModelLoader(), ModelLoader.defaultTextureGetter(), (ISprite) state, DefaultVertexFormats.ITEM));
-    }*/
-
 }

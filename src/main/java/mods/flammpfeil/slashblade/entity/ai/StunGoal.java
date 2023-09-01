@@ -21,7 +21,7 @@ public class StunGoal extends Goal {
      */
     public boolean canUse() {
         boolean onStun = this.entity.getCapability(CapabilityMobEffect.MOB_EFFECT)
-                .filter((state)->state.isStun(this.entity.level.getGameTime()))
+                .filter((state)->state.isStun(this.entity.level().getGameTime()))
                 .isPresent();
 
         return onStun;

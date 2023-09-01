@@ -1,7 +1,7 @@
 {
     "parent": "slashblade:item/tiny",
     "textures": {
-        "layer0": "slashblade:soul"
+        "layer0": "slashblade:item/soul"
     },
     "gui_light": "front",
     "display": {

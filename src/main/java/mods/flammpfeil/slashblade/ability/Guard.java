@@ -12,10 +12,12 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -54,7 +56,7 @@ public class Guard {
         if(slashBlade.filter(b->b.isBroken()).isPresent()) return;
 
         //user check
-        if(!victim.isOnGround()) return;
+        if(!victim.onGround()) return;
         LazyOptional<IInputState> input = victim.getCapability(CapabilityInputState.INPUT_STATE);
         if(!input.isPresent()) return;
 
@@ -72,7 +74,7 @@ public class Guard {
             Long l = i.getLastPressTimes().get(targetCommand);
             return l == null ? 0 : l;
         }).get();
-        long timeCurrent = victim.level.getGameTime();
+        long timeCurrent = victim.level().getGameTime();
 
         int soulSpeedLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.SOUL_SPEED,victim);
         int justAcceptancePeriod = 3 + soulSpeedLevel;
@@ -88,13 +90,12 @@ public class Guard {
             isHighRank = true;
 
         //damage sauce check
-        boolean isProjectile = source.isProjectile();
-
+        boolean isProjectile = source.is(DamageTypeTags.IS_PROJECTILE) || source.getDirectEntity() instanceof Projectile;
 
         //after executable check -----------------
         if(!isJust){
             if(!isProjectile) return;
-            if(!isHighRank && source.isBypassArmor()) return;
+            if(!isHighRank && source.is(DamageTypeTags.BYPASSES_ARMOR)) return;
 
             boolean inMotion = slashBlade.filter(s->{
                 ComboState current = s.resolvCurrentComboState(victim);
@@ -134,11 +135,11 @@ public class Guard {
 
         //rankup
         if(isJust)
-            rank.ifPresent(r->r.addRankPoint(DamageSource.thorns(victim)));
+            rank.ifPresent(r->r.addRankPoint(victim.level().damageSources().thorns(victim)));
 
         //play sound
         if(victim instanceof Player){
-            victim.playSound(SoundEvents.TRIDENT_HIT_GROUND, 1.0F, 1.0F + victim.level.random.nextFloat() * 0.4F);
+            victim.playSound(SoundEvents.TRIDENT_HIT_GROUND, 1.0F, 1.0F + victim.level().random.nextFloat() * 0.4F);
         }
 
         //cost-------------------------

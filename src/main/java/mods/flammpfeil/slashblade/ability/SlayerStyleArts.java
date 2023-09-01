@@ -10,13 +10,12 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
+import mods.flammpfeil.slashblade.util.VectorHelper;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
@@ -26,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -70,7 +70,7 @@ public class SlayerStyleArts {
         EnumSet<InputCommand> old = event.getOld();
         EnumSet<InputCommand> current = event.getCurrent();
         ServerPlayer sender = event.getEntity();
-        Level worldIn = sender.level;
+        Level worldIn = sender.level();
 
         if(!old.contains(InputCommand.SPRINT)){
 
@@ -147,13 +147,13 @@ public class SlayerStyleArts {
                 }).orElse(false);
             }
 
-            if(!isHandled && !sender.isOnGround() && current.contains(InputCommand.SPRINT) && current.contains(InputCommand.BACK) && current.contains(InputCommand.SNEAK)){
+            if(!isHandled && !sender.onGround() && current.contains(InputCommand.SPRINT) && current.contains(InputCommand.BACK) && current.contains(InputCommand.SNEAK)){
                 Vec3 oldpos = sender.position();
 
                 Vec3 motion = new Vec3(0, -5, 0);
 
                 sender.move(MoverType.SELF, motion);
-                if(sender.isOnGround()){
+                if(sender.onGround()){
 
                     sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
 
@@ -171,11 +171,11 @@ public class SlayerStyleArts {
             }
 
 
-            if(!isHandled && sender.isOnGround() && current.contains(InputCommand.SPRINT) && current.stream().anyMatch(cc->move.contains(cc))){
+            if(!isHandled && sender.onGround() && current.contains(InputCommand.SPRINT) && current.stream().anyMatch(cc->move.contains(cc))){
                 //quick avoid ground
 
                 int count = sender.getCapability(CapabilityMobEffect.MOB_EFFECT)
-                        .map(ef->ef.doAvoid(sender.level.getGameTime()))
+                        .map(ef->ef.doAvoid(sender.level().getGameTime()))
                         .orElse(0);
 
                 if(0 < count){
@@ -232,7 +232,7 @@ public class SlayerStyleArts {
     }
 
     private static void executeTeleport(Entity entityIn, LivingEntity target) {
-        if(!(entityIn.level instanceof ServerLevel)) return;
+        if(!(entityIn.level() instanceof ServerLevel)) return;
 
         if(entityIn instanceof Player) {
             Player player = ((Player) entityIn);
@@ -244,7 +244,7 @@ public class SlayerStyleArts {
             Untouchable.setUntouchable(player, 10);
         }
 
-        ServerLevel worldIn = (ServerLevel) entityIn.level;
+        ServerLevel worldIn = (ServerLevel) entityIn.level();
 
         Vec3 tereportPos = target.position().add(0,target.getBbHeight() / 2.0, 0).add(entityIn.getLookAngle().scale(-2.0));
 
@@ -254,20 +254,20 @@ public class SlayerStyleArts {
         float yaw = entityIn.getYRot();
         float pitch = entityIn.getXRot();
 
-        Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeList = Collections.emptySet();
-        BlockPos blockpos = new BlockPos(x, y, z);
+        Set<RelativeMovement> relativeList = Collections.emptySet();
+        BlockPos blockpos = new BlockPos((int)x, (int)y, (int)z);
         if (!Level.isInSpawnableBounds(blockpos)) {
             return;
         } else {
             if (entityIn instanceof ServerPlayer) {
-                ChunkPos chunkpos = new ChunkPos(new BlockPos(x, y, z));
+                ChunkPos chunkpos = new ChunkPos(blockpos);
                 worldIn.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, chunkpos, 1, entityIn.getId());
                 entityIn.stopRiding();
                 if (((ServerPlayer)entityIn).isSleeping()) {
                     ((ServerPlayer)entityIn).stopSleepInBed(true, true);
                 }
 
-                if (worldIn == entityIn.level) {
+                if (worldIn == entityIn.level()) {
                     ((ServerPlayer)entityIn).connection.teleport(x, y, z, yaw, pitch, relativeList);
                 } else {
                     ((ServerPlayer)entityIn).teleportTo(worldIn, x, y, z, yaw, pitch);
@@ -278,7 +278,7 @@ public class SlayerStyleArts {
                 float f1 = Mth.wrapDegrees(yaw);
                 float f = Mth.wrapDegrees(pitch);
                 f = Mth.clamp(f, -90.0F, 90.0F);
-                if (worldIn == entityIn.level) {
+                if (worldIn == entityIn.level()) {
                     entityIn.moveTo(x, y, z, f1, f);
                     entityIn.setYHeadRot(f1);
                 } else {
@@ -313,7 +313,7 @@ public class SlayerStyleArts {
         double d1 = vec.z;
         double d2 = 0.05D;
 
-        while(d0 != 0.0D && mover.level.noCollision(mover, mover.getBoundingBox().move(d0, (double)(-mover.maxUpStep), 0.0D))) {
+        while(d0 != 0.0D && mover.level().noCollision(mover, mover.getBoundingBox().move(d0, (double)(-mover.maxUpStep()), 0.0D))) {
             if (d0 < 0.05D && d0 >= -0.05D) {
                 d0 = 0.0D;
             } else if (d0 > 0.0D) {
@@ -323,7 +323,7 @@ public class SlayerStyleArts {
             }
         }
 
-        while(d1 != 0.0D && mover.level.noCollision(mover, mover.getBoundingBox().move(0.0D, (double)(-mover.maxUpStep), d1))) {
+        while(d1 != 0.0D && mover.level().noCollision(mover, mover.getBoundingBox().move(0.0D, (double)(-mover.maxUpStep()), d1))) {
             if (d1 < 0.05D && d1 >= -0.05D) {
                 d1 = 0.0D;
             } else if (d1 > 0.0D) {
@@ -333,7 +333,7 @@ public class SlayerStyleArts {
             }
         }
 
-        while(d0 != 0.0D && d1 != 0.0D && mover.level.noCollision(mover, mover.getBoundingBox().move(d0, (double)(-mover.maxUpStep), d1))) {
+        while(d0 != 0.0D && d1 != 0.0D && mover.level().noCollision(mover, mover.getBoundingBox().move(d0, (double)(-mover.maxUpStep()), d1))) {
             if (d0 < 0.05D && d0 >= -0.05D) {
                 d0 = 0.0D;
             } else if (d0 > 0.0D) {
@@ -363,7 +363,7 @@ public class SlayerStyleArts {
     public void onTick(TickEvent.PlayerTickEvent event){
         switch(event.phase){
             case START -> {
-                float stepUp = event.player.maxUpStep;
+                float stepUp = event.player.maxUpStep();
 
                 LivingEntity player = event.player;
                 Vec3 deltaMovement;
@@ -385,16 +385,17 @@ public class SlayerStyleArts {
                 boolean doStepupBoost = true;
 
                 if(doStepupBoost){
-                    Vec3 offset = deltaMovement.normalize().scale(0.5f);
-                    BlockState blockState = player.level.getBlockState(new BlockPos(player.position().add(0,0.25,0).add(offset)).below());
-                    if(blockState.getMaterial().isLiquid()){
+                    Vec3 offset = deltaMovement.normalize().scale(0.5f).add(0,0.25,0);
+                    BlockPos offsetedPos = new BlockPos(VectorHelper.f2i(player.position().add(offset))).below();
+                    BlockState blockState = player.level().getBlockState(offsetedPos);
+                    if(blockState.liquid()){
                         doStepupBoost = false;
                     }
                 }
 
                 if(doStepupBoost && (event.player.getMainHandItem().getItem() instanceof ItemSlashBlade) && stepUp < stepUpBoost){
                     event.player.getPersistentData().putFloat("sb.store.stepup",stepUp);
-                    event.player.maxUpStep = stepUpBoost;
+                    event.player.setMaxUpStep(stepUpBoost);
                 }
 
 
@@ -427,7 +428,7 @@ public class SlayerStyleArts {
                         if(event.player.getPersistentData().contains("sb.airtrick.target")){
                             int id = event.player.getPersistentData().getInt("sb.airtrick.target");
 
-                            Entity target = event.player.level.getEntity(id);
+                            Entity target = event.player.level().getEntity(id);
                             if(target != null && target instanceof LivingEntity)
                                 executeTeleport(event.player, ((LivingEntity) target));
                         }
@@ -444,8 +445,8 @@ public class SlayerStyleArts {
                 float stepUp = event.player.getPersistentData().getFloat("sb.tmp.stepup");
                 stepUp = Math.max(stepUp, stepUpDefault);
 
-                if(stepUp < event.player.maxUpStep)
-                    event.player.maxUpStep = stepUp;
+                if(stepUp < event.player.maxUpStep())
+                    event.player.setMaxUpStep(stepUp);
             }
         }
     }

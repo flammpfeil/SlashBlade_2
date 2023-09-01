@@ -108,7 +108,7 @@ public class TargetSelector {
         double reach = TargetSelector.getResolvedReach(attacker);
 
         AABB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookAngle(), reach);
-        Level world = attacker.level;
+        Level world = attacker.level();
         return Stream.of(
                 world.getEntitiesOfClass(Projectile.class, aabb).stream()
                         .filter(e-> ((e.getOwner()/*getThrower()*/ == null || e.getOwner()/*getThrower()*/ != attacker) && (e instanceof IShootable ? ((IShootable)e).getShooter() != attacker : true))))
@@ -127,7 +127,7 @@ public class TargetSelector {
         double reach = TargetSelector.getResolvedReach(attacker);
 
         AABB aabb = getResolvedAxisAligned(attacker.getBoundingBox(), attacker.getLookAngle(), reach);
-        Level world = attacker.level;
+        Level world = attacker.level();
         return world.getEntitiesOfClass(PrimedTnt.class, aabb).stream()
                 .filter(e-> (e.distanceToSqr(attacker) < (reach * reach)))
                 .collect(Collectors.toList());
@@ -223,7 +223,7 @@ public class TargetSelector {
 
     static public double getResolvedReach(LivingEntity user){
         double reach = 4.0D; /* 4 block*/
-        AttributeInstance attrib = user.getAttribute(ForgeMod.REACH_DISTANCE.get());
+        AttributeInstance attrib = user.getAttribute(ForgeMod.ENTITY_REACH.get());
         if(attrib != null){
             reach = attrib.getValue() - 1;
         }
@@ -246,7 +246,7 @@ public class TargetSelector {
 
         stack.getCapability(ItemSlashBlade.BLADESTATE)
                 .ifPresent(s->{
-                    Entity tmp = s.getTargetEntity(sender.level);
+                    Entity tmp = s.getTargetEntity(sender.level());
                     if (tmp == null) return;
                     if (!(tmp instanceof LivingEntity)) return;
 
@@ -256,8 +256,8 @@ public class TargetSelector {
 
                     target.setLastHurtByMob(sender);
 
-                    if(target.level instanceof ServerLevel){
-                        ServerLevel sw = (ServerLevel)target.level;
+                    if(target.level() instanceof ServerLevel){
+                        ServerLevel sw = (ServerLevel)target.level();
 
                         sw.sendParticles(sender, ParticleTypes.ANGRY_VILLAGER, false,
                                 target.getX(), target.getY() + target.getEyeHeight(), target.getZ(),

@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,9 +48,9 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
 
         try (MSAutoCloser msac = MSAutoCloser.pushMatrix(matrixStackIn)) {
 
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(-Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-            matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
-            matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(entity.getRotationRoll()));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+            matrixStackIn.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
+            matrixStackIn.mulPose(Axis.XP.rotationDegrees(entity.getRotationRoll()));
 
 
             WavefrontObject model = BladeModelManager.getInstance().getModel(modelLocation);
@@ -68,7 +68,7 @@ public class SlashEffectRenderer<T extends EntitySlashEffect> extends EntityRend
             //baseAlpha = Math.sin(Math.PI * progress);
 
             //time
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(entity.getRotationOffset() -135.0F * progress));
+            matrixStackIn.mulPose(Axis.YP.rotationDegrees(entity.getRotationOffset() -135.0F * progress));
 
             matrixStackIn.scale(1,0.25f,1);
 

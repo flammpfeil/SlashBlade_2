@@ -2,7 +2,6 @@ package mods.flammpfeil.slashblade.client.renderer.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
@@ -15,9 +14,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 @OnlyIn(Dist.CLIENT)
@@ -42,10 +43,9 @@ public class RankRenderer {
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(TickEvent.RenderTickEvent event) {
+    public void renderTick(RenderGuiOverlayEvent.Post event) {
 
         Minecraft mc = Minecraft.getInstance();
-        if (event.phase == TickEvent.Phase.START) return;
         if(mc.player == null) return;
         //if(!mc.isGameFocused()) return;
         if(!Minecraft.renderNames()) return;
@@ -58,14 +58,14 @@ public class RankRenderer {
         LocalPlayer player= mc.player;
         long time = System.currentTimeMillis();
 
-        renderRankHud(event.renderTickTime, player, time);
+        renderRankHud(event.getPartialTick(), player, time);
     }
 
     private void renderRankHud(Float partialTicks, LocalPlayer player, long time) {
         Minecraft mc = Minecraft.getInstance();
 
         player.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr->{
-            long now = player.level.getGameTime();
+            long now = player.level().getGameTime();
 
             IConcentrationRank.ConcentrationRanks rank = cr.getRank(now);
 
@@ -90,7 +90,8 @@ public class RankRenderer {
             //position
             poseStack.translate(k * 2 / 3, l / 5, 0);
 
-            RenderSystem.enableTexture();
+            //RenderSystem.enableTexture();
+            RenderSystem.disableDepthTest();
             TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
             texturemanager.getTexture(RankImg).setFilter(false,false);
             RenderSystem.setShaderTexture(0, RankImg);

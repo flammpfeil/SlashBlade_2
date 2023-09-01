@@ -1,7 +1,7 @@
 {
-  "parent": "item/generated",
+  "parent": "builtin/entity",
   "textures": {
-    "layer0": "slashblade:soul"
+    "layer0": "slashblade:item/soul"
   },
   "display": {
     "thirdperson_righthand": {
@@ -29,5 +29,13 @@
       "translation": [ 2, 3, 0 ],
       "scale": [ 0.65, 0.65, 0.65 ]
     }
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "slashblade:user": "exists"
+      },
+      "model": "slashblade:eproudsoul"
+    }
+  ]
 }

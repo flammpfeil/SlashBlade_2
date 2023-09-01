@@ -2,6 +2,7 @@ package mods.flammpfeil.slashblade.entity;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -42,7 +43,7 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -110,7 +111,7 @@ public class BladeStandEntity extends ItemFrame implements IEntityAdditionalSpaw
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         InteractionResult result = InteractionResult.PASS;
-        if(!this.level.isClientSide && hand == InteractionHand.MAIN_HAND){
+        if(!this.level().isClientSide && hand == InteractionHand.MAIN_HAND){
             ItemStack itemstack = player.getItemInHand(hand);
             if(player.isShiftKeyDown() && !this.getItem().isEmpty()){
                 Pose current = this.getPose();
