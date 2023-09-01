@@ -97,6 +97,9 @@
   "adv.slashblade.imitation_broken.desc":"That’s the way of fake.",
 
 
+  "adv.slashblade.movesets": "Blade MoveSets",
+  "adv.slashblade.movesets.desc": "Controls",
+
   "adv.slashblade.combo_a": "Blade Arts -Combo A-              ",
   "adv.slashblade.combo_a.desc": "Use button\nAttack ♠:%s\nWhile on the ground,\npress ♠-♠-♠-♠",
   "adv.slashblade.combo_b": "Blade Arts -Combo B-              ",

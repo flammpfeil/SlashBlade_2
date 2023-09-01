@@ -12,7 +12,7 @@
     },
     "frame": "task"
   },
-  "parent": "slashblade:root",
+  "parent": "slashblade:movesets",
   "criteria": {
     "customtrigger": {
       "trigger": "minecraft:impossible"

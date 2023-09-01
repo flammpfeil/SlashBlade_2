@@ -96,6 +96,8 @@
   "adv.slashblade.imitation_broken":"見栄っ張り",
   "adv.slashblade.imitation_broken.desc":"見栄と意地の末路",
 
+  "adv.slashblade.movesets": "操作説明",
+  "adv.slashblade.movesets.desc": "コマンド表",
 
   "adv.slashblade.combo_a": "Blade Arts -Combo A-              ",
   "adv.slashblade.combo_a.desc": "使用ボタン\n攻撃 ♠:%s\n地上で\n♠-♠-♠-♠",

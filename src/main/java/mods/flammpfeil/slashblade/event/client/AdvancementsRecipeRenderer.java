@@ -349,13 +349,14 @@ public class AdvancementsRecipeRenderer implements PlaceRecipe<Ingredient> {
             //matrixStack.translate(0,0,zOffset);
 
 
-/*           ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
+            /*ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
 
             float tmp = ir.blitOffset;
             ir.blitOffset = zOffset - 125;
+            */
             int padding = 5;
-            ir.renderAndDecorateFakeItem(gr.getRecipe().getToastSymbol(), xCorner + padding, yCorner + padding);
-*/
+            gg.renderFakeItem(gr.getRecipe().getToastSymbol(), xCorner + padding, yCorner + padding);
+
             boolean wideOutputSlot = currentView.isWideOutputSlot;
 
             gr.render(gg, Minecraft.getInstance(), xCorner, yCorner, wideOutputSlot, partialTicks);

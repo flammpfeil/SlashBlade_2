@@ -1,0 +1,27 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.movesets"
+    },
+    "description": {
+      "translate": "adv.slashblade.movesets.desc"
+    },
+    "icon": {
+      "item": "minecraft:command_block"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:root",
+  "criteria": {
+    "crafting": {
+      "trigger": "inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "slashblade:slashblade"
+          }
+        ]
+      }
+    }
+  }
+}
