@@ -40,6 +40,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -99,25 +100,26 @@ public class SlashBlade
                 return stack;
             })
             .displayItems(new CreativeModeTab.DisplayItemsGenerator() {
+
                 @Override
                 public void accept(CreativeModeTab.ItemDisplayParameters p_270258_, CreativeModeTab.Output p_259752_) {
-                    p_259752_.accept(SBItems.slashblade);
+                    p_259752_.accept(SBItems.slashblade, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
 
-                    p_259752_.accept(SBItems.proudsoul);
-                    p_259752_.accept(SBItems.proudsoul_tiny);
-                    p_259752_.accept(SBItems.proudsoul_ingot);
-                    p_259752_.accept(SBItems.proudsoul_sphere);
-                    p_259752_.accept(SBItems.proudsoul_crystal);
-                    p_259752_.accept(SBItems.proudsoul_trapezohedron);
-                    p_259752_.accept(SBItems.proudsoul_activated);
-                    p_259752_.accept(SBItems.proudsoul_awakened);
+                    p_259752_.accept(SBItems.proudsoul, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_tiny, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_ingot, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_sphere, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_crystal, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_trapezohedron, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_activated, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.proudsoul_awakened, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
 
-                    p_259752_.accept(SBItems.bladestand_1);
-                    p_259752_.accept(SBItems.bladestand_1w);
-                    p_259752_.accept(SBItems.bladestand_2);
-                    p_259752_.accept(SBItems.bladestand_2w);
-                    p_259752_.accept(SBItems.bladestand_s);
-                    p_259752_.accept(SBItems.bladestand_v);
+                    p_259752_.accept(SBItems.bladestand_1, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.bladestand_1w, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.bladestand_2, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.bladestand_2w, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.bladestand_s, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+                    p_259752_.accept(SBItems.bladestand_v, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
 
 
                     RecipeManager rm = DistExecutor.runForDist(()->ItemSlashBlade::getClientRM, ()->ItemSlashBlade::getServerRM);
@@ -142,7 +144,7 @@ public class SlashBlade
                             .sorted(Comparator.comparing(s->((ItemStack)s).getDescriptionId()).reversed())
                             .collect(Collectors.toList());
 
-                    p_259752_.acceptAll(allItems);
+                    p_259752_.acceptAll(allItems, CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
 
                 }
             })
