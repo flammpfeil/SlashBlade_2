@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class AnvilCrafting {
@@ -24,7 +25,7 @@ public class AnvilCrafting {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onAnvilUpdateEvent(AnvilUpdateEvent event){
         ItemStack base = event.getLeft();
         ItemStack material = event.getRight();

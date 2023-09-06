@@ -17,6 +17,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class RefineHandler {
@@ -31,8 +32,10 @@ public class RefineHandler {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onAnvilUpdateEvent(AnvilUpdateEvent event){
+        if(!event.getOutput().isEmpty()) return;
+
         ItemStack base = event.getLeft();
         ItemStack material = event.getRight();
 

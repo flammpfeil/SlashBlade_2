@@ -8,6 +8,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
 import mods.flammpfeil.slashblade.entity.BladeItemEntity;
+import mods.flammpfeil.slashblade.event.AnvilCraftingRecipe;
 import mods.flammpfeil.slashblade.event.BladeMaterialTooltips;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.util.InputCommand;
@@ -197,6 +198,29 @@ public class ItemSlashBlade extends SwordItem {
                 s.getTexture().ifPresent(r->soul.addTagElement("Texture", StringTag.valueOf(r.toString())));
                 s.getModel().ifPresent(r->soul.addTagElement("Model", StringTag.valueOf(r.toString())));
             });
+
+            {//add clone blade recipe
+                ItemStack cpBlade = stack.copy();
+                cpBlade.getCapability(BLADESTATE).ifPresent(s->{
+                    s.setDamage(0);
+                    s.setOwner(null);
+                    s.setRefine(0);
+                    s.setKillCount(0);
+                });
+                cpBlade.getEnchantmentTags().clear();
+
+                AnvilCraftingRecipe recipe = new AnvilCraftingRecipe();
+                recipe.setLevel(10);
+                recipe.setKillcount(0);
+                recipe.setRefine(0);
+                recipe.setBroken(false);
+                recipe.setNoScabbard(false);
+                recipe.setTranslationKey("item.slashblade.slashblade");
+                recipe.setResultWithNBT(cpBlade.save(new CompoundTag()));
+                recipe.setOverwriteTag(null);
+
+                soul.addTagElement("RequiredBlade", recipe.writeNBT());
+            }
 
             ItemEntity itementity = new ItemEntity(user.level(), user.getX(), user.getY() , user.getZ(), soul);
             BladeItemEntity e = new BladeItemEntity(SlashBlade.RegistryEvents.BladeItem, user.level()){
