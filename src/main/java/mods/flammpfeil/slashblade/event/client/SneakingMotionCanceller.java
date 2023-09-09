@@ -1,6 +1,8 @@
 package mods.flammpfeil.slashblade.event.client;
 
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -28,6 +30,9 @@ public class SneakingMotionCanceller {
         if(!(stack.getItem() instanceof ItemSlashBlade)) return;
 
         if(!event.getRenderer().getModel().crouching) return;
+
+        if(Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON
+                && Minecraft.getInstance().player == event.getEntity()) return;
 
         event.getRenderer().getModel().crouching = false;
 
