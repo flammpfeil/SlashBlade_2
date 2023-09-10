@@ -70,10 +70,11 @@ import net.minecraft.world.item.Tier;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import net.minecraft.world.item.Item.Properties;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemSlashBlade extends SwordItem {
     protected static final UUID ATTACK_DAMAGE_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FD");
-    protected static final UUID PLAYER_REACH_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FD");
+    protected static final UUID PLAYER_REACH_AMPLIFIER = UUID.fromString("2D988C13-595B-4E58-B254-39BB6FA077FE");
 
     public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<>(){});
     public static final Capability<IInputState> INPUT_STATE = CapabilityManager.get(new CapabilityToken<>(){});
@@ -110,11 +111,9 @@ public class ItemSlashBlade extends SwordItem {
                                 (double) rankAttackAmplifier,
                                 AttributeModifier.Operation.ADDITION));
 
-
-
                 result.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier(PLAYER_REACH_AMPLIFIER,
                         "Reach amplifer",
-                        s.isBroken() ? 0 : 1.5, AttributeModifier.Operation.ADDITION));
+                        s.isBroken() ? ReachModifier.BrokendReach() : ReachModifier.BladeReach(), AttributeModifier.Operation.ADDITION));
 
             });
         }
