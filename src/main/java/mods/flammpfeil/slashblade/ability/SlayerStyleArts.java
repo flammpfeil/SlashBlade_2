@@ -65,6 +65,8 @@ public class SlayerStyleArts {
     static public final ResourceLocation ADVANCEMENT_TRICK_DODGE = new ResourceLocation(SlashBlade.modid, "abilities/trick_dodge");
     static public final ResourceLocation ADVANCEMENT_TRICK_UP = new ResourceLocation(SlashBlade.modid, "abilities/trick_up");
 
+    final static int TRICKACTION_UNTOUCHABLE_TIME = 10;
+
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
 
@@ -92,7 +94,7 @@ public class SlayerStyleArts {
 
                     if(target == null && 0 == sender.getPersistentData().getInt("sb.avoid.trickup")) {
                         //trick up
-                        Untouchable.setUntouchable(sender, 10);
+                        Untouchable.setUntouchable(sender, TRICKACTION_UNTOUCHABLE_TIME);
 
                         Vec3 motion = new Vec3(0, +0.8, 0);
 
@@ -111,7 +113,6 @@ public class SlayerStyleArts {
 
                     }else{
                         //air trick
-                        Untouchable.setUntouchable(sender, 10);
                         if(target == sender.getLastHurtMob() && sender.tickCount < sender.getLastHurtMobTimestamp() + 100){
                             LivingEntity hitEntity = sender.getLastHurtMob();
                             if(hitEntity != null){
@@ -177,7 +178,7 @@ public class SlayerStyleArts {
 
                 sender.move(MoverType.SELF, motion);
                 if(sender.onGround()){
-                    Untouchable.setUntouchable(sender, 10);
+                    Untouchable.setUntouchable(sender, TRICKACTION_UNTOUCHABLE_TIME);
 
                     sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
 
@@ -203,7 +204,7 @@ public class SlayerStyleArts {
                         .orElse(0);
 
                 if(0 < count){
-                    Untouchable.setUntouchable(sender, 10);
+                    Untouchable.setUntouchable(sender, TRICKACTION_UNTOUCHABLE_TIME);
 
                     float moveForward = current.contains(InputCommand.FORWARD) == current.contains(InputCommand.BACK) ? 0.0F : (current.contains(InputCommand.FORWARD) ? 1.0F : -1.0F);
                     float moveStrafe = current.contains(InputCommand.LEFT) == current.contains(InputCommand.RIGHT) ? 0.0F : (current.contains(InputCommand.LEFT) ? 1.0F : -1.0F);
@@ -265,7 +266,7 @@ public class SlayerStyleArts {
             player.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
                     .ifPresent(state -> state.updateComboSeq(player, state.getComboRootAir()));
 
-            Untouchable.setUntouchable(player, 10);
+            Untouchable.setUntouchable(player, TRICKACTION_UNTOUCHABLE_TIME);
         }
 
         ServerLevel worldIn = (ServerLevel) entityIn.level();
