@@ -92,6 +92,8 @@ public class SlayerStyleArts {
 
                     if(target == null && 0 == sender.getPersistentData().getInt("sb.avoid.trickup")) {
                         //trick up
+                        Untouchable.setUntouchable(sender, 10);
+
                         Vec3 motion = new Vec3(0, +0.8, 0);
 
                         sender.move(MoverType.SELF, motion);
@@ -109,13 +111,13 @@ public class SlayerStyleArts {
 
                     }else{
                         //air trick
+                        Untouchable.setUntouchable(sender, 10);
                         if(target == sender.getLastHurtMob() && sender.tickCount < sender.getLastHurtMobTimestamp() + 100){
                             LivingEntity hitEntity = sender.getLastHurtMob();
                             if(hitEntity != null){
                                 SlayerStyleArts.doTeleport(sender, hitEntity);
                             }
                         }else{
-                            Untouchable.setUntouchable(sender, 10);
                             EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
                                 @Override
                                 protected void onHitEntity(EntityHitResult p_213868_1_) {
@@ -167,6 +169,7 @@ public class SlayerStyleArts {
                 }).orElse(false);
             }
 
+            //trick down
             if(!isHandled && !sender.onGround() && current.contains(InputCommand.SPRINT) && current.contains(InputCommand.BACK) && current.contains(InputCommand.SNEAK)){
                 Vec3 oldpos = sender.position();
 
