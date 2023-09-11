@@ -63,6 +63,7 @@ public class SlayerStyleArts {
     static public final ResourceLocation ADVANCEMENT_AIR_TRICK = new ResourceLocation(SlashBlade.modid, "abilities/air_trick");
     static public final ResourceLocation ADVANCEMENT_TRICK_DOWN = new ResourceLocation(SlashBlade.modid, "abilities/trick_down");
     static public final ResourceLocation ADVANCEMENT_TRICK_DODGE = new ResourceLocation(SlashBlade.modid, "abilities/trick_dodge");
+    static public final ResourceLocation ADVANCEMENT_TRICK_UP = new ResourceLocation(SlashBlade.modid, "abilities/trick_up");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -77,7 +78,7 @@ public class SlayerStyleArts {
             boolean isHandled = false;
 
             if(current.containsAll(fowerd_sprint_sneak)){
-                //air trick
+                //air trick Or trick up
                 isHandled = sender.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(state->{
                     Entity tmpTarget = state.getTargetEntity(worldIn);
 
@@ -89,58 +90,77 @@ public class SlayerStyleArts {
                         target = tmpTarget;
                     }
 
-                    if(target == null) return false;
+                    if(target == null && 0 == sender.getPersistentData().getInt("sb.avoid.trickup")) {
+                        //trick up
+                        Vec3 motion = new Vec3(0, +0.8, 0);
 
-                    if(target == sender.getLastHurtMob() && sender.tickCount < sender.getLastHurtMobTimestamp() + 100){
-                        LivingEntity hitEntity = sender.getLastHurtMob();
-                        if(hitEntity != null){
-                            SlayerStyleArts.doTeleport(sender, hitEntity);
-                        }
+                        sender.move(MoverType.SELF, motion);
+
+                        sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
+
+                        sender.getPersistentData().putInt("sb.avoid.trickup",2);
+                        sender.setOnGround(false);
+
+                        sender.getPersistentData().putInt("sb.avoid.counter",2);
+                        NBTHelper.putVector3d(sender.getPersistentData(),"sb.avoid.vec", sender.position());
+
+                        AdvancementHelper.grantCriterion(sender,ADVANCEMENT_TRICK_UP);
+                        sender.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5f, 1.2f);
+
                     }else{
-                        EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
-                            @Override
-                            protected void onHitEntity(EntityHitResult p_213868_1_) {
-                                super.onHitEntity(p_213868_1_);
-
-                                LivingEntity target = sender.getLastHurtMob();
-                                if(target != null && this.getHitEntity() == target){
-                                    SlayerStyleArts.doTeleport(sender, target);
-                                }
+                        //air trick
+                        if(target == sender.getLastHurtMob() && sender.tickCount < sender.getLastHurtMobTimestamp() + 100){
+                            LivingEntity hitEntity = sender.getLastHurtMob();
+                            if(hitEntity != null){
+                                SlayerStyleArts.doTeleport(sender, hitEntity);
                             }
+                        }else{
+                            Untouchable.setUntouchable(sender, 10);
+                            EntityAbstractSummonedSword ss = new EntityAbstractSummonedSword(SlashBlade.RegistryEvents.SummonedSword, worldIn){
+                                @Override
+                                protected void onHitEntity(EntityHitResult p_213868_1_) {
+                                    super.onHitEntity(p_213868_1_);
 
-                            @Override
-                            public void tick() {
-                                if(this.getPersistentData().getBoolean("doForceHit")) {
-                                    this.doForceHitEntity(target);
-                                    this.getPersistentData().remove("doForceHit");
+                                    LivingEntity target = sender.getLastHurtMob();
+                                    if(target != null && this.getHitEntity() == target){
+                                        SlayerStyleArts.doTeleport(sender, target);
+                                    }
                                 }
-                                super.tick();
-                            }
-                        };
 
-                        Vec3 lastPos = sender.getEyePosition(1.0f);
-                        ss.xOld = lastPos.x;
-                        ss.yOld = lastPos.y;
-                        ss.zOld = lastPos.z;
+                                @Override
+                                public void tick() {
+                                    if(this.getPersistentData().getBoolean("doForceHit")) {
+                                        this.doForceHitEntity(target);
+                                        this.getPersistentData().remove("doForceHit");
+                                    }
+                                    super.tick();
+                                }
+                            };
 
-                        Vec3 targetPos = target.position().add(0, target.getBbHeight() / 2.0, 0).add(sender.getLookAngle().scale(-2.0));
-                        ss.setPos(targetPos.x, targetPos.y, targetPos.z);
+                            Vec3 lastPos = sender.getEyePosition(1.0f);
+                            ss.xOld = lastPos.x;
+                            ss.yOld = lastPos.y;
+                            ss.zOld = lastPos.z;
 
-                        Vec3 dir = sender.getLookAngle();
-                        ss.shoot(dir.x, dir.y, dir.z, 1.0f, 0);
+                            Vec3 targetPos = target.position().add(0, target.getBbHeight() / 2.0, 0).add(sender.getLookAngle().scale(-2.0));
+                            ss.setPos(targetPos.x, targetPos.y, targetPos.z);
 
-                        ss.setOwner(sender);
+                            Vec3 dir = sender.getLookAngle();
+                            ss.shoot(dir.x, dir.y, dir.z, 1.0f, 0);
 
-                        ss.setDamage(0.01f);
+                            ss.setOwner(sender);
 
-                        ss.setColor(state.getColorCode());
+                            ss.setDamage(0.01f);
 
-                        ss.getPersistentData().putBoolean("doForceHit",true);
+                            ss.setColor(state.getColorCode());
 
-                        worldIn.addFreshEntity(ss);
-                        sender.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
+                            ss.getPersistentData().putBoolean("doForceHit",true);
 
-                        //ss.doForceHitEntity(target);
+                            worldIn.addFreshEntity(ss);
+                            sender.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
+
+                            //ss.doForceHitEntity(target);
+                        }
                     }
 
                     return true;
@@ -154,6 +174,7 @@ public class SlayerStyleArts {
 
                 sender.move(MoverType.SELF, motion);
                 if(sender.onGround()){
+                    Untouchable.setUntouchable(sender, 10);
 
                     sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
 
@@ -396,6 +417,19 @@ public class SlayerStyleArts {
                 if(doStepupBoost && (event.player.getMainHandItem().getItem() instanceof ItemSlashBlade) && stepUp < stepUpBoost){
                     event.player.getPersistentData().putFloat("sb.store.stepup",stepUp);
                     event.player.setMaxUpStep(stepUpBoost);
+                }
+
+                //trick up cooldown
+                if(event.player.onGround() && 0 < event.player.getPersistentData().getInt("sb.avoid.trickup")){
+
+                    int count = event.player.getPersistentData().getInt("sb.avoid.trickup");
+                    count--;
+
+                    if(count <= 0){
+                        event.player.getPersistentData().remove("sb.avoid.trickup");
+                    }else{
+                        event.player.getPersistentData().putInt("sb.avoid.trickup", count);
+                    }
                 }
 
 

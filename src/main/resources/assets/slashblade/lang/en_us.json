@@ -136,12 +136,14 @@
   "adv.slashblade.upperslash_jump.desc": "Use buttons\nAttack ♠:%s\nAfter executing Upper Slash,\nhold ♠",
 
 
-  "adv.slashblade.air_trick": "Abilities -Air Trick-            ",
-  "adv.slashblade.air_trick.desc": "Dash above an enemy's head and appear in mid-air\nUse buttons\nSprint ♠:%s\nForward ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ+♠",
-  "adv.slashblade.trick_down": "Abilities -Trick Down-           ",
-  "adv.slashblade.trick_down.desc": "Dashdownward toward an enemy and appear on the ground\nUse buttons\nSprint ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ+♠",
+  "adv.slashblade.air_trick":   "Abilities -Air Trick-            ",
+  "adv.slashblade.air_trick.desc": "Dash above an locked-on enemy's head and appear in mid-air\nUse buttons\nSprint ♠:%s\nForward ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ+♠",
+  "adv.slashblade.trick_down":  "Abilities -Trick Down-           ",
+  "adv.slashblade.trick_down.desc": "Dash downward toward an enemy and appear on the ground\nUse buttons\nSprint ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ+♠",
   "adv.slashblade.trick_dodge": "Abilities -Trick Dodge-          ",
   "adv.slashblade.trick_dodge.desc": "Dash in any direction and evade enemy attacks\nUse buttons\nSprint ♠:%s\nmove in any direction and press ♠",
+  "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
+  "adv.slashblade.trick_up.desc": "Dash upward and appear in mid-air\nUse buttons\nSprint ♠:%s\nForward ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ+♠",
 
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",

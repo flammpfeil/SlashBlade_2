@@ -135,10 +135,12 @@
   "adv.slashblade.upperslash_jump.desc": "使用ボタンs\n攻撃 ♠:%s\nUpper Slashの後\n♠ を押し続ける",
 
 
-  "adv.slashblade.air_trick": "Abilities -Air Trick-            ",
-  "adv.slashblade.air_trick.desc": "敵頭上へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠",
-  "adv.slashblade.trick_down": "Abilities -Trick Down-           ",
+  "adv.slashblade.air_trick":   "Abilities -Air Trick-            ",
+  "adv.slashblade.air_trick.desc": "注視した敵頭上へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠",
+  "adv.slashblade.trick_down":  "Abilities -Trick Down-           ",
   "adv.slashblade.trick_down.desc": "空中から即座に着地する\n使用ボタン\n走行 ♠:%s\n後退 ᐁ:%s\nスニーク ⚪:%s\n⚪+ᐁ+♠",
   "adv.slashblade.trick_dodge": "Abilities -Trick Dodge-          ",
-  "adv.slashblade.trick_dodge.desc": "任意方向に瞬間移動で攻撃を回避する\n使用ボタン\n走行 ♠:%s\n移動中に ♠"
+  "adv.slashblade.trick_dodge.desc": "任意方向に瞬間移動で攻撃を回避する\n使用ボタン\n走行 ♠:%s\n移動中に ♠",
+  "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
+  "adv.slashblade.trick_up.desc": "上方へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠"
 }

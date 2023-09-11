@@ -1,18 +1,18 @@
 {
   "display": {
     "title": {
-      "translate": "adv.slashblade.air_trick"
+      "translate": "adv.slashblade.trick_up"
     },
     "description": {
-      "translate": "adv.slashblade.air_trick.desc",
+      "translate": "adv.slashblade.trick_up.desc",
       "with":[{"keybind":"key.sprint"},{"keybind":"key.forward"},{"keybind":"key.sneak"}]
     },
     "icon": {
-      "item": "minecraft:ender_eye"
+      "item": "minecraft:ender_pearl"
     },
     "frame": "task"
   },
-  "parent": "slashblade:movesets",
+  "parent": "slashblade:abilities/air_trick",
   "criteria": {
     "customtrigger": {
       "trigger": "minecraft:impossible"
