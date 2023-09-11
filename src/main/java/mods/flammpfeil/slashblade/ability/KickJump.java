@@ -66,7 +66,7 @@ public class KickJump {
 
         if(0 != sender.getPersistentData().getInt(KEY_KICKJUMP)) return;
 
-        Iterable<VoxelShape> list = worldIn.getBlockCollisions(sender, sender.getBoundingBox().inflate(1,0,1));
+        Iterable<VoxelShape> list = worldIn.getBlockCollisions(sender, sender.getBoundingBox().inflate(0.5,0,1));
         if(!list.iterator().hasNext()) return;
 
         //execute
@@ -74,7 +74,8 @@ public class KickJump {
         //set cooldown
         sender.getPersistentData().putInt(KEY_KICKJUMP, 2);
 
-        Vec3 motion = new Vec3(0, +0.6, 0);
+        Vec3 delta = sender.getDeltaMovement();
+        Vec3 motion = new Vec3(delta.x, +0.8, delta.z);
 
         sender.move(MoverType.SELF, motion);
 
