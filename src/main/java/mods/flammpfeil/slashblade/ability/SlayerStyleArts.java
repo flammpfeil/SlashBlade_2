@@ -57,6 +57,7 @@ public class SlayerStyleArts {
     }
 
     final static EnumSet<InputCommand> fowerd_sprint_sneak = EnumSet.of(InputCommand.FORWARD, InputCommand.SPRINT, InputCommand.SNEAK);
+    final static EnumSet<InputCommand> back_sprint_sneak = EnumSet.of(InputCommand.BACK, InputCommand.SPRINT, InputCommand.SNEAK);
     final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
 
 
@@ -171,7 +172,7 @@ public class SlayerStyleArts {
             }
 
             //trick down
-            if(!isHandled && !sender.onGround() && current.contains(InputCommand.SPRINT) && current.contains(InputCommand.BACK) && current.contains(InputCommand.SNEAK)){
+            if(!isHandled && !sender.onGround() && current.containsAll(back_sprint_sneak)){
                 Vec3 oldpos = sender.position();
 
                 Vec3 motion = new Vec3(0, -5, 0);
