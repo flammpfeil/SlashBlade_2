@@ -112,7 +112,8 @@ public class SlayerStyleArts {
                         AdvancementHelper.grantCriterion(sender,ADVANCEMENT_TRICK_UP);
                         sender.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5f, 1.2f);
 
-                    }else{
+                        return true;
+                    }else if(target != null){
                         //air trick
                         if(target == sender.getLastHurtMob() && sender.tickCount < sender.getLastHurtMobTimestamp() + 100){
                             LivingEntity hitEntity = sender.getLastHurtMob();
@@ -165,9 +166,11 @@ public class SlayerStyleArts {
 
                             //ss.doForceHitEntity(target);
                         }
+                        return true;
                     }
 
-                    return true;
+                    return false;
+
                 }).orElse(false);
             }
 
