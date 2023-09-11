@@ -62,7 +62,14 @@ public class Guard {
 
         //commanc check
         InputCommand targetCommand = InputCommand.SNEAK;
-        if(!input.filter(i->i.getCommands().contains(targetCommand)).isPresent()) return;
+        boolean handleCommand = input.filter(i->i.getCommands().contains(targetCommand)).isPresent();
+
+        //ninja run
+        handleCommand |= (input.filter(i->i.getCommands().contains(InputCommand.SPRINT)).isPresent() && victim.isSprinting());
+
+        if(!handleCommand) return;
+
+
 
         //range check
         if(!isInsideGuardableRange(source, victim)) return;
