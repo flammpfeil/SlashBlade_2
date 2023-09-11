@@ -142,5 +142,7 @@
   "adv.slashblade.trick_dodge": "Abilities -Trick Dodge-          ",
   "adv.slashblade.trick_dodge.desc": "任意方向に瞬間移動で攻撃を回避する\n使用ボタン\n走行 ♠:%s\n移動中に ♠",
   "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
-  "adv.slashblade.trick_up.desc": "上方へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠"
+  "adv.slashblade.trick_up.desc": "上方へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠",
+  "adv.slashblade.enemy_step":    "Abilities -Enemy Step-           ",
+  "adv.slashblade.enemy_step.desc": "空中で敵を踏み台にして二段ジャンプ\n使用ボタン\nジャンプ □:%s\n空中かつ敵の近くで □"
 }

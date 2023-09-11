@@ -200,6 +200,7 @@ public class SlashBlade
         SummonedSwordArts.getInstance().register();
         SlayerStyleArts.getInstance().register();
         Untouchable.getInstance().register();
+        EnemyStep.getInstance().register();
 
         PlacePreviewEntryPoint.getInstance().register();
 

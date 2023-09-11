@@ -61,6 +61,10 @@ public class MoveInputHandler {
         if(Minecraft.getInstance().options.keySprint.isDown())
             commands.add(InputCommand.SPRINT);
 
+        if(Minecraft.getInstance().options.keyJump.isDown()){
+            commands.add(InputCommand.JUMP);
+        }
+
 /*
         if((player.movementInput.sneak && SlashBlade.SneakForceLockOn)
                 || CoreProxyClient.lockon.isKeyDown())

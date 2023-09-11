@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.enemy_step"
+    },
+    "description": {
+      "translate": "adv.slashblade.enemy_step.desc",
+      "with":[{"keybind":"key.jump"}]
+    },
+    "icon": {
+      "item": "minecraft:leather_boots"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:abilities/air_trick",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

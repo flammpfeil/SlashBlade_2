@@ -144,6 +144,8 @@
   "adv.slashblade.trick_dodge.desc": "Dash in any direction and evade enemy attacks\nUse buttons\nSprint ♠:%s\nmove in any direction and press ♠",
   "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
   "adv.slashblade.trick_up.desc": "Dash upward and appear in mid-air\nUse buttons\nSprint ♠:%s\nForward ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ+♠",
+  "adv.slashblade.enemy_step":    "Abilities -Enemy Step-           ",
+  "adv.slashblade.enemy_step.desc": "In mid-air, use an enemy as a stepping stone to execute a double jump\nUse buttons\nJump □:%s\nIn mid-air press □ near an enemy",
 
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
