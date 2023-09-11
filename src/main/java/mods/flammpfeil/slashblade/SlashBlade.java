@@ -201,6 +201,7 @@ public class SlashBlade
         SlayerStyleArts.getInstance().register();
         Untouchable.getInstance().register();
         EnemyStep.getInstance().register();
+        KickJump.getInstance().register();
 
         PlacePreviewEntryPoint.getInstance().register();
 
