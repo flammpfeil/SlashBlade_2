@@ -27,6 +27,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.EnumSet;
+
 public class Guard {
     private static final class SingletonHolder {
         private static final Guard instance = new Guard();
@@ -42,6 +44,8 @@ public class Guard {
     public void register() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
+    final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event){
@@ -62,7 +66,7 @@ public class Guard {
 
         //commanc check
         InputCommand targetCommand = InputCommand.SNEAK;
-        boolean handleCommand = input.filter(i->i.getCommands().contains(targetCommand)).isPresent();
+        boolean handleCommand = input.filter(i->i.getCommands().contains(targetCommand) && !i.getCommands().stream().anyMatch(cc->move.contains(cc))).isPresent();
 
         //ninja run
         handleCommand |= (input.filter(i->i.getCommands().contains(InputCommand.SPRINT)).isPresent() && victim.isSprinting());
