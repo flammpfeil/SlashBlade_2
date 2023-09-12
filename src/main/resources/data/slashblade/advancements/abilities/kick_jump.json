@@ -1,18 +1,18 @@
 {
   "display": {
     "title": {
-      "translate": "adv.slashblade.enemy_step"
+      "translate": "adv.slashblade.kick_jump"
     },
     "description": {
-      "translate": "adv.slashblade.enemy_step.desc",
+      "translate": "adv.slashblade.kick_jump.desc",
       "with":[{"keybind":"key.jump"}]
     },
     "icon": {
-      "item": "minecraft:leather_boots"
+      "item": "minecraft:iron_boots"
     },
     "frame": "task"
   },
-  "parent": "slashblade:abilities/trick_up",
+  "parent": "slashblade:abilities/enemy_step",
   "criteria": {
     "customtrigger": {
       "trigger": "minecraft:impossible"

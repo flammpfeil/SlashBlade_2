@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.guard_just"
+    },
+    "description": {
+      "translate": "adv.slashblade.guard_just.desc",
+      "with":[{"keybind":"key.sneak"}]
+    },
+    "icon": {
+      "item": "minecraft:diamond_block"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:abilities/guard",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

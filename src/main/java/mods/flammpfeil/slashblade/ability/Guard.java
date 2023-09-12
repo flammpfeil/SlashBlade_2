@@ -1,5 +1,6 @@
 package mods.flammpfeil.slashblade.ability;
 
+import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
@@ -9,7 +10,9 @@ import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -45,6 +48,9 @@ public class Guard {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    static public final ResourceLocation ADVANCEMENT_GUARD = new ResourceLocation(SlashBlade.modid, "abilities/guard");
+    static public final ResourceLocation ADVANCEMENT_GUARD_JUST = new ResourceLocation(SlashBlade.modid, "abilities/guard_just");
+
     final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
 
     @SubscribeEvent
@@ -67,6 +73,9 @@ public class Guard {
         //commanc check
         InputCommand targetCommand = InputCommand.SNEAK;
         boolean handleCommand = input.filter(i->i.getCommands().contains(targetCommand) && !i.getCommands().stream().anyMatch(cc->move.contains(cc))).isPresent();
+
+        if(handleCommand)
+            AdvancementHelper.grantCriterion(victim,ADVANCEMENT_GUARD);
 
         //ninja run
         handleCommand |= (input.filter(i->i.getCommands().contains(InputCommand.SPRINT)).isPresent() && victim.isSprinting());
@@ -152,6 +161,10 @@ public class Guard {
         if(victim instanceof Player){
             victim.playSound(SoundEvents.TRIDENT_HIT_GROUND, 1.0F, 1.0F + victim.level().random.nextFloat() * 0.4F);
         }
+
+        //advancement
+        if(isJust)
+            AdvancementHelper.grantCriterion(victim,ADVANCEMENT_GUARD_JUST);
 
         //cost-------------------------
         if(!isJust && !isHighRank){

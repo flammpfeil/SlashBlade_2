@@ -144,10 +144,16 @@
   "adv.slashblade.trick_dodge.desc": "Dash in any direction and evade enemy attacks\nUse buttons\nSprint ♠:%s\nmove in any direction and press ♠",
   "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
   "adv.slashblade.trick_up.desc": "Dash upward and appear in mid-air\nUse buttons\nSprint ♠:%s\nForward ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ+♠",
-  "adv.slashblade.enemy_step":    "Abilities -Enemy Step-           ",
+  "adv.slashblade.enemy_step":  "Abilities -Enemy Step-           ",
   "adv.slashblade.enemy_step.desc": "In mid-air, use an enemy as a stepping stone to execute a double jump\nUse buttons\nJump □:%s\nIn mid-air press □ near an enemy",
+  "adv.slashblade.kick_jump":   "Abilities -Kick Jump-            ",
+  "adv.slashblade.kick_jump.desc": "In mid-air, use an wallblock as a stepping stone to execute a double jump\nUse buttons\nJump □:%s\nIn mid-air press □ near an wallblock",
 
+  "adv.slashblade.guard":       "Abilities -Guard-                ",
+  "adv.slashblade.guard.desc": "Blocks enemy ranged attacks and neutralizes damage. This technique expends the durability each time it is activated. Cannot be blocked while WALKING.\nUse buttons\nSneak ⚪:%s\nWhile on the ground, press ⚪",
+  "adv.slashblade.guard_just":  "Abilities -Just Guard-           ",
+  "adv.slashblade.guard_just.desc": "Block and defend enemy attacks as close as possible, and do not consume durability at high ranks. Fills the Rank gauge.\nUse buttons\nSneak ⚪:%s\nJust as an enemy attacks, press ⚪",
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
-  "adv.slashblade.summonedswords.desc": "Launch swords\nUse buttons\n%s ♠:%s\npress ♠"
+  "adv.slashblade.summonedswords.desc": "Launch swords.This technique expends the 1exp each time it is activated.\nUse buttons\n%s ♠:%s\npress ♠"
 }

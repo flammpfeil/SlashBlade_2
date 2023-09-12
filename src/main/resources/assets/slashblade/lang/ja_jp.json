@@ -143,6 +143,16 @@
   "adv.slashblade.trick_dodge.desc": "任意方向に瞬間移動で攻撃を回避する\n使用ボタン\n走行 ♠:%s\n移動中に ♠",
   "adv.slashblade.trick_up":    "Abilities -Trick Up-             ",
   "adv.slashblade.trick_up.desc": "上方へ瞬間移動する\n使用ボタン\n走行 ♠:%s\n前進 ᐃ:%s\nスニーク ⚪:%s\n⚪+ᐃ+♠",
-  "adv.slashblade.enemy_step":    "Abilities -Enemy Step-           ",
-  "adv.slashblade.enemy_step.desc": "空中で敵を踏み台にして二段ジャンプ\n使用ボタン\nジャンプ □:%s\n空中かつ敵の近くで □"
+  "adv.slashblade.enemy_step":  "Abilities -Enemy Step-           ",
+  "adv.slashblade.enemy_step.desc": "空中で敵を踏み台にして二段ジャンプ\n使用ボタン\nジャンプ □:%s\n空中かつ敵の近くで □",
+  "adv.slashblade.kick_jump":   "Abilities -Kick Jump-           ",
+  "adv.slashblade.kick_jump.desc": "空中で壁を踏み台にして二段ジャンプ\n使用ボタン\nジャンプ □:%s\n空中かつ壁の近くで □",
+
+  "adv.slashblade.guard":       "Abilities -Guard-                ",
+  "adv.slashblade.guard.desc": "耐久値を消費し敵遠隔攻撃を無力化する\n'歩行'中は発動できない\n使用ボタン\nスニーク ⚪:%s\n⚪",
+  "adv.slashblade.guard_just":  "Abilities -Just Guard-           ",
+  "adv.slashblade.guard_just.desc": "敵の攻撃を無力化する\n高ランクでは耐久値を消費しない\nランク上昇を獲得できる\n使用ボタン\nスニーク ⚪:%s\n攻撃を受ける直前に ⚪",
+
+  "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
+  "adv.slashblade.summonedswords.desc": "経験値を消費し幻影剣を射出する\n使用ボタン\n%s ♠:%s"
 }

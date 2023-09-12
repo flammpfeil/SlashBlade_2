@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.guard"
+    },
+    "description": {
+      "translate": "adv.slashblade.guard.desc",
+      "with":[{"keybind":"key.sneak"}]
+    },
+    "icon": {
+      "item": "minecraft:shield"
+    },
+    "frame": "task"
+  },
+  "parent": "slashblade:abilities/air_trick",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}
