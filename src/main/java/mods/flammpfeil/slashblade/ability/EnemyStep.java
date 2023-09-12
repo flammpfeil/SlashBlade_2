@@ -65,6 +65,8 @@ public class EnemyStep {
         List<LivingEntity> list = worldIn.getNearbyEntities(LivingEntity.class, tc, sender, sender.getBoundingBox().inflate(1));
         if(list.isEmpty()) return;
 
+        Untouchable.setUntouchable(sender, Untouchable.JUMP_TICKS);
+
         Vec3 motion = new Vec3(0, +0.5, 0);
 
         sender.move(MoverType.SELF, motion);

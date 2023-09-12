@@ -74,6 +74,7 @@ public class KickJump {
         if(!list.iterator().hasNext()) return;
 
         //execute
+        Untouchable.setUntouchable(sender, Untouchable.JUMP_TICKS);
 
         //set cooldown
         sender.getPersistentData().putInt(KEY_KICKJUMP, 2);
