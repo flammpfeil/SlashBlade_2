@@ -537,11 +537,14 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
         } else {
             targetEntity.setRemainingFireTicks(fireTime);
             //this.setMotion(this.getMotion().scale(-0.1D));
-            this.setYRot(this.getYRot() + 180.0F);
-            this.yRotO += 180.0F;
+            //this.setYRot(this.getYRot() + 180.0F);
+            //this.yRotO += 180.0F;
             this.ticksInAir = 0;
             if (!this.level().isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
-                this.burst();
+                if(getPierce() <= 1)
+                    this.burst();
+                else
+                    this.setPierce((byte)(getPierce() - 1));
             }
         }
 

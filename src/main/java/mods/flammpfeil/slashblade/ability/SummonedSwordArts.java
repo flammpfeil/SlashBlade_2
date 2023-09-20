@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.entity.EntitySpiralSwords;
+import mods.flammpfeil.slashblade.entity.EntityStormSwords;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -74,33 +75,34 @@ public class SummonedSwordArts {
         //basic summoned swords
         if(onDown){
 
-            //SpiralSwords command
-            sender.getCapability(CapabilityInputState.INPUT_STATE).ifPresent(input->
-                    input.getScheduler().schedule("SpiralSwords", pressTime + 20, new TimerCallback<LivingEntity>() {
+            sender.getCapability(CapabilityInputState.INPUT_STATE).ifPresent(input-> {
+                //SpiralSwords command
+                input.getScheduler().schedule("SpiralSwords", pressTime + 20, new TimerCallback<LivingEntity>() {
 
                     @Override
                     public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
-                        if(!(rawEntity instanceof ServerPlayer)) return;
+                        if (!(rawEntity instanceof ServerPlayer)) return;
                         ServerPlayer entity = (ServerPlayer) rawEntity;
 
                         InputCommand targetCommnad = InputCommand.M_DOWN;
-                        boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input->
+                        boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input ->
                                 input.getCommands().contains(targetCommnad)
-                                && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
-                        if(!inputSucceed) return;
+                                        && (!InputCommand.anyMatch(input.getCommands(), InputCommand.move) || !input.getCommands().contains(InputCommand.SNEAK))
+                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                        if (!inputSucceed) return;
 
 
                         //spiralSwords
                         boolean alreadySummoned = entity.getPassengers().stream().anyMatch(e -> e instanceof EntitySpiralSwords);
 
-                        if(alreadySummoned){
+                        if (alreadySummoned) {
                             //fire
                             List<Entity> list = entity.getPassengers().stream().filter(e -> e instanceof EntitySpiralSwords).toList();
 
                             list.stream().forEach(e -> {
-                                ((EntitySpiralSwords)e).doFire();
+                                ((EntitySpiralSwords) e).doFire();
                             });
-                        }else {
+                        } else {
                             //summon
                             entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
 
@@ -108,10 +110,11 @@ public class SummonedSwordArts {
 
                                 entity.giveExperiencePoints(-5);
 
-                                //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_SUMMONEDSWORDS);
+
+                                //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_SPIRALSWORDS);
 
                                 Level worldIn = entity.level();
-                                for (int i = 0; i < 6; i++) {
+                                for (int i = 0; i < 8; i++) {
                                     EntitySpiralSwords ss = new EntitySpiralSwords(SlashBlade.RegistryEvents.SpiralSwords, worldIn);
 
                                     worldIn.addFreshEntity(ss);
@@ -123,15 +126,68 @@ public class SummonedSwordArts {
                                     //force riding
                                     ss.startRiding(entity, true);
 
-                                    ss.setDelay(360 / 6 * i);
+                                    ss.setDelay((int)((360 / 8.0) * i));
 
                                     entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
                                 }
                             });
                         }
                     }
-                })
-            );
+                });
+
+
+                //StormSwords command
+                input.getScheduler().schedule("StormSwords", pressTime + 20, new TimerCallback<LivingEntity>() {
+
+                    @Override
+                    public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
+                        if (!(rawEntity instanceof ServerPlayer)) return;
+                        ServerPlayer entity = (ServerPlayer) rawEntity;
+
+                        InputCommand targetCommnad = InputCommand.M_DOWN;
+                        boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input ->
+                                input.getCommands().contains(targetCommnad)
+                                        && input.getCommands().contains(InputCommand.SNEAK)
+                                        && input.getCommands().contains(InputCommand.BACK)
+                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                        if (!inputSucceed) return;
+
+
+                         //summon
+                        entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+
+                            Level worldIn = entity.level();
+                            Entity target = state.getTargetEntity(worldIn);
+
+                            if(target == null) return;
+
+                            if (entity.experienceLevel <= 0) return;
+
+                            entity.giveExperiencePoints(-5);
+
+                            //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_STORMSWORDS);
+
+                            for (int i = 0; i < 8; i++) {
+                                EntityStormSwords ss = new EntityStormSwords(SlashBlade.RegistryEvents.StormSwords, worldIn);
+
+                                worldIn.addFreshEntity(ss);
+
+                                ss.setOwner(entity);
+                                ss.setColor(state.getColorCode());
+                                ss.setRoll(0);
+
+                                //force riding
+                                ss.startRiding(target, true);
+
+                                ss.setDelay(360 / 8 * i);
+
+                                entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
+                            }
+                        });
+                    }
+                });
+
+            });
 
             sender.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
                 if(sender.experienceLevel <= 0)

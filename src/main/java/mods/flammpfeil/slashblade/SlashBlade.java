@@ -285,6 +285,9 @@ public class SlashBlade
         public static final ResourceLocation SpiralSwordsLoc = new ResourceLocation(SlashBlade.modid, classToString(EntitySpiralSwords.class));
         public static EntityType<EntitySpiralSwords> SpiralSwords;
 
+        public static final ResourceLocation StormSwordsLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityStormSwords.class));
+        public static EntityType<EntityStormSwords> StormSwords;
+
         public static final ResourceLocation JudgementCutLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityJudgementCut.class));
         public static EntityType<EntityJudgementCut> JudgementCut;
 
@@ -465,6 +468,17 @@ public class SlashBlade
                     }
 
                     {
+                        EntityType<EntityStormSwords> entity = StormSwords = EntityType.Builder
+                                .of(EntityStormSwords::new, MobCategory.MISC)
+                                .sized(0.5F, 0.5F)
+                                .setTrackingRange(4)
+                                .setUpdateInterval(20)
+                                .setCustomClientFactory(EntityStormSwords::createInstance)
+                                .build(StormSwordsLoc.toString());
+                        helper.register(StormSwordsLoc, entity);
+                    }
+
+                    {
                         EntityType<EntitySpiralSwords> entity = SpiralSwords = EntityType.Builder
                                 .of(EntitySpiralSwords::new, MobCategory.MISC)
                                 .sized(0.5F, 0.5F)
@@ -551,6 +565,7 @@ public class SlashBlade
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event){
             event.registerEntityRenderer(RegistryEvents.SummonedSword, SummonedSwordRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.StormSwords, SummonedSwordRenderer::new);
             event.registerEntityRenderer(RegistryEvents.SpiralSwords, SummonedSwordRenderer::new);
             event.registerEntityRenderer(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
             event.registerEntityRenderer(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
