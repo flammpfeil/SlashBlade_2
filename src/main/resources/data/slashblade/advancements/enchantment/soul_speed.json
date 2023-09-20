@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.exeffect.soul_speed"
+    },
+    "description": {
+      "translate": "adv.slashblade.exeffect.soul_speed.desc"
+    },
+    "icon": {
+      "item": "minecraft:clock"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "slashblade:enchantment/feather_fall",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

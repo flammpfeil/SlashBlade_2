@@ -14,7 +14,6 @@ import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -100,8 +99,10 @@ public class Guard {
         int justAcceptancePeriod = 3 + soulSpeedLevel;
 
         boolean isJust = false;
-        if(timeCurrent - timeStartPress < justAcceptancePeriod)
+        if(timeCurrent - timeStartPress < justAcceptancePeriod) {
             isJust = true;
+            AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED,victim);
+        }
 
         //rank check
         boolean isHighRank = false;

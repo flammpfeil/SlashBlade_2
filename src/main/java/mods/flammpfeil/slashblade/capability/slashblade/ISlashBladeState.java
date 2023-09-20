@@ -27,6 +27,7 @@ import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.network.ActiveStateSyncMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.specialattack.SlashArts;
+import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -39,6 +40,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.Stats;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.PacketDistributor;
@@ -268,8 +270,12 @@ public interface ISlashBladeState {
 
         ComboState cs = this.getSlashArts().doArts(type, user);
         if(current.getValue() != cs && cs != ComboState.NONE){
-            if(current.getValue().getPriority() > cs.getPriority())
+            if(current.getValue().getPriority() > cs.getPriority()) {
+                if(type == SlashArts.ArtsType.Jackpot)
+                    AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED,user);
+
                 updateComboSeq(user, cs);
+            }
         }
         return cs;
     }

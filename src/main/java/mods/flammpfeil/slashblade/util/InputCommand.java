@@ -1,5 +1,7 @@
 package mods.flammpfeil.slashblade.util;
 
+import java.util.EnumSet;
+
 //32bit limit
 public enum InputCommand {
     FORWARD,
@@ -16,5 +18,11 @@ public enum InputCommand {
     ON_AIR,
     SAVE_TOOLBAR,
     SPRINT,
-    JUMP,
+    JUMP;
+
+    public final static EnumSet<InputCommand> move = EnumSet.of(InputCommand.FORWARD, InputCommand.BACK, InputCommand.LEFT, InputCommand.RIGHT);
+
+    public static boolean anyMatch(EnumSet<InputCommand> a, EnumSet<InputCommand> b){
+        return a.stream().anyMatch(cc -> b.contains(cc));
+    }
 }

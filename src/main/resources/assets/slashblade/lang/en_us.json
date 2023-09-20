@@ -155,5 +155,16 @@
   "adv.slashblade.guard_just.desc": "Block and defend enemy attacks as close as possible, and do not consume durability at high ranks. Fills the Rank gauge.\nUse buttons\nSneak ⚪:%s\nJust as an enemy attacks, press ⚪",
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
-  "adv.slashblade.summonedswords.desc": "Launch swords.This technique expends the 1exp each time it is activated.\nUse buttons\n%s ♠:%s\npress ♠"
+  "adv.slashblade.summonedswords.desc": "Launch swords.This technique expends the 1exp each time it is activated.\nUse buttons\n%s ♠:%s\npress ♠",
+
+
+
+  "adv.slashblade.exeffect": "Ex Enchantment Effect",
+  "adv.slashblade.exeffect.desc": "extra enchantment effect",
+
+  "adv.slashblade.exeffect.soul_speed": "Eeasy Just Action",
+  "adv.slashblade.exeffect.soul_speed.desc": "The input time limit for just actions will be extended by 1 tick for each soul speed level.",
+
+  "adv.slashblade.exeffect.feather_falling": "Slow Fall",
+  "adv.slashblade.exeffect.feather_falling.desc": "Falling speed during aerial actions will be reduced depending on Feather Falling level."
 }

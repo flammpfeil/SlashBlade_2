@@ -1,0 +1,21 @@
+{
+  "display": {
+    "title": {
+      "translate": "adv.slashblade.exeffect.feather_falling"
+    },
+    "description": {
+      "translate": "adv.slashblade.exeffect.feather_falling.desc"
+    },
+    "icon": {
+      "item": "minecraft:feather"
+    },
+    "frame": "task",
+    "hidden": true
+  },
+  "parent": "slashblade:enchantment/root",
+  "criteria": {
+    "customtrigger": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

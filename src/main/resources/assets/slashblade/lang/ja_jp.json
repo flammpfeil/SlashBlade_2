@@ -154,5 +154,16 @@
   "adv.slashblade.guard_just.desc": "敵の攻撃を無力化する\n高ランクでは耐久値を消費しない\nランク上昇を獲得できる\n使用ボタン\nスニーク ⚪:%s\n攻撃を受ける直前に ⚪",
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
-  "adv.slashblade.summonedswords.desc": "経験値を消費し幻影剣を射出する\n使用ボタン\n%s ♠:%s"
+  "adv.slashblade.summonedswords.desc": "経験値を消費し幻影剣を射出する\n使用ボタン\n%s ♠:%s",
+
+
+
+  "adv.slashblade.exeffect": "Ex Enchantment Effect",
+  "adv.slashblade.exeffect.desc": "追加エンチャント効果",
+
+  "adv.slashblade.exeffect.soul_speed": "Eeasy Just Action",
+  "adv.slashblade.exeffect.soul_speed.desc": "ジャスト入力の受付時間がSoulSpeedのレベル1毎に1tick延長されます。",
+
+  "adv.slashblade.exeffect.feather_falling": "Slow Fall",
+  "adv.slashblade.exeffect.feather_falling.desc": "FeatherFallingのレベルに応じて空中アクション中の落下速度が緩和されます。"
 }

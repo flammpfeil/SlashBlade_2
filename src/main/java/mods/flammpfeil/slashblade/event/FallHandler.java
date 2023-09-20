@@ -2,8 +2,9 @@ package mods.flammpfeil.slashblade.event;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.world.level.block.state.BlockState;
+import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -112,6 +113,7 @@ public class FallHandler {
             int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.FALL_PROTECTION, user);
             if(0 < level){
                 gravityReductionFactor = Math.min(0.93, gravityReductionFactor + 0.2 * level);
+                AdvancementHelper.grantedIf(Enchantments.FALL_PROTECTION, user);
             }
 
             AttributeInstance gravity = user.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
