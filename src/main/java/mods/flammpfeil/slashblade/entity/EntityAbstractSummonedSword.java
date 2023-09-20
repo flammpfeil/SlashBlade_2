@@ -501,6 +501,7 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
             targetEntity.setSecondsOnFire(5);
         }
 
+        targetEntity.invulnerableTime = 0;
         if (targetEntity.hurt(damagesource, (float)i)) {
             Entity hits = targetEntity;
             if(targetEntity instanceof PartEntity){
