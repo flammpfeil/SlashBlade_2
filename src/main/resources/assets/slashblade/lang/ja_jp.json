@@ -155,6 +155,10 @@
 
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
   "adv.slashblade.summonedswords.desc": "経験値を消費し幻影剣を射出する\n使用ボタン\n%s ♠:%s",
+  "adv.slashblade.spiral_swords":  "Shooting Arts -Spiral Swords-    ",
+  "adv.slashblade.spiral_swords.desc": "経験値を5消費し幻影剣で周囲に円陣を形成する。\n使用ボタン\n%s ♠:%s\n♠ を押し続ける",
+  "adv.slashblade.storm_swords":   "Shooting Arts -Storm Swords-     ",
+  "adv.slashblade.storm_swords.desc": "経験値を5消費し幻影剣が敵を烈風の如く取り囲み攻撃し空中に打ち上げる。\n使用ボタン\n%s ♠:%s\n後退 ᐁ:%s\nスニーク ⚪:%s\n⚪+ᐁ+♠ を押し続ける",
 
 
 

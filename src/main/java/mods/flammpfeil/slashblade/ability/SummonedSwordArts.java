@@ -1,6 +1,8 @@
 package mods.flammpfeil.slashblade.ability;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
@@ -56,6 +58,8 @@ public class SummonedSwordArts {
 
 
     static public final ResourceLocation ADVANCEMENT_SUMMONEDSWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/summonedswords");
+    static public final ResourceLocation ADVANCEMENT_SPIRAL_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/spiral_swords");
+    static public final ResourceLocation ADVANCEMENT_STORM_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/storm_swords");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -111,10 +115,21 @@ public class SummonedSwordArts {
                                 entity.giveExperiencePoints(-5);
 
 
-                                //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_SPIRALSWORDS);
+                                AdvancementHelper.grantCriterion(entity, ADVANCEMENT_SPIRAL_SWORDS);
 
                                 Level worldIn = entity.level();
-                                for (int i = 0; i < 8; i++) {
+
+                                int rank = entity.getCapability(CapabilityConcentrationRank.RANK_POINT)
+                                        .map(r->r.getRank(worldIn.getGameTime()).level)
+                                        .orElse(0);
+
+                                int count = 6;
+
+                                if(IConcentrationRank.ConcentrationRanks.S.level <= rank){
+                                    count = 8;
+                                }
+
+                                for (int i = 0; i < count; i++) {
                                     EntitySpiralSwords ss = new EntitySpiralSwords(SlashBlade.RegistryEvents.SpiralSwords, worldIn);
 
                                     worldIn.addFreshEntity(ss);
@@ -126,7 +141,7 @@ public class SummonedSwordArts {
                                     //force riding
                                     ss.startRiding(entity, true);
 
-                                    ss.setDelay((int)((360 / 8.0) * i));
+                                    ss.setDelay(360 / count * i);
 
                                     entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
                                 }
@@ -165,9 +180,19 @@ public class SummonedSwordArts {
 
                             entity.giveExperiencePoints(-5);
 
-                            //AdvancementHelper.grantCriterion(entity, ADVANCEMENT_STORMSWORDS);
+                            AdvancementHelper.grantCriterion(entity, ADVANCEMENT_STORM_SWORDS);
 
-                            for (int i = 0; i < 8; i++) {
+                            int rank = entity.getCapability(CapabilityConcentrationRank.RANK_POINT)
+                                    .map(r->r.getRank(worldIn.getGameTime()).level)
+                                    .orElse(0);
+
+                            int count = 6;
+
+                            if(IConcentrationRank.ConcentrationRanks.S.level <= rank){
+                                count = 8;
+                            }
+
+                            for (int i = 0; i < count; i++) {
                                 EntityStormSwords ss = new EntityStormSwords(SlashBlade.RegistryEvents.StormSwords, worldIn);
 
                                 worldIn.addFreshEntity(ss);
@@ -179,7 +204,7 @@ public class SummonedSwordArts {
                                 //force riding
                                 ss.startRiding(target, true);
 
-                                ss.setDelay(360 / 8 * i);
+                                ss.setDelay(360 / count * i);
 
                                 entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
                             }

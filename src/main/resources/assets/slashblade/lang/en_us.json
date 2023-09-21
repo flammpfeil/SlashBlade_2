@@ -154,8 +154,13 @@
   "adv.slashblade.guard_just":  "Abilities -Just Guard-           ",
   "adv.slashblade.guard_just.desc": "Block and defend enemy attacks as close as possible, and do not consume durability at high ranks. Fills the Rank gauge.\nUse buttons\nSneak ⚪:%s\nJust as an enemy attacks, press ⚪",
 
+
   "adv.slashblade.summonedswords": "Shooting Arts -Summoned Swords-  ",
   "adv.slashblade.summonedswords.desc": "Launch swords.This technique expends the 1exp each time it is activated.\nUse buttons\n%s ♠:%s\npress ♠",
+  "adv.slashblade.spiral_swords":  "Shooting Arts -Spiral Swords-    ",
+  "adv.slashblade.spiral_swords.desc": "Creates a ring of Summoned Swords around you that acts as a shield.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nhold ♠",
+  "adv.slashblade.storm_swords":   "Shooting Arts -Storm Swords-     ",
+  "adv.slashblade.storm_swords.desc": "Countless swords surround an enemy, then attack all at once, launching them into the air.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ and hold ♠",
 
 
 

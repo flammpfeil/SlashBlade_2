@@ -12,7 +12,7 @@
     "frame": "task",
     "hidden": true
   },
-  "parent": "slashblade:enchantment/feather_fall",
+  "parent": "slashblade:enchantment/feather_falling",
   "criteria": {
     "customtrigger": {
       "trigger": "minecraft:impossible"
