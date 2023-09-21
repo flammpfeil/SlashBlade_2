@@ -160,7 +160,9 @@
   "adv.slashblade.spiral_swords":  "Shooting Arts -Spiral Swords-    ",
   "adv.slashblade.spiral_swords.desc": "Creates a ring of Summoned Swords around you that acts as a shield.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nhold ♠",
   "adv.slashblade.storm_swords":   "Shooting Arts -Storm Swords-     ",
-  "adv.slashblade.storm_swords.desc": "Countless swords surround an enemy, then attack all at once, launching them into the air.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ and hold ♠",
+  "adv.slashblade.storm_swords.desc": "Countless swords surround an enemy, then attack all at once, launching them into the air.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ hold ♠",
+  "adv.slashblade.blistering_swords": "Shooting Arts -Blistering Swords-",
+  "adv.slashblade.blistering_swords.desc": "Create swords around you that launch themselves at your enemy one after another.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nForwerd ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ hold and release ♠",
 
 
 

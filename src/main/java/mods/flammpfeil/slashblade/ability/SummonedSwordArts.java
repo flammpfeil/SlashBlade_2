@@ -5,10 +5,7 @@ import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcent
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.inputstate.CapabilityInputState;
 import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
-import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
-import mods.flammpfeil.slashblade.entity.EntitySpiralSwords;
-import mods.flammpfeil.slashblade.entity.EntityStormSwords;
-import mods.flammpfeil.slashblade.entity.IShootable;
+import mods.flammpfeil.slashblade.entity.*;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.*;
@@ -60,6 +57,7 @@ public class SummonedSwordArts {
     static public final ResourceLocation ADVANCEMENT_SUMMONEDSWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/summonedswords");
     static public final ResourceLocation ADVANCEMENT_SPIRAL_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/spiral_swords");
     static public final ResourceLocation ADVANCEMENT_STORM_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/storm_swords");
+    static public final ResourceLocation ADVANCEMENT_BLISTERING_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/blistering_swords");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -81,7 +79,7 @@ public class SummonedSwordArts {
 
             sender.getCapability(CapabilityInputState.INPUT_STATE).ifPresent(input-> {
                 //SpiralSwords command
-                input.getScheduler().schedule("SpiralSwords", pressTime + 20, new TimerCallback<LivingEntity>() {
+                input.getScheduler().schedule("SpiralSwords", pressTime + 10, new TimerCallback<LivingEntity>() {
 
                     @Override
                     public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
@@ -152,7 +150,7 @@ public class SummonedSwordArts {
 
 
                 //StormSwords command
-                input.getScheduler().schedule("StormSwords", pressTime + 20, new TimerCallback<LivingEntity>() {
+                input.getScheduler().schedule("StormSwords", pressTime + 10, new TimerCallback<LivingEntity>() {
 
                     @Override
                     public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
@@ -164,11 +162,12 @@ public class SummonedSwordArts {
                                 input.getCommands().contains(targetCommnad)
                                         && input.getCommands().contains(InputCommand.SNEAK)
                                         && input.getCommands().contains(InputCommand.BACK)
+                                        && !input.getCommands().contains(InputCommand.FORWARD)
                                         && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
                         if (!inputSucceed) return;
 
 
-                         //summon
+                        //summon
                         entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
 
                             Level worldIn = entity.level();
@@ -205,6 +204,65 @@ public class SummonedSwordArts {
                                 ss.startRiding(target, true);
 
                                 ss.setDelay(360 / count * i);
+
+                                entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
+                            }
+                        });
+                    }
+                });
+
+                //BlisteringSwords command
+                input.getScheduler().schedule("BlisteringSwords", pressTime + 10, new TimerCallback<LivingEntity>() {
+
+                    @Override
+                    public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
+                        if (!(rawEntity instanceof ServerPlayer)) return;
+                        ServerPlayer entity = (ServerPlayer) rawEntity;
+
+                        InputCommand targetCommnad = InputCommand.M_DOWN;
+                        boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input ->
+                                input.getCommands().contains(targetCommnad)
+                                        && input.getCommands().contains(InputCommand.SNEAK)
+                                        && input.getCommands().contains(InputCommand.FORWARD)
+                                        && !input.getCommands().contains(InputCommand.BACK)
+                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                        if (!inputSucceed) return;
+
+
+                        //summon
+                        entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+
+                            Level worldIn = entity.level();
+
+                            if (entity.experienceLevel <= 0) return;
+
+                            entity.giveExperiencePoints(-5);
+
+                            AdvancementHelper.grantCriterion(entity, ADVANCEMENT_BLISTERING_SWORDS);
+
+                            int rank = entity.getCapability(CapabilityConcentrationRank.RANK_POINT)
+                                    .map(r->r.getRank(worldIn.getGameTime()).level)
+                                    .orElse(0);
+
+                            int count = 6;
+
+                            if(IConcentrationRank.ConcentrationRanks.S.level <= rank){
+                                count = 8;
+                            }
+
+                            for (int i = 0; i < count; i++) {
+                                EntityBlisteringSwords ss = new EntityBlisteringSwords(SlashBlade.RegistryEvents.BlisteringSwords, worldIn);
+
+                                worldIn.addFreshEntity(ss);
+
+                                ss.setOwner(entity);
+                                ss.setColor(state.getColorCode());
+                                ss.setRoll(0);
+
+                                //force riding
+                                ss.startRiding(entity, true);
+
+                                ss.setDelay(i);
 
                                 entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
                             }
