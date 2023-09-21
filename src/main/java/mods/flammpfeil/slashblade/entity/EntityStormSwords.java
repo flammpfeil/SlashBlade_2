@@ -1,6 +1,7 @@
 package mods.flammpfeil.slashblade.entity;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -163,8 +164,10 @@ public class EntityStormSwords extends EntityAbstractSummonedSword{
     protected void onHitEntity(EntityHitResult p_213868_1_) {
 
         Entity targetEntity = p_213868_1_.getEntity();
-        if(targetEntity instanceof LivingEntity)
+        if (targetEntity instanceof LivingEntity){
             KnockBacks.toss.action.accept((LivingEntity) targetEntity);
+            StunManager.setStun((LivingEntity) targetEntity);
+        }
 
         super.onHitEntity(p_213868_1_);
     }

@@ -1,9 +1,11 @@
 package mods.flammpfeil.slashblade.entity;
 
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.InputCommand;
+import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -229,5 +231,17 @@ public class EntityBlisteringSwords extends EntityAbstractSummonedSword{
     @Override
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         burst();
+    }
+
+    @Override
+    protected void onHitEntity(EntityHitResult p_213868_1_) {
+
+        Entity targetEntity = p_213868_1_.getEntity();
+        if(targetEntity instanceof LivingEntity) {
+            KnockBacks.cancel.action.accept((LivingEntity) targetEntity);
+            StunManager.setStun((LivingEntity) targetEntity);
+        }
+
+        super.onHitEntity(p_213868_1_);
     }
 }

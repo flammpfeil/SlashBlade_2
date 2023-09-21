@@ -2,25 +2,55 @@ package mods.flammpfeil.slashblade.entity;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StunManager;
+import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.KnockBacks;
+import mods.flammpfeil.slashblade.util.RayTraceHelper;
+import mods.flammpfeil.slashblade.util.TargetSelector;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PlayMessages;
 
-public class EntitySpiralSwords extends EntityAbstractSummonedSword{
-    private static final EntityDataAccessor<Boolean> IT_FIRED = SynchedEntityData.defineId(EntitySpiralSwords.class, EntityDataSerializers.BOOLEAN);
+import java.util.Optional;
+import java.util.stream.Stream;
 
-    public EntitySpiralSwords(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
+public class EntityHeavyRainSwords extends EntityAbstractSummonedSword{
+    private static final EntityDataAccessor<Boolean> IT_FIRED = SynchedEntityData.defineId(EntityHeavyRainSwords.class, EntityDataSerializers.BOOLEAN);
+
+    public EntityHeavyRainSwords(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
 
         this.setPierce((byte)5);
+
+        CompoundTag compoundtag = this.getPersistentData();
+        ListTag listtag = compoundtag.getList("CustomPotionEffects", 9);
+        MobEffectInstance mobeffectinstance = new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 10);
+        listtag.add(mobeffectinstance.save(new CompoundTag()));
+        this.getPersistentData().put("CustomPotionEffects", listtag);
+
     }
 
     @Override
@@ -37,9 +67,11 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
         return this.getEntityData().get(IT_FIRED);
     }
 
-    public static EntitySpiralSwords createInstance(PlayMessages.SpawnEntity packet, Level worldIn){
-        return new EntitySpiralSwords(SlashBlade.RegistryEvents.SpiralSwords, worldIn);
+    public static EntityHeavyRainSwords createInstance(PlayMessages.SpawnEntity packet, Level worldIn){
+        return new EntityHeavyRainSwords(SlashBlade.RegistryEvents.HeavyRainSwords, worldIn);
     }
+
+    long fireTime = -1;
 
     @Override
     public void tick() {
@@ -56,18 +88,16 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
 
     @Override
     public void rideTick(){
-        if(itFired()){
+        if(itFired() && fireTime <= tickCount){
             faceEntityStandby();
-            Entity target = getVehicle();
+
             this.stopRiding();
 
-            this.tickCount = 0;
-            Vec3 dir = this.getViewVector(1.0f);
+            Vec3 dir = new Vec3(0,-1,0);
+            this.shoot(dir.x,dir.y,dir.z, 4.0f, 2.0f);
 
-            if(target != null){
-                dir = this.position().subtract(target.position()).multiply(1,0,1).normalize();
-            }
-            ((EntitySpiralSwords)this).shoot(dir.x,dir.y,dir.z, 3.0f, 1.0f);
+            this.tickCount = 0;
+
             return;
         }
 
@@ -79,12 +109,17 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
         faceEntityStandby();
         //this.getVehicle().positionRider(this);
 
-        //todo: add lifetime
-        if(200 < this.tickCount)
-            burst();
+        //lifetime check
+        if(!itFired()){
+            int basedelay = 10;
+            fireTime = tickCount + basedelay + getDelay();
+            doFire();
+        }
 
+        /*
         if(!level().isClientSide())
             hitCheck();
+        */
     }
 
     private void hitCheck(){
@@ -116,61 +151,20 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
     }
 
     private void faceEntityStandby() {
+        setPos(this.position());
 
-        long cycle = 30;
-        long tickOffset = 0;
-        if(this.level().isClientSide)
-            tickOffset = 1;
-        int ticks = (int)((this.level().getGameTime() + tickOffset) % cycle);
-        /*
-        if ((getInterval() - waitTime) < ticks) {
-            ticks = getInterval() - waitTime;
-        }
-        */
-
-
-        double rotParTick = 360.0 / (double)cycle;
-        double offset = getDelay();
-        double degYaw = (ticks * rotParTick + offset) % 360.0;
-        double yaw = Math.toRadians(degYaw);
-
-        Vec3 dir = new Vec3(0,0,1);
-
-        //yaw
-        dir = dir.yRot((float)-yaw);
-        dir = dir.normalize().scale(2);
-
-        if (this.getVehicle() != null) {
-            dir = dir.add(this.getVehicle().position());
-            dir = dir.add(0, this.getVehicle().getEyeHeight() / 2.0, 0);
-        }
-
-        this.xRotO = this.getXRot();
-        this.yRotO = this.getYRot();
-
-        //■初期位置・初期角度等の設定
-        setPos(dir);
-
-        final double pitchFactor = 7.5;
-
-        //Vec2 rot = rotate(rotMat.last().pose());
-        //setRot((float)Math.toDegrees(rot.y), (float)Math.toDegrees(rot.x));
-
-        //setRot((float)degYaw,0);
-        //setRot((float) (-degYaw),(float)(-(pitchFactor) * Math.sin(yaw))/**/);
-        setRot((float) (-degYaw),0);
-
-
-
+        setRot(this.getYRot(),-90);
 
     }
 
-    @Override
-    protected void onHitBlock(BlockHitResult blockraytraceresult) {
-        burst();
+    public void setSpread(Vec3 basePos) {
+        double areaSize = 2.5;
+
+        double offsetX = (this.random.nextDouble()*2.0-1.0) * areaSize;
+        double offsetZ = (this.random.nextDouble()*2.0-1.0) * areaSize;
+
+        setPos(basePos.x + offsetX,basePos.y,basePos.z + offsetZ);
     }
-
-
 
     @Override
     protected void onHitEntity(EntityHitResult p_213868_1_) {
@@ -178,8 +172,19 @@ public class EntitySpiralSwords extends EntityAbstractSummonedSword{
         Entity targetEntity = p_213868_1_.getEntity();
         if(targetEntity instanceof LivingEntity) {
             KnockBacks.cancel.action.accept((LivingEntity) targetEntity);
+            StunManager.setStun((LivingEntity) targetEntity);
         }
 
         super.onHitEntity(p_213868_1_);
+    }
+
+    int ON_GROUND_LIFE_TIME = 20;
+    int ticksInGround = 0;
+    protected void tryDespawn() {
+        ++this.ticksInGround;
+        if (ON_GROUND_LIFE_TIME <= this.ticksInGround) {
+            this.burst();
+        }
+
     }
 }

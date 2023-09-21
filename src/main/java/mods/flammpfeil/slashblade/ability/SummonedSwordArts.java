@@ -58,6 +58,7 @@ public class SummonedSwordArts {
     static public final ResourceLocation ADVANCEMENT_SPIRAL_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/spiral_swords");
     static public final ResourceLocation ADVANCEMENT_STORM_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/storm_swords");
     static public final ResourceLocation ADVANCEMENT_BLISTERING_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/blistering_swords");
+    static public final ResourceLocation ADVANCEMENT_HEAVY_RAIN_SWORDS = new ResourceLocation(SlashBlade.modid, "arts/shooting/heavy_rain_swords");
 
     @SubscribeEvent
     public void onInputChange(InputCommandEvent event) {
@@ -72,7 +73,7 @@ public class SummonedSwordArts {
         boolean onPress = current.contains(targetCommnad);
         boolean onUp = old.contains(targetCommnad) && !current.contains(targetCommnad);
 
-        final Long pressTime = event.getState().getLastPressTimes().get(targetCommnad);
+        final Long pressTime = event.getState().getLastPressTime(targetCommnad);
 
         //basic summoned swords
         if(onDown){
@@ -90,7 +91,7 @@ public class SummonedSwordArts {
                         boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input ->
                                 input.getCommands().contains(targetCommnad)
                                         && (!InputCommand.anyMatch(input.getCommands(), InputCommand.move) || !input.getCommands().contains(InputCommand.SNEAK))
-                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                                        && input.getLastPressTime(targetCommnad) == pressTime).isPresent();
                         if (!inputSucceed) return;
 
 
@@ -163,7 +164,7 @@ public class SummonedSwordArts {
                                         && input.getCommands().contains(InputCommand.SNEAK)
                                         && input.getCommands().contains(InputCommand.BACK)
                                         && !input.getCommands().contains(InputCommand.FORWARD)
-                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                                        && input.getLastPressTime(targetCommnad) == pressTime).isPresent();
                         if (!inputSucceed) return;
 
 
@@ -224,8 +225,8 @@ public class SummonedSwordArts {
                                 input.getCommands().contains(targetCommnad)
                                         && input.getCommands().contains(InputCommand.SNEAK)
                                         && input.getCommands().contains(InputCommand.FORWARD)
-                                        && !input.getCommands().contains(InputCommand.BACK)
-                                        && input.getLastPressTimes().get(targetCommnad) == pressTime).isPresent();
+                                        && input.getLastPressTime(InputCommand.BACK) + 20 < now
+                                        && input.getLastPressTime(targetCommnad) == pressTime).isPresent();
                         if (!inputSucceed) return;
 
 
@@ -263,6 +264,101 @@ public class SummonedSwordArts {
                                 ss.startRiding(entity, true);
 
                                 ss.setDelay(i);
+
+                                entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
+                            }
+                        });
+                    }
+                });
+
+                //BlisteringSwords command
+                input.getScheduler().schedule("HeavyRainSwords", pressTime + 10, new TimerCallback<LivingEntity>() {
+
+                    @Override
+                    public void handle(LivingEntity rawEntity, TimerQueue<LivingEntity> queue, long now) {
+                        if (!(rawEntity instanceof ServerPlayer)) return;
+                        ServerPlayer entity = (ServerPlayer) rawEntity;
+
+                        InputCommand targetCommnad = InputCommand.M_DOWN;
+                        boolean inputSucceed = entity.getCapability(CapabilityInputState.INPUT_STATE).filter(input ->
+                                input.getCommands().contains(targetCommnad)
+                                        && input.getCommands().contains(InputCommand.SNEAK)
+                                        && input.getCommands().contains(InputCommand.FORWARD)
+                                        && input.getLastPressTime(InputCommand.BACK) + 30 > now
+                                        && input.getLastPressTime(targetCommnad) == pressTime).isPresent();
+                        if (!inputSucceed) return;
+
+
+                        //summon
+                        entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> {
+
+                            Level worldIn = entity.level();
+                            Entity target = state.getTargetEntity(worldIn);
+
+                            if (entity.experienceLevel <= 0) return;
+
+                            entity.giveExperiencePoints(-5);
+
+                            AdvancementHelper.grantCriterion(entity, ADVANCEMENT_HEAVY_RAIN_SWORDS);
+
+                            int rank = entity.getCapability(CapabilityConcentrationRank.RANK_POINT)
+                                    .map(r->r.getRank(worldIn.getGameTime()).level)
+                                    .orElse(0);
+
+
+                            Vec3 basePos;
+
+                            if(target != null){
+                                basePos = target.position();
+                            }else{
+                                Vec3 forwardDir = calculateViewVector(0, entity.getYRot());
+                                basePos = entity.getPosition(0).add(forwardDir.scale(5));
+                            }
+
+                            float yOffset = 7;
+                            basePos = basePos.add(0,yOffset, 0);
+
+
+                            {//no random pos
+                                EntityHeavyRainSwords ss = new EntityHeavyRainSwords(SlashBlade.RegistryEvents.HeavyRainSwords, worldIn);
+
+                                worldIn.addFreshEntity(ss);
+
+                                ss.setOwner(entity);
+                                ss.setColor(state.getColorCode());
+                                ss.setRoll(0);
+
+                                //force riding
+                                ss.startRiding(entity, true);
+
+                                ss.setDelay(0);
+
+                                ss.setPos(basePos);
+
+                                ss.setXRot(-90);
+                            }
+
+
+                            int count = 9;
+                            int multiplier = 2;
+                            for (int i = 0; i < count; i++)
+                            for (int l = 0; l < multiplier; l++){
+                                EntityHeavyRainSwords ss = new EntityHeavyRainSwords(SlashBlade.RegistryEvents.HeavyRainSwords, worldIn);
+
+                                worldIn.addFreshEntity(ss);
+
+                                ss.setOwner(entity);
+                                ss.setColor(state.getColorCode());
+                                ss.setRoll(0);
+
+                                //force riding
+                                ss.startRiding(entity, true);
+
+                                ss.setDelay(i);
+
+                                ss.setSpread(basePos);
+
+                                ss.setXRot(-90);
 
                                 entity.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
                             }
@@ -332,5 +428,16 @@ public class SummonedSwordArts {
                 sender.playNotifySound(SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.PLAYERS, 0.2F, 1.45F);
             });
         }
+    }
+
+
+    Vec3 calculateViewVector(float x, float y) {
+        float f = x * ((float)Math.PI / 180F);
+        float f1 = -y * ((float)Math.PI / 180F);
+        float f2 = Mth.cos(f1);
+        float f3 = Mth.sin(f1);
+        float f4 = Mth.cos(f);
+        float f5 = Mth.sin(f);
+        return new Vec3((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
     }
 }

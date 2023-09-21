@@ -163,6 +163,8 @@
   "adv.slashblade.storm_swords.desc": "Countless swords surround an enemy, then attack all at once, launching them into the air.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nBack ᐁ:%s\nSneak ⚪:%s\npress ⚪+ᐁ hold ♠",
   "adv.slashblade.blistering_swords": "Shooting Arts -Blistering Swords-",
   "adv.slashblade.blistering_swords.desc": "Create swords around you that launch themselves at your enemy one after another.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nForwerd ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐃ hold and release ♠",
+  "adv.slashblade.heavy_rain_swords": "Shooting Arts -Heavy Rain Swords-",
+  "adv.slashblade.heavy_rain_swords.desc": "Creates a rainfall of Swords above your enemy's head.This technique expends the 5exp each time it is activated.\nUse buttons\n%s ♠:%s\nBack ᐁ:%s\nForwerd ᐃ:%s\nSneak ⚪:%s\npress ⚪+ᐁ to ᐃ hold ♠",
 
 
 

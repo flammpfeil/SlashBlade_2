@@ -14,6 +14,14 @@ public interface IInputState {
 
     EnumMap<InputCommand,Long> getLastPressTimes();
 
+    default long getLastPressTime(InputCommand command){
+        if(this.getLastPressTimes().containsKey(command)){
+            return this.getLastPressTimes().get(command);
+        }else{
+            return -1;
+        }
+    }
+
     default EnumSet<InputCommand> getCommands(LivingEntity owner){
         EnumSet<InputCommand> commands = getCommands().clone();
 

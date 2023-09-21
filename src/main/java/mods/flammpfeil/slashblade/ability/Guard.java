@@ -90,7 +90,7 @@ public class Guard {
         //performance branch -----------------
         //just check
         long timeStartPress = input.map(i->{
-            Long l = i.getLastPressTimes().get(targetCommand);
+            Long l = i.getLastPressTime(targetCommand);
             return l == null ? 0 : l;
         }).get();
         long timeCurrent = victim.level().getGameTime();

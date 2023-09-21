@@ -289,6 +289,8 @@ public class SlashBlade
         public static EntityType<EntityStormSwords> StormSwords;
         public static final ResourceLocation BlisteringSwordsLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityBlisteringSwords.class));
         public static EntityType<EntityBlisteringSwords> BlisteringSwords;
+        public static final ResourceLocation HeavyRainSwordsLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityHeavyRainSwords.class));
+        public static EntityType<EntityHeavyRainSwords> HeavyRainSwords;
 
         public static final ResourceLocation JudgementCutLoc = new ResourceLocation(SlashBlade.modid, classToString(EntityJudgementCut.class));
         public static EntityType<EntityJudgementCut> JudgementCut;
@@ -503,6 +505,17 @@ public class SlashBlade
                     }
 
                     {
+                        EntityType<EntityHeavyRainSwords> entity = HeavyRainSwords = EntityType.Builder
+                                .of(EntityHeavyRainSwords::new, MobCategory.MISC)
+                                .sized(0.5F, 0.5F)
+                                .setTrackingRange(4)
+                                .setUpdateInterval(20)
+                                .setCustomClientFactory(EntityHeavyRainSwords::createInstance)
+                                .build(HeavyRainSwordsLoc.toString());
+                        helper.register(HeavyRainSwordsLoc, entity);
+                    }
+
+                    {
                         EntityType<EntityJudgementCut> entity = JudgementCut = EntityType.Builder
                                 .of(EntityJudgementCut::new, MobCategory.MISC)
                                 .sized(2.5F, 2.5F)
@@ -581,6 +594,7 @@ public class SlashBlade
             event.registerEntityRenderer(RegistryEvents.StormSwords, SummonedSwordRenderer::new);
             event.registerEntityRenderer(RegistryEvents.SpiralSwords, SummonedSwordRenderer::new);
             event.registerEntityRenderer(RegistryEvents.BlisteringSwords, SummonedSwordRenderer::new);
+            event.registerEntityRenderer(RegistryEvents.HeavyRainSwords, SummonedSwordRenderer::new);
             event.registerEntityRenderer(RegistryEvents.JudgementCut, JudgementCutRenderer::new);
             event.registerEntityRenderer(RegistryEvents.BladeItem, BladeItemEntityRenderer::new);
             event.registerEntityRenderer(RegistryEvents.BladeStand, BladeStandEntityRenderer::new);
