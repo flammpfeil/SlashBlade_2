@@ -23,6 +23,7 @@ import mods.flammpfeil.slashblade.item.ItemSoulActivated;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.network.NetworkManager;
+import mods.flammpfeil.slashblade.optional.playerAnim.PlayerAnimationOverrider;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -65,15 +66,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -221,7 +220,13 @@ public class SlashBlade
                 .forEach((lr)-> ((LivingEntityRenderer)lr).addLayer(new LayerMainBlade((LivingEntityRenderer)lr)));
 */
         SneakingMotionCanceller.getInstance().register();
-        UserPoseOverrider.getInstance().register();
+
+
+        if(LoaderUtil.isClassAvailable("dev.kosmx.playerAnim.api.layered.AnimationStack")){
+            PlayerAnimationOverrider.getInstance().register();
+        }else{
+            UserPoseOverrider.getInstance().register();
+        }
         LockonCircleRender.getInstance().register();
         BladeComponentTooltips.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
