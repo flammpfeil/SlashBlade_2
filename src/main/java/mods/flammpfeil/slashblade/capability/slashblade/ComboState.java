@@ -351,7 +351,7 @@ public class ComboState extends RegistryBase<ComboState>{
     private Supplier<Integer> end;
 
     private Supplier<Float> speed;
-    private Supplier<Boolean> roop;
+    private Supplier<Boolean> loop;
 
     //Next input acceptance period *ms
     public Supplier<Integer> timeout;
@@ -389,8 +389,8 @@ public class ComboState extends RegistryBase<ComboState>{
         return speed.get();
     }
 
-    public boolean getRoop() {
-        return roop.get();
+    public boolean getLoop() {
+        return loop.get();
     }
 
     public int getTimeoutMS() {
@@ -435,7 +435,7 @@ public class ComboState extends RegistryBase<ComboState>{
         return this;
     }
 
-    public ComboState(String name,int priority, Supplier<Integer> start, Supplier<Integer> end, Supplier<Float> speed, Supplier<Boolean> roop, Supplier<Integer> timeout
+    public ComboState(String name,int priority, Supplier<Integer> start, Supplier<Integer> end, Supplier<Float> speed, Supplier<Boolean> loop, Supplier<Integer> timeout
             , ResourceLocation motionLoc
             , Function<LivingEntity, ComboState> next
             , Supplier<ComboState> nextOfTimeout) {
@@ -446,7 +446,7 @@ public class ComboState extends RegistryBase<ComboState>{
 
         this.speed = speed;
         this.timeout = timeout;
-        this.roop = roop;
+        this.loop = loop;
 
         this.motionLoc = motionLoc;
 

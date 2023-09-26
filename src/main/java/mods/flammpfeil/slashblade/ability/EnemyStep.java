@@ -77,7 +77,7 @@ public class EnemyStep {
         sender.playNotifySound(SoundEvents.PLAYER_SMALL_FALL, SoundSource.PLAYERS, 0.5f, 1.2f);
 
         sender.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s->{
-            s.setComboSeq(ComboState.NONE);
+            s.updateComboSeq(sender, ComboState.NONE);
         });
 
         if(worldIn instanceof ServerLevel){

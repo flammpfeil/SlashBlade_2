@@ -30,8 +30,6 @@ import org.joml.Matrix4f;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.FloatBuffer;
-import java.util.Arrays;
 
 public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
@@ -127,8 +125,7 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                 span = Math.min(maxSeconds, span);
 
-                boolean isRoop = combo.getRoop();
-                if (isRoop) {
+                if (combo.getLoop()) {
                     time = time % span;
                 }
                 time = Math.min(span, time);

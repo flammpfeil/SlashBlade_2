@@ -24,6 +24,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import mods.flammpfeil.slashblade.capability.slashblade.combo.Extra;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
+import mods.flammpfeil.slashblade.event.BladeMotionEvent;
 import mods.flammpfeil.slashblade.network.ActiveStateSyncMessage;
 import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.specialattack.SlashArts;
@@ -43,6 +44,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
@@ -229,8 +231,9 @@ public interface ISlashBladeState {
         ComboState resolved = next.getPriority() <= rootNext.getPriority()
                 ? next : rootNext;
 
-        if(!isVirtual)
-            this.setComboSeq(resolved);
+        if(!isVirtual) {
+            this.updateComboSeq(user, resolved);
+        }
 
         return resolved;
     }
@@ -302,6 +305,8 @@ public interface ISlashBladeState {
         this.setLastActionTime(entity.level().getGameTime());
 
         cs.clickAction(entity);
+
+        MinecraftForge.EVENT_BUS.post(new BladeMotionEvent(entity, cs));
     }
 
     default ComboState resolvCurrentComboState(LivingEntity user){
