@@ -732,4 +732,6 @@ public class EntityAbstractSummonedSword extends Projectile implements IShootabl
         //Suppress velocity change due to collision
         //super.applyEntityCollision(entityIn);
     }
+
+    //todo: 射撃攻撃との相殺　pierce値＝HPにした近接攻撃との相殺
 }

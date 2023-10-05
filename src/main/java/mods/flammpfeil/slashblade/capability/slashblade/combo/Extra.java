@@ -633,6 +633,14 @@ public class Extra {
                         FallHandler.spawnLandingParticle(e, 20);
                     });
                 }
+
+                if(elapsed == 1){
+                    e.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state)->{
+                        if(state.getComboSeq() == Extra.EX_AERIAL_CLEAVE){
+                            state.updateComboSeq(e,Extra.EX_AERIAL_CLEAVE_LOOP);
+                        }
+                    });
+                }
             })
             .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                     .put(0, (entityIn)->UserPoseOverrider.setRot(entityIn, 90, true))

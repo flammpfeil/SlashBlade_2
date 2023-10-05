@@ -38,6 +38,13 @@ public class NetworkManager {
                 RankSyncMessage::decode,
                 RankSyncMessage::handle
         );
+
+        INSTANCE.registerMessage(id++,
+                MotionBroadcastMessage.class,
+                MotionBroadcastMessage::encode,
+                MotionBroadcastMessage::decode,
+                MotionBroadcastMessage::handle
+        );
     }
 
 }

@@ -231,6 +231,7 @@ public class SlashBlade
         BladeComponentTooltips.getInstance().register();
         BladeMaterialTooltips.getInstance().register();
         AdvancementsRecipeRenderer.getInstance().register();
+        BladeMotionEventBroadcaster.getInstance().register();
 
 
         RankRenderer.getInstance().register();

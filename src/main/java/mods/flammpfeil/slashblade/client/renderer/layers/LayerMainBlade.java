@@ -1,6 +1,9 @@
 package mods.flammpfeil.slashblade.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.kosmx.playerAnim.api.TransformType;
+import dev.kosmx.playerAnim.core.util.Vec3f;
+import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
 import jp.nyatla.nymmd.*;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
@@ -14,6 +17,7 @@ import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
 import mods.flammpfeil.slashblade.util.VectorHelper;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -141,7 +145,23 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
 
                 try(MSAutoCloser msacA = MSAutoCloser.pushMatrix(matrixStack)){
 
-                    UserPoseOverrider.invertRot(matrixStack,entity,partialTicks);
+                    if(!UserPoseOverrider.UsePoseOverrider && entity instanceof AbstractClientPlayer ){
+                        var animationPlayer = ((IAnimatedPlayer) entity).playerAnimator_getAnimation();
+                        animationPlayer.setTickDelta(partialTicks);
+                        if(animationPlayer.isActive()){
+                            matrixStack.translate(0, + 0.7d, 0);
+                            //These are additive properties
+                            Vec3f vec3f = animationPlayer.get3DTransform("body", TransformType.ROTATION, Vec3f.ZERO);
+                            matrixStack.mulPose(Axis.XP.rotation(vec3f.getX()));    //yaw
+                            matrixStack.mulPose(Axis.YP.rotation(vec3f.getY()));    //pitch
+                            matrixStack.mulPose(Axis.ZP.rotation(vec3f.getZ()));    //roll
+                            Vec3f vec3d = animationPlayer.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
+                            matrixStack.translate(-vec3d.getX(), -(vec3d.getY() + 0.7), -vec3d.getZ());
+                        }
+                    }else{
+                        UserPoseOverrider.invertRot(matrixStack,entity,partialTicks);
+                    }
+
 
                     //minecraft model neckPoint height = 1.5f
                     //mmd model neckPoint height = 12.0f

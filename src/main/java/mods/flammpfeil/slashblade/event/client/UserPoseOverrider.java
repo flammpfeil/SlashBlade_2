@@ -14,6 +14,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class UserPoseOverrider {
+
+    static public boolean UsePoseOverrider = false;
+
     private static final class SingletonHolder {
         private static final UserPoseOverrider instance = new UserPoseOverrider();
     }
@@ -23,6 +26,7 @@ public class UserPoseOverrider {
     private UserPoseOverrider(){}
     public void register(){
         MinecraftForge.EVENT_BUS.register(this);
+        UsePoseOverrider = true;
     }
 
     private static final String TAG_ROT = "sb_yrot";
