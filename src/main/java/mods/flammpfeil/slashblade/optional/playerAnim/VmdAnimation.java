@@ -140,17 +140,17 @@ public class VmdAnimation implements IAnimation {
     public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
         //this.setupAnim(tickDelta);
 
-        double motionScale = 1.5 / 12.0;
-        double modelScaleBase = 0.0078125F; //0.5^7
-        float scale = 1.5f;
+        double motionScale = 1.0 / 16.0;
+        float bodyScale = (float)motionScale;
+        float finalizeScale = 2.0f;
 
-        Vec3f blend = value0;
+        Vector3f blend = new Vector3f(value0.getX(),value0.getY(),value0.getZ());
 
         if(type != TransformType.POSITION && (
                 (!this.blendArms && arms.contains(modelName))
                 || (!this.blendLegs && legs.contains(modelName))
                 )){
-            blend = Vec3f.ZERO;
+            blend.mul(0);
         }
 
         if(!motionPlayer.isPresent()) return value0;
@@ -169,40 +169,26 @@ public class VmdAnimation implements IAnimation {
                     MmdVector3 org = bone.m_vec3Position;
                     Vector3f tmp = new Vector3f(org.x,org.y,org.z);
                     if (modelName.equals("body")) {
-                        tmp = tmp.mul(0.1f, 0.0f, 0.1f);
+                        tmp = tmp.mul(bodyScale);
                     } else {
                         tmp = tmp.mul(1, -1, 1);
                     }
-                    return new Vec3f(tmp.x,tmp.y,tmp.z).scale(2.0f).add(blend);
+
+                    tmp.mul(finalizeScale).add(blend);
+                    return new Vec3f(tmp.x,tmp.y,tmp.z);
                 }
                 case ROTATION : {
                     Quaterniond qt = new Quaterniond(bone.m_vec4Rotate.x, bone.m_vec4Rotate.y, bone.m_vec4Rotate.z, bone.m_vec4Rotate.w);
-                    Vector3d tmp = new Vector3d();
-
-                    double a_x_x = Math.pow(qt.w, 2) + Math.pow(qt.x, 2) - Math.pow(qt.y, 2) - Math.pow(qt.z, 2);
-                    double a_x_y = 2 * (qt.x * qt.y + qt.w * qt.z);
-                    double a_x_z = 2 * (qt.x * qt.z - qt.w * qt.y);
-
-                    double a_y_x = 2 * (qt.x * qt.y - qt.w * qt.z);
-                    double a_y_y = Math.pow(qt.w, 2) - Math.pow(qt.x, 2) + Math.pow(qt.y, 2) - Math.pow(qt.z, 2);
-                    double a_y_z = 2 * (qt.y * qt.z + qt.w * qt.x);
-
-                    double a_z_x = 2 * (qt.x * qt.z + qt.w * qt.y);
-                    double a_z_y = 2 * (qt.y * qt.z - qt.w * qt.x);
-                    double a_z_z = Math.pow(qt.w, 2) - Math.pow(qt.x, 2) - Math.pow(qt.y, 2) + Math.pow(qt.z, 2);
-
-                    //Quaternion to Euler zyx
-                    tmp.z = Math.atan2(a_x_y, a_x_x);
-                    tmp.y = Math.asin(-a_x_z);
-                    tmp.x = Math.atan2(a_y_z, a_z_z);
+                    Vector3d tmp = QuaternionToEulerZYX(qt);
 
                     if (modelName.equals("body")) {
-                        tmp = tmp.mul(-1, -1, -1);
+                        tmp = tmp.mul(1, -1, -1);
                     } else {
                         tmp = tmp.mul(-1, 1, -1);
                     }
 
-                    return new Vec3f((float) tmp.x, (float) tmp.y, (float) tmp.z).add(blend);
+                    tmp.add(blend);
+                    return new Vec3f((float) tmp.x, (float) tmp.y, (float) tmp.z);
                 }
             }
         }
@@ -247,13 +233,37 @@ public class VmdAnimation implements IAnimation {
         return value0;
     }
 
+    Vector3d QuaternionToEulerZYX(Quaterniond qt){
+        Vector3d tmp = new Vector3d();
+
+        double a_x_x = Math.pow(qt.w, 2) + Math.pow(qt.x, 2) - Math.pow(qt.y, 2) - Math.pow(qt.z, 2);
+        double a_x_y = 2 * (qt.x * qt.y + qt.w * qt.z);
+        double a_x_z = 2 * (qt.x * qt.z - qt.w * qt.y);
+
+        double a_y_x = 2 * (qt.x * qt.y - qt.w * qt.z);
+        double a_y_y = Math.pow(qt.w, 2) - Math.pow(qt.x, 2) + Math.pow(qt.y, 2) - Math.pow(qt.z, 2);
+        double a_y_z = 2 * (qt.y * qt.z + qt.w * qt.x);
+
+        double a_z_x = 2 * (qt.x * qt.z + qt.w * qt.y);
+        double a_z_y = 2 * (qt.y * qt.z - qt.w * qt.x);
+        double a_z_z = Math.pow(qt.w, 2) - Math.pow(qt.x, 2) - Math.pow(qt.y, 2) + Math.pow(qt.z, 2);
+
+        //Quaternion to Euler zyx
+        tmp.z = Math.atan2(a_x_y, a_x_x);
+        tmp.y = Math.asin(-a_x_z);
+        tmp.x = Math.atan2(a_y_z, a_z_z);
+
+        return tmp;
+    }
+
+
     @Override
     public void setupAnim(float tickDelta) {
         if(!motionPlayer.isPresent()) return;
 
         MmdMotionPlayerGL2 mmp = motionPlayer.orElse(null);
 
-        double eofTime = -1;
+        double eofTime = 0;
         MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(loc);
         try {
             mmp.setVmd(motion);
@@ -262,9 +272,9 @@ public class VmdAnimation implements IAnimation {
             e.printStackTrace();
         }
 
-        double time = TimeValueHelper.getMSecFromTicks(currentTick + tickDelta);
+        double time = TimeValueHelper.getMSecFromTicks((float)(currentTick + (double)tickDelta));
         time = Math.min(eofTime,time);
-        time = TimeValueHelper.getMSecFromFrames(start) + time;
+        time = TimeValueHelper.getMSecFromFrames((float)start) + time;
 
         try {
             mmp.updateMotion((float)time);

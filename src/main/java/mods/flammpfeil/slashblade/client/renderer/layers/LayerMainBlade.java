@@ -149,14 +149,15 @@ public class LayerMainBlade<T extends LivingEntity, M extends EntityModel<T>> ex
                         var animationPlayer = ((IAnimatedPlayer) entity).playerAnimator_getAnimation();
                         animationPlayer.setTickDelta(partialTicks);
                         if(animationPlayer.isActive()){
-                            matrixStack.translate(0, + 0.7d, 0);
+
+                            Vec3f vec3d = animationPlayer.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
+                            matrixStack.translate(-vec3d.getX(), (vec3d.getY() + 0.7), -vec3d.getZ());
                             //These are additive properties
                             Vec3f vec3f = animationPlayer.get3DTransform("body", TransformType.ROTATION, Vec3f.ZERO);
-                            matrixStack.mulPose(Axis.XP.rotation(vec3f.getX()));    //yaw
-                            matrixStack.mulPose(Axis.YP.rotation(vec3f.getY()));    //pitch
                             matrixStack.mulPose(Axis.ZP.rotation(vec3f.getZ()));    //roll
-                            Vec3f vec3d = animationPlayer.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
-                            matrixStack.translate(-vec3d.getX(), -(vec3d.getY() + 0.7), -vec3d.getZ());
+                            matrixStack.mulPose(Axis.YP.rotation(vec3f.getY()));    //pitch
+                            matrixStack.mulPose(Axis.XP.rotation(vec3f.getX()));    //yaw
+                            matrixStack.translate(0, - 0.7d, 0);
                         }
                     }else{
                         UserPoseOverrider.invertRot(matrixStack,entity,partialTicks);
