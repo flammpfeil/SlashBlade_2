@@ -1,7 +1,10 @@
 {
   "package": "mods.flammpfeil.slashblade.mixin",
   "mixins": [
-    "MixinPacketBuffer","MixinPlayerRenderer","MixinBlockBehaviour","MixinItemRenderer"
+    "MixinPacketBuffer","MixinBlockBehaviour"
+  ],
+  "client": [
+    "MixinPlayerRenderer","MixinItemRenderer"
   ],
   "refmap": "slashblade.refmap.json",
   "required": true,
