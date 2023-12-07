@@ -1,31 +1,25 @@
 package mods.flammpfeil.slashblade.ability;
 
-import com.google.common.collect.Sets;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.mobeffect.CapabilityMobEffect;
-import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.InputCommandEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.network.NetworkManager;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.InputCommand;
 import mods.flammpfeil.slashblade.util.NBTHelper;
 import mods.flammpfeil.slashblade.util.VectorHelper;
-import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -35,6 +29,8 @@ import net.minecraft.server.level.TicketType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -100,6 +96,7 @@ public class SlayerStyleArts {
                         Vec3 motion = new Vec3(0, +0.8, 0);
 
                         sender.move(MoverType.SELF, motion);
+                        sender.isChangingDimension = true;
 
                         sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
 
@@ -184,6 +181,8 @@ public class SlayerStyleArts {
                 if(sender.onGround()){
                     Untouchable.setUntouchable(sender, TRICKACTION_UNTOUCHABLE_TIME);
 
+                    sender.isChangingDimension = true;
+
                     sender.connection.send(new ClientboundSetEntityMotionPacket(sender.getId(), motion.scale(0.75f)));
 
                     sender.getPersistentData().putInt("sb.avoid.counter",2);
@@ -221,6 +220,7 @@ public class SlayerStyleArts {
                     sender.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5f, 1.2f);
 
                     sender.move(MoverType.SELF, motion);
+                    sender.isChangingDimension = true;
 
                     //sender.moveTo(sender.position());
 
@@ -435,6 +435,10 @@ public class SlayerStyleArts {
 
                     if(count <= 0){
                         event.player.getPersistentData().remove("sb.avoid.trickup");
+
+                        if(event.player instanceof ServerPlayer){
+                            ((ServerPlayer)event.player).hasChangedDimension();
+                        }
                     }else{
                         event.player.getPersistentData().putInt("sb.avoid.trickup", count);
                     }
@@ -455,6 +459,9 @@ public class SlayerStyleArts {
                         event.player.getPersistentData().remove("sb.avoid.counter");
                         event.player.getPersistentData().remove("sb.avoid.vec");
 
+                        if(event.player instanceof ServerPlayer){
+                            ((ServerPlayer)event.player).hasChangedDimension();
+                        }
                     }else{
                         event.player.getPersistentData().putInt("sb.avoid.counter", count);
                     }
@@ -477,7 +484,9 @@ public class SlayerStyleArts {
 
                         event.player.getPersistentData().remove("sb.airtrick.counter");
                         event.player.getPersistentData().remove("sb.airtrick.target");
-
+                        if(event.player instanceof ServerPlayer){
+                            ((ServerPlayer)event.player).hasChangedDimension();
+                        }
                     }else{
                         event.player.getPersistentData().putInt("sb.airtrick.counter", count);
                     }
