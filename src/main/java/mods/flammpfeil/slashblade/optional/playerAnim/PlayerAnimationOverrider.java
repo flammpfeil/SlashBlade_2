@@ -46,7 +46,7 @@ public class PlayerAnimationOverrider {
         if(animation != null) {
             animationStack.removeLayer(0);
             animation.play();
-            animationStack.addAnimLayer(0, animation);
+            animationStack.addAnimLayer(0, animation.getClone());
 
             //IAnimation aa = new KeyframeAnimationPlayer(PlayerAnimationRegistry.getAnimation(new ResourceLocation(SlashBlade.modid , "waving")));
             //animationStack.addAnimLayer(0,aa);

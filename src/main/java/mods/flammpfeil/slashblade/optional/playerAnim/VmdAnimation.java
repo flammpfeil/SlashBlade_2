@@ -70,6 +70,21 @@ public class VmdAnimation implements IAnimation {
     private boolean blendArms = false;
     private boolean blendLegs = true;
 
+    static private Map<String, String> initNamemap() {
+        Map<String,String> map = Maps.newHashMap();
+        map.put("leftArm","left arm");
+        map.put("rightArm","right arm");
+        map.put("leftLeg","left leg");
+        map.put("rightLeg","right leg");
+        return map;
+    }
+    static final Map<String,String> nameMap = initNamemap();
+
+    static final List<String> arms = Lists.newArrayList("leftArm","rightArm");
+    static final List<String> legs = Lists.newArrayList("leftLeg","rightLeg");
+
+
+
     public VmdAnimation(ResourceLocation loc, double start, double end, boolean loop){
         this.loc = loc;
         this.start = start;
@@ -80,6 +95,16 @@ public class VmdAnimation implements IAnimation {
         this.loop = loop;
 
         currentTick = 0;
+    }
+
+    public VmdAnimation getClone(){
+        VmdAnimation tmp = new VmdAnimation(this.loc, this.start ,this.end ,this.loop);
+
+        tmp.setBlendArms(this.blendArms);
+
+        tmp.setBlendLegs(this.blendLegs);
+
+        return tmp;
     }
 
     public VmdAnimation setBlendArms(boolean blend){
@@ -121,24 +146,11 @@ public class VmdAnimation implements IAnimation {
     public boolean isActive() {
         return this.isRunning;
     }
-    Map<String,String> nameMap = initNamemap();
-
-    private Map<String, String> initNamemap() {
-        Map<String,String> map = Maps.newHashMap();
-        map.put("leftArm","left arm");
-        map.put("rightArm","right arm");
-        map.put("leftLeg","left leg");
-        map.put("rightLeg","right leg");
-        return map;
-    }
-
-    List<String> arms = Lists.newArrayList("leftArm","rightArm");
-    List<String> legs = Lists.newArrayList("leftLeg","rightLeg");
 
 
     @Override
     public @NotNull Vec3f get3DTransform(@NotNull String modelName, @NotNull TransformType type, float tickDelta, @NotNull Vec3f value0) {
-        //this.setupAnim(tickDelta);
+        this.setupAnim(tickDelta);
 
         double motionScale = 1.0 / 16.0;
         float bodyScale = (float)motionScale;
