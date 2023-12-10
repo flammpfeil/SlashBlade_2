@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -41,8 +42,7 @@ public class ItemSoulActivated extends Item {
             player.addEffect(effect);
 
             if(itemStack.getMaxDamage() <= itemStack.getDamageValue()){
-                itemStack.shrink(1);
-                player.getInventory().setItem(slot, new ItemStack(SBItems.proudsoul_awakened));
+                createFilledResult(itemStack, player, new ItemStack(SBItems.proudsoul_awakened));
                 level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.NEUTRAL, 2.0F, 0.25F);
 
             }else if(player.hasEffect(MobEffects.HUNGER) && 0 < player.getFoodData().getFoodLevel()){
@@ -52,6 +52,22 @@ public class ItemSoulActivated extends Item {
             }
         }
     }
+
+    public ItemStack createFilledResult(ItemStack currentItem, Player player, ItemStack newItem) {
+
+        boolean offhandSlot = player.getOffhandItem() == currentItem;
+
+        currentItem.shrink(1);
+
+        if(offhandSlot){
+            player.setItemSlot(EquipmentSlot.OFFHAND, newItem);
+        }else if (!player.getInventory().add(newItem)) {
+            player.drop(newItem, false);
+        }
+
+        return currentItem;
+    }
+
 
     //reverse
     @Override
