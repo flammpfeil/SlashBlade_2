@@ -1,0 +1,146 @@
+{
+    "itemGroup.slashblade": "拔刀劍",
+    "itemGroup.slashblade.desc": "墮入修羅道",
+  
+    "attribute.name.generic.reachDistance":"Reach",
+  
+    "stat.slashblade.sword_summoned": "幻影劍",
+  
+    "slashblade.tooltip.killcount"  :"KillCount:%1$s",
+    "slashblade.tooltip.refine"     :"Refine   :%1$s",
+  
+    "slashblade.tooltip.material":"製作需求",
+    "slashblade.tooltip.material.requiredobjects.anvil":"必要設備: 鐵砧",
+    "slashblade.tooltip.material.killcount":"%1$s <= KillCount",
+    "slashblade.tooltip.material.refine":"%1$s <= Refine",
+    "slashblade.tooltip.material.level":"%1$s <= PlayerLevel",
+    "slashblade.tooltip.material.broken":"折斷的",
+    "slashblade.tooltip.material.noscabbard":"無鞘的",
+    "slashblade.tooltip.material.enchantments":"需要附魔",
+    
+    "item.slashblade.slashblade": "無銘「無名」",
+    "item.slashblade.slashblade.desc": "一刀斬敵的木劍\n乃拔刀術的第一部\n§8§l§o真正的切伏之刃",
+    "item.slashblade.simple.wood": "無銘刀「木偶」",
+    "item.slashblade.simple.wood.desc": "§8§l§o配置了鞘的普通木刀\n已初見拔刀術的冰山一角",
+    "item.slashblade.simple.white": "利刀「白鞘」",
+    "item.slashblade.simple.white.desc": "§8§l§o將用鐵制的刀刃替代木刀\n尚未有偉業",
+    "item.slashblade.simple.white.material": "刀拵「白」",
+    "item.slashblade.simple.bamboo": "無銘刀「竹光」",
+    "item.slashblade.simple.bamboo.desc": "§8§l§o未製作完成的竹光\n比木刀要優越",
+    "item.slashblade.simple.bamboo.material": "刀拵「竹」",
+    "item.slashblade.simple.silverbamboo": "名刀「銀紙竹光」",
+    "item.slashblade.simple.silverbamboo.desc": "§8§l§o雖是竹光的完成系，終究是竹刀",
+    "item.slashblade.simple.silverbamboo.material": "刀拵「虛榮」",
+    "item.slashblade.simple.iron": "大太刀「」",
+    "item.slashblade.simple.iron.desc": "§8§l§o無銘無名的大太刀",
+    "item.slashblade.simple.iron.material": "刀拵「鐵」",
+  
+    "item.slashblade.ex.ruby": "利刀「無名」紅玉",
+    "item.slashblade.ex.ruby.desc": "將日本刀收納在鞘裡所得之物\n§8§l§o能力不減反增",
+    "item.slashblade.ex.ruby.material": "刀拵「紅玉」",
+  
+    "item.slashblade.ex.fox.white": "狐月刀「白狐」",
+    "item.slashblade.ex.fox.white.desc": "§8§l§o寄宿這妖狐的力量\n招來幸運的白狐",
+    "item.slashblade.ex.fox.white.material": "刀拵「白狐」",
+    "item.slashblade.ex.fox.black": "狐月刀「黒狐」",
+    "item.slashblade.ex.fox.black.desc": "§8§l§o寄宿這妖狐的力量\n退魔平安的黑狐",
+    "item.slashblade.ex.fox.black.material": "刀拵「黒狐」",
+  
+    "item.slashblade.ex.tukumo": "結月刀「付喪」",
+    "item.slashblade.ex.tukumo.desc": "§8§l§o被冠以某族之名的刀\n其中一端刻上了他的名字\n野心家\n持有時邪化為妖刀\n心明止水者\n持有時退治妖魔的護身刀",
+    "item.slashblade.ex.tukumo.material": "刀拵「付喪」",
+  
+    "item.slashblade.ex.muramasa": "「千鶴」村正",
+    "item.slashblade.ex.muramasa.desc": "§8§l§o用千錘百煉之刀\n召喚而來的上古妖刀",
+    "item.slashblade.ex.muramasa.material": "刀拵「村正」",
+  
+  
+    "item.slashblade.proudsoul": "刀魂碎片",
+    "item.slashblade.proudsoul_tiny":"刀魂薄片",
+    "item.slashblade.proudsoul_ingot":"刀魂鐵錠",
+    "item.slashblade.proudsoul_sphere":"刀魂寶珠",
+    "item.slashblade.proudsoul_crystal":"刀魂結晶",
+    "item.slashblade.proudsoul_trapezohedron":"刀魂偏方三八面體",
+    "item.slashblade.proudsoul_activated":"饑渴的刀魂",
+    "item.slashblade.proudsoul_awakened":"幽秘的刀魂",
+    "item.slashblade.proudsoul_tiny.dark":"搖籃的刀魂",
+  
+    "item.slashblade.bladestand_1": "刀掛台 單層",
+    "item.slashblade.bladestand_2": "刀掛台 雙層",
+    "item.slashblade.bladestand_v": "刀掛台 立式",
+    "item.slashblade.bladestand_s": "刀掛台 短式",
+    "item.slashblade.bladestand_1w":"刀掛台 單層壁掛式",
+    "item.slashblade.bladestand_2w":"刀掛台 雙層壁掛式",
+  
+    "adv.slashblade.proudsoul": "強化界限 Refine=50\n刀雖折魂永存",
+    "adv.slashblade.proudsoul_tiny":"強化界限 Refine=10\n幽秘的靈魂之火",
+    "adv.slashblade.proudsoul_ingot": "強化界限 Refine=100\n以紫炎鍛造的靈魂之鋼",
+    "adv.slashblade.proudsoul_sphere": "強化界限 Refine=150\n冶煉\n幻炎擁抱的寶珠",
+    "adv.slashblade.proudsoul_crystal": "強化界限 Refine=200\n精煉\n刀魂核心",
+    "adv.slashblade.proudsoul_trapezohedron":"強化無界限\n煙熏\n搖擺不定的驕傲末路",
+    "adv.slashblade.proudsoul_activated":"動搖的代價是無底的饑餓\n潛行時使用刀魂水晶啟動\n當你把它放在手上時，饑餓感襲來\n在饑餓期間進一步的饑餓以換取劍的耐久值恢復*",
+    "adv.slashblade.proudsoul_awakened":"精神飽滿而柔和\n再次饑餓為代價以換取一個新的碎片*",
+  
+    "adv.slashblade.reforge":"重鑄",
+    "adv.slashblade.reforge.desc":"刀拵用於在鐵砧中重鑄",
+  
+    "adv.slashblade.refine":"精煉",
+    "adv.slashblade.refine.desc":"每次精煉都會增加銳利程度",
+  
+    "adv.slashblade.white_broken":"折斷之刃",
+    "adv.slashblade.white_broken.desc":"重鑄",
+  
+    "adv.slashblade.bladestand":"刀掛台",
+    "adv.slashblade.bladestand.desc":"存放刀的地方",
+  
+    "adv.slashblade.imitation_broken":"虛榮的表演",
+    "adv.slashblade.imitation_broken.desc":"虛榮和固執的末路",
+  
+  
+    "adv.slashblade.combo_a": "拔刀術 -Combo A-              ",
+    "adv.slashblade.combo_a.desc": "使用按鍵\n攻擊 ♠:%s\n在地面時\n按下 ♠-♠-♠-♠",
+    "adv.slashblade.combo_b": "拔刀術 -Combo B-              ",
+    "adv.slashblade.combo_b.desc": "使用按鍵\n攻擊 ♠:%s\n地在地面時\n按下 ♠-♠-♠,\n按下 ♠ ，然後重複 ♠",
+    "adv.slashblade.combo_b_max": "Maximum extension of Combo B",
+    "adv.slashblade.combo_b_max.desc": "斬切",
+    "adv.slashblade.combo_c": "拔刀術 -Combo C-              ",
+    "adv.slashblade.combo_c.desc": "使用按鍵\n攻擊 ♠:%s\n在地面時\n按下 ♠-♠, 然後 ♠",
+    "adv.slashblade.combo_a_ex": "拔刀術 -Combo A EX-        ",
+    "adv.slashblade.combo_a_ex.desc": "使用按鍵\n攻擊 ♠:%s\n處於力量或饑餓效果中\n在地面時\n按下 ♠-♠-♠-♠-♠",
+  
+    "adv.slashblade.aerial_a": "拔刀術 -Aerial Rave A-       ",
+    "adv.slashblade.aerial_a.desc": "使用按鍵\n攻擊 ♠:%s\n在空中時\n按下 ♠-♠-♠",
+    "adv.slashblade.aerial_b": "拔刀術 -Aerial Rave B-       ",
+    "adv.slashblade.aerial_b.desc": "使用按鍵\n攻擊 ♠:%s\n在空中時\n按下 ♠-♠,然後 ♠-♠",
+    "adv.slashblade.aerial_cleave": "拔刀術 -Aerial Cleave-       ",
+    "adv.slashblade.aerial_cleave.desc": "使用按鍵\n攻擊 ♠:%s\n後退 ᐁ:%s\n潛行 ⚪:%s\n在空中時\n按下 ⚪+ᐁ+♠",
+  
+    "adv.slashblade.judgement_cut": "拔刀術 -Judgement Cut-        ",
+    "adv.slashblade.judgement_cut.desc": "使用按鍵\n攻擊 ♠:%s\n按住 ♠ 蓄力直到出現粒子時鬆開",
+    "adv.slashblade.judgement_cut_just": "拔刀術 -Judgement Cut EX-     ",
+    "adv.slashblade.judgement_cut_just.desc": "使用按鍵\n攻擊 ♠:%s\n按住 ♠ 蓄力直到出現粒子前鬆開",
+    "adv.slashblade.quick_charge": "拔刀術 -Quick Charge-         ",
+    "adv.slashblade.quick_charge.desc": "使用按鍵\n攻擊 ♠:%s\n在納刀瞬間輕按 ♠",
+  
+    "adv.slashblade.rapid_slash": "拔刀術 -Rapid Slash-         ",
+    "adv.slashblade.rapid_slash.desc": "使用按鍵\n攻擊 ♠:%s\n前進 ᐃ:%s\n潛行 ⚪:%s\n在地面時\n按下 ⚪+ᐃ+♠",
+    "adv.slashblade.rising_star": "拔刀術 -Rising Star-         ",
+    "adv.slashblade.rising_star.desc": "使用按鍵\n攻擊 ♠:%s\nRapid Slash之後\n按住 ♠ 命中敵人",
+  
+    "adv.slashblade.upperslash": "拔刀術 -Upper Slash-         ",
+    "adv.slashblade.upperslash.desc": "使用按鍵\n攻擊 ♠:%s\n後退 ᐁ:%s\n潛行 ⚪:%s\n在地面時\n按下 ⚪+ᐁ+♠",
+    "adv.slashblade.upperslash_jump": "拔刀術 -Jumping Slash-         ",
+    "adv.slashblade.upperslash_jump.desc": "使用按鍵\n攻擊 ♠:%s\nUpper Slash之後\n按住 ♠",
+  
+  
+    "adv.slashblade.air_trick": "拔刀技 -Air Trick-            ",
+    "adv.slashblade.air_trick.desc": "閃現到敵人頭頂並處於空中\n使用按鍵\n走行 ♠:%s\n前進 ᐃ:%s\n潛行 ⚪:%s\n按下 ⚪+ᐃ+♠",
+    "adv.slashblade.trick_down": "拔刀技 -Trick Down-           ",
+    "adv.slashblade.trick_down.desc": "向下閃現到敵人並落到地面\n使用按鍵\n走行 ♠:%s\n後退 ᐁ:%s\n潛行 ⚪:%s\n⚪+ᐁ+♠",
+    "adv.slashblade.trick_dodge": "拔刀技 -Trick Dodge-          ",
+    "adv.slashblade.trick_dodge.desc": "向任意方向閃現以避開敵人攻擊\n使用按鍵\n走行 ♠:%s\n向任意方向移動並按下 ♠",
+
+    
+    "adv.slashblade.summonedswords": "射刀術 -Summoned Swords-  ",
+    "adv.slashblade.summonedswords.desc": "裝載幻影劍\n使用按鍵\n%s ♠:%s\n按下 ♠"
+}
